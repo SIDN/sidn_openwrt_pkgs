@@ -5,9 +5,6 @@ PKG_VERSION:=0.1.0
 PKG_RELEASE:=1
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/sidn-extra-files-$(PKG_VERSION)
-PKG_SOURCE:=sidn-extra-files-utils-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=@SF/sidn-extra-files
-PKG_MD5SUM:=9b7dc52656f5cbec846a7ba3299f73bd
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -29,7 +26,6 @@ endef
 
 define Package/sidn-extra-files/install
 	$(CP) -r ./files/* $(1)/
-
 endef
 
 $(eval $(call BuildPackage,sidn-extra-files))
