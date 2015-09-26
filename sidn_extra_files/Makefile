@@ -1,32 +1,32 @@
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=sidn_extra_files
+PKG_NAME:=sidn-extra-files
 PKG_VERSION:=1.0.6
 PKG_RELEASE:=1
 
-PKG_BUILD_DIR:=$(BUILD_DIR)/sidn_extra_files-$(PKG_VERSION)
-PKG_SOURCE:=sidn_extra_files-utils-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=@SF/sidn_extra_files
+PKG_BUILD_DIR:=$(BUILD_DIR)/sidn-extra-files-$(PKG_VERSION)
+PKG_SOURCE:=sidn-extra-files-utils-$(PKG_VERSION).tar.gz
+PKG_SOURCE_URL:=@SF/sidn-extra-files
 PKG_MD5SUM:=9b7dc52656f5cbec846a7ba3299f73bd
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/sidn_extra_files
+define Package/sidn-extra-files
   SECTION:=base
   CATEGORY:=Network
-  TITLE:=Ethernet bridging configuration utility
+  TITLE:=Extra files for SIDN ValiBox
   #DESCRIPTION:=This variable is obsolete. use the Package/name/description define instead!
-  URL:=http://sidn_extra_files.sourceforge.net/
+  URL:=http://www.sidnlabs.nl
 endef
 
-define Package/sidn_extra_files/description
+define Package/sidn-extra-files/description
  Extra files for the SIDN ValiBox
 endef
 
 define Build/Configure
 endef
 
-define Package/sidn_extra_files/install
+define Package/sidn-extra-files/install
 endef
 
-$(eval $(call BuildPackage,sidn_extra_files))
+$(eval $(call BuildPackage,sidn-extra-files))
