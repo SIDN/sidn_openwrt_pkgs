@@ -4,8 +4,6 @@ PKG_NAME:=sidn-extra-files
 PKG_VERSION:=0.1.0
 PKG_RELEASE:=1
 
-PKG_BUILD_DIR:=$(BUILD_DIR)/sidn-extra-files-$(PKG_VERSION)
-
 include $(INCLUDE_DIR)/package.mk
 
 define Package/sidn-extra-files
