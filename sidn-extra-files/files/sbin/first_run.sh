@@ -17,10 +17,16 @@ else
     # Replace addresses in unbound.conf file
     cat /etc/unbound/unbound.conf.in | sed "s/XIP4ADDRX/${IP4ADDR}/" | sed "s/XIP6ADDRX/${IP6ADDR}/" > /etc/unbound/unbound.conf
     cat /etc/config/wireless.in | sed "s/XHWADDRX/${HWADDR}/" > /etc/config/wireless
+
+    # Replace dnsmasq conf
+    cp /etc/config/dhcp.in /etc/config/dhcp
+
+    # Store results
     touch "$CHECK_FILE"
     echo "LAN IPv4: ${IP4ADDR}" >> "$CHECK_FILE"
     echo "LAN IPv6: ${IP6ADDR}" >> "$CHECK_FILE"
     echo "SSID:     SIDN-GL-Inet-${HWADDR}" >> "$CHECK_FILE"
     /etc/init.d/network restart
-    #/etc/init.d/unbound restart
+    
+    # we run before dnsmasq and unbound so restarting those is not necessare
 fi
