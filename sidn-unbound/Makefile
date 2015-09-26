@@ -35,7 +35,6 @@ endef
 define Package/sidn-unbound
   $(call Package/sidn-unbound/Default)
   SECTION:=base
-  CATEGORY:=Network
   TITLE+= (daemon)
   DEPENDS+= +sidn-libunbound
 endef
@@ -47,8 +46,6 @@ endef
 define Package/sidn-unbound-anchor
   $(call Package/sidn-unbound/Default)
   SECTION:=base
-  CATEGORY:=Network
-  SUBMENU:=IP Addresses and Names
   TITLE+= (anchor utility)
   DEPENDS+= +sidn-unbound +libexpat
 endef
@@ -60,8 +57,6 @@ endef
 define Package/sidn-unbound-control
   $(call Package/sidn-unbound/Default)
   SECTION:=base
-  CATEGORY:=Network
-  SUBMENU:=IP Addresses and Names
   TITLE+= (control utility)
   DEPENDS+= +sidn-unbound
 endef
@@ -73,8 +68,6 @@ endef
 define Package/sidn-unbound-control-setup
   $(call Package/sidn-unbound/Default)
   SECTION:=base
-  CATEGORY:=Network
-  SUBMENU:=IP Addresses and Names
   TITLE+= (control setup utility)
   DEPENDS+= +sidn-unbound-control +openssl-util
 endef
@@ -86,8 +79,6 @@ endef
 define Package/sidn-unbound-host
   $(call Package/sidn-unbound/Default)
   SECTION:=base
-  CATEGORY:=Network
-  SUBMENU:=IP Addresses and Names
   TITLE+= (DNS lookup utility)
   DEPENDS+= +sidn-libunbound
 endef
@@ -99,7 +90,6 @@ endef
 define Package/sidn-libunbound
   $(call Package/sidn-unbound/Default)
   SECTION:=base
-  CATEGORY:=Network
   TITLE+= (library)
 endef
 
