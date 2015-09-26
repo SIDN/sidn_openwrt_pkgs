@@ -27,7 +27,7 @@ PKG_INSTALL:=1
 include $(INCLUDE_DIR)/package.mk
 
 define Package/sidn-unbound/Default
-  TITLE:=A validating, recursive & caching DNS resolver
+  TITLE:=A validating, recursive & caching DNS resolver (with SIDN patches)
   URL:=http://www.unbound.net/
   DEPENDS:=+libopenssl
 endef
@@ -41,7 +41,7 @@ define Package/sidn-unbound
 endef
 
 define Package/sidn-unbound/description
-  This package contains the Unbound daemon.
+  This package contains the Unbound daemon, with SIDN patches.
 endef
 
 define Package/sidn-unbound-anchor
