@@ -6,7 +6,7 @@ PKG_RELEASE:=1
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/sidn-extra-files-$(PKG_VERSION)
 PKG_SOURCE:=sidn-extra-files.tar.gz
-PKG_SOURCE_URL:=@SF/sidn-extra-files/files/
+PKG_SOURCE_URL:=sidn-extra-files/files/
 PKG_MD5SUM:=95dd2ad2a0740c18478ad89a574cac26
 
 include $(INCLUDE_DIR)/package.mk
