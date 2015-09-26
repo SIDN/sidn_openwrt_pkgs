@@ -135,6 +135,9 @@ define Package/sidn-unbound/install
 	$(INSTALL_CONF) \
 		$(PKG_INSTALL_DIR)/etc/unbound/unbound.conf \
 		$(1)/etc/unbound/
+	$(INSTALL_CONF) \
+		$(PKG_INSTALL_DIR)/etc/unbound/unbound.conf.in \
+		$(1)/etc/unbound/
 	$(INSTALL_CONF) ./files/root.key $(1)/etc/unbound/
 	$(INSTALL_CONF) ./files/named.cache $(1)/etc/unbound/
 	$(INSTALL_DIR) $(1)/etc/init.d
