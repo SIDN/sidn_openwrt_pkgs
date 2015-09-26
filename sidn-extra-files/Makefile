@@ -14,6 +14,7 @@ include $(INCLUDE_DIR)/package.mk
 define Package/sidn-extra-files
   SECTION:=base
   CATEGORY:=Network
+  SUBMENU:=SIDN
   TITLE:=Extra files for SIDN ValiBox
   #DESCRIPTION:=This variable is obsolete. use the Package/name/description define instead!
   URL:=http://www.sidnlabs.nl
