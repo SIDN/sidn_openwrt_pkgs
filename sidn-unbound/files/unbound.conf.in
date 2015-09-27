@@ -567,6 +567,9 @@ server:
 	# You can also add PTR records using local-data directly, but then
 	# you need to do the reverse notation yourself.
 	# local-data-ptr: "192.0.2.3 www.example.com"
+    local-zone: "valibox." static
+    local-data: "valibox. IN A XIP4ADDRX"
+    local-data: "valibox. IN AAAA XIP6ADDRX"
 
 	# service clients over SSL (on the TCP sockets), with plain DNS inside
 	# the SSL stream.  Give the certificate to use and private key.
