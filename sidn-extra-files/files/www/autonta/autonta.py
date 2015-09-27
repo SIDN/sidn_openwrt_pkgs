@@ -17,27 +17,33 @@ import socket
 import subprocess
 import time
 import web
+import os
 
 DEFAULT_REDIRECT_HOST = "http://tjeb.nl"
 DEFAULT_REDIRECT_SUFFIX = "/"
 
-UNBOUND_CONTROL = "/home/jelte/opt/unbound_redirect_bogus/sbin/unbound-control"
+UNBOUND_CONTROL = "/usr/sbin/unbound-control"
 
-SELF_HOST = "94.198.152.215"
+SELF_HOST = "valibox"
 # queries wihtout host are always redirected
 # otherwise this list is checked,
 KNOWN_HOSTS = [
-  "aba-tt.example.nl",
   SELF_HOST
 ]
 
 urls = [
- '/set_nta/([a-zA-Z0-9.-]+)', 'SetNTA',
- '/remove_nta/([a-zA-Z0-9.-]+)', 'RemoveNTA',
- '/ask_nta/([a-zA-Z0-9.-]+)', 'AskNTA',
+ '/autonta/set_nta/([a-zA-Z0-9.-]+)', 'SetNTA',
+ '/autonta/remove_nta/([a-zA-Z0-9.-]+)', 'RemoveNTA',
+ '/autonta/ask_nta/([a-zA-Z0-9.-]+)', 'AskNTA',
+ '/autonta', 'NTA',
  '/', 'NTA',
 ]
 render = web.template.render('templates/')
+
+def store_pid():
+    pid = os.getpid()
+    with open("/var/autonta.pid", 'w') as output:
+        output.write("%d\n", pid)
 
 def split_host(host):
     parts = host.split(':')
@@ -94,17 +100,20 @@ def get_ntas():
 
 class SetNTA:
     def GET(self, host):
+        print("[GET]")
         # TODO: full URI.
         add_nta(host)
         return render.nta_set(host)
 
 class RemoveNTA:
     def GET(self, host):
+        print("[GET]")
         remove_nta(host)
         raise web.seeother("/")
 
 class AskNTA:
     def GET(self, host):
+        print("[GET]")
         # make a list of domains to possibly set an NTA for
         if host.endswith('.'):
             host = host[:-1]
@@ -119,6 +128,7 @@ class AskNTA:
 
 class NTA:
     def GET(self):
+        print("[GET]")
         host = web.ctx.env.get('HTTP_HOST')
         (host, port) = split_host(host)
         print("[XX] host: %s" % host)
@@ -130,14 +140,16 @@ class NTA:
             if host + "." in get_ntas():
                 return render.nta_set(host)
             if port is not None:
-                redirect = "http://%s:%s/ask_nta/%s" % (SELF_HOST, port, host)
+                redirect = "http://%s:%s/autonta/ask_nta/%s" % (SELF_HOST, port, host)
             else:
-                redirect = "http://%s/ask_nta/%s" % (SELF_HOST, host)
+                redirect = "http://%s/autonta/ask_nta/%s" % (SELF_HOST, host)
             print("[XX] redirect to %s" % redirect)
             raise web.seeother(redirect)
             
         raise web.seeother(DEFAULT_REDIRECT_HOST + DEFAULT_REDIRECT_SUFFIX)
 
-if __name__ == "__main__": 
+if __name__ == "__main__":
+    store_pid()
     app = web.application(urls, globals())
+    #web.wsgi.runwsgi = lambda func, addr=None: web.wsgi.runfcgi(func,addr)
     app.run()

@@ -4,19 +4,24 @@
 START=50
 
 start() {
-    spawn-fcgi -d /www/autonta -f /www/autonta/autonta.py -a 127.0.0.1 -p 8001
+    (cd /www/autonta; /www/autonta/autonta.py 127.0.0.1:8001&)
 }
 
 stop() {
-    kill `pgrep -p "python /www/autonta/autonta.py`
+    kill `cat /var/autonta.pid`
 }
 
 reload() {
-    kill `pgrep -p "python /www/autonta/autonta.py`
-    spawn-fcgi -d /www/autonta -f /www/autonta/autonta.py -a 127.0.0.1 -p 8001
+    kill `cat /var/autonta.pid`
+    (cd /www/autonta; /www/autonta/autonta.py 127.0.0.1:8001&)
+}
+
+restart() {
+    kill `cat /var/autonta.pid`
+    (cd /www/autonta; /www/autonta/autonta.py 127.0.0.1:8001&)
 }
 
 shutdown() {
-    kill `pgrep -p "python /www/autonta/autonta.py`
+    kill `cat /var/autonta.pid`
 }
 
