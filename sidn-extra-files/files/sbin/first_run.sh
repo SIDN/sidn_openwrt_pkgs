@@ -16,6 +16,8 @@ else
     
     # Replace addresses in unbound.conf file
     cat /etc/unbound/unbound.conf.in | sed "s/XIP4ADDRX/${IP4ADDR}/" | sed "s/XIP6ADDRX/${IP6ADDR}/" > /etc/unbound/unbound.conf
+    # generate unbound_control key and cert
+    /usr/sbin/unbound-control-setup
     cat /etc/config/wireless.in | sed "s/XHWADDRX/${HWADDR}/" > /etc/config/wireless
 
     # Replace dnsmasq conf

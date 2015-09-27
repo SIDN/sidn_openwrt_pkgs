@@ -38,8 +38,8 @@ server:
 	# interface: 192.0.2.154
 	# interface: 192.0.2.154@5003
 	# interface: 2001:DB8::5
-	interface: 0.0.0.0
-	interface: ::0
+	interface: XIP4ADDRX
+	interface: XIP6ADDRX
 
 	# enable this feature to copy the source address of queries to reply.
 	# Socket options are not supported on all platforms. experimental. 
@@ -113,13 +113,13 @@ server:
 	# the amount of memory to use for the message cache.
 	# plain value in bytes or you can append k, m or G. default is "4Mb". 
 	# msg-cache-size: 4m
-	msg-cache-size: 100k
+	msg-cache-size: 2m
 
 	# the number of slabs to use for the message cache.
 	# the number of slabs must be a power of 2.
 	# more slabs reduce lock contention, but fragment memory usage.
 	# msg-cache-slabs: 4
-	msg-cache-slabs: 1
+	msg-cache-slabs: 2
 
 	# the number of queries that a thread gets to service.
 	# num-queries-per-thread: 1024
@@ -630,7 +630,7 @@ python:
 remote-control:
 	# Enable remote control with unbound-control(8) here.
 	# set up the keys and certificates with unbound-control-setup.
-	# control-enable: no
+	control-enable: yes
 
 	# Set to no and use an absolute path as control-interface to use
 	# a unix local named pipe for unbound-control.

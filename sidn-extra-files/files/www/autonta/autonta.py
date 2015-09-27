@@ -43,7 +43,7 @@ render = web.template.render('templates/')
 def store_pid():
     pid = os.getpid()
     with open("/var/autonta.pid", 'w') as output:
-        output.write("%d\n", pid)
+        output.write("%d\n" % pid)
 
 def split_host(host):
     parts = host.split(':')
