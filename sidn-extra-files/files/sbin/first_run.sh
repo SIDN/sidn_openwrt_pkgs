@@ -5,7 +5,10 @@ CHECK_FILE="/etc/first_run.done"
 if [ -f "$CHECK_FILE" ]; then
     echo "first run already done, delete $CHECK_FILE to run setup again"
 else
-    sleep 10
+    sleep 5
+    # generate unbound_control key and cert
+    /usr/sbin/unbound-control-setup
+
     echo "output of ifconfig:" >> /tmp/wtf
     /sbin/ifconfig >> /tmp/wtf
     echo $? >> /tmp/wtf
@@ -16,8 +19,6 @@ else
     
     # Replace addresses in unbound.conf file
     cat /etc/unbound/unbound.conf.in | sed "s/XIP4ADDRX/${IP4ADDR}/" | sed "s/XIP6ADDRX/${IP6ADDR}/" > /etc/unbound/unbound.conf
-    # generate unbound_control key and cert
-    /usr/sbin/unbound-control-setup
     cat /etc/config/wireless.in | sed "s/XHWADDRX/${HWADDR}/" > /etc/config/wireless
 
     # Replace dnsmasq conf
@@ -30,5 +31,7 @@ else
     echo "SSID:     SIDN-GL-Inet-${HWADDR}" >> "$CHECK_FILE"
     /etc/init.d/network restart
     
+    # sleep some more
+    sleep 5
     # we run before dnsmasq and unbound so restarting those is not necessare
 fi
