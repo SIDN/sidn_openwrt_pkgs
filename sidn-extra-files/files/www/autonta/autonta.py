@@ -24,7 +24,7 @@ DEFAULT_REDIRECT_SUFFIX = "/"
 
 UNBOUND_CONTROL = "/usr/sbin/unbound-control"
 
-SELF_HOST = "valibox"
+SELF_HOST = "valibox."
 # queries wihtout host are always redirected
 # otherwise this list is checked,
 KNOWN_HOSTS = [
@@ -38,7 +38,7 @@ urls = [
  '/autonta', 'NTA',
  '/', 'NTA',
 ]
-render = web.template.render('templates/')
+render = web.template.render('templates/', base='base')
 
 def store_pid():
     pid = os.getpid()
