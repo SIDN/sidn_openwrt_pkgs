@@ -14,4 +14,4 @@ config wifi-iface
 	option encryption 'psk2'
 	option key 'sidnwifi'
 	option ssid 'SIDN-GL-Inet-XHWADDRX'
-
+    option network 'lan'
