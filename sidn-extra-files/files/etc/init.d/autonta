@@ -4,7 +4,7 @@
 START=50
 
 start() {
-    (cd /www/autonta; /www/autonta/autonta.py 127.0.0.1:8001&)
+    (cd /www/autonta; /www/autonta/autonta.py 127.0.0.1:8001 >& /tmp/an.log&)
 }
 
 stop() {
@@ -13,12 +13,12 @@ stop() {
 
 reload() {
     kill `cat /var/autonta.pid`
-    (cd /www/autonta; /www/autonta/autonta.py 127.0.0.1:8001&)
+    (cd /www/autonta; /www/autonta/autonta.py 127.0.0.1:8001 >& /tmp/an.log&)
 }
 
 restart() {
     kill `cat /var/autonta.pid`
-    (cd /www/autonta; /www/autonta/autonta.py 127.0.0.1:8001&)
+    (cd /www/autonta; /www/autonta/autonta.py 127.0.0.1:8001 >& /tmp/an.log&)
 }
 
 shutdown() {
