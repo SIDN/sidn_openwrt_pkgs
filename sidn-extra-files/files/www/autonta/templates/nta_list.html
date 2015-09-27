@@ -1,19 +1,19 @@
 $def with (ntas)
 
-<div>
-    <p>
-        Current negative trust anchors:
-    </p>
-</div>
-<div>
-$if ntas:
-    <table>
-    $for nta in ntas:
-        <tr>
-            <td>$nta</td>
-            <td><a href="/autonta/remove_nta/$nta">Remove</a></td>
-        </tr>
-    </table>
-$else:
-    <p>There are no ntas set at this time.</p>
+<div class="main" id="main">
+    <h2>
+        Huidige Negative Trust Anchors:
+    </h2>
+    <div>
+    $if ntas:
+        <table>
+        $for nta in ntas:
+            <tr>
+                <td>$nta</td>
+                <td><a href="/autonta/remove_nta/$nta">Verwijder</a></td>
+            </tr>
+        </table>
+    $else:
+        <p>Er zijn op dit moment geen Negative Trust Anchors gezet.</p>
+    </div>
 </div>
