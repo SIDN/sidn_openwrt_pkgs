@@ -13,5 +13,5 @@ config wifi-iface
 	option mode 'ap'
 	option encryption 'psk2'
 	option key 'sidnwifi'
-	option ssid 'SIDN-GL-Inet-XHWADDRX'
+	option ssid 'SIDN-ValiBox-XHWADDRX'
     option network 'lan'
