@@ -1,0 +1,22 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2009-2012 OpenWrt.org
+
+START=50
+
+start() {
+    spawn-fcgi -d /www/autonta -f /www/autonta/autonta.py -a 127.0.0.1 -p 8001
+}
+
+stop() {
+    kill `pgrep -p "python /www/autonta/autonta.py`
+}
+
+reload() {
+    kill `pgrep -p "python /www/autonta/autonta.py`
+    spawn-fcgi -d /www/autonta -f /www/autonta/autonta.py -a 127.0.0.1 -p 8001
+}
+
+shutdown() {
+    kill `pgrep -p "python /www/autonta/autonta.py`
+}
+

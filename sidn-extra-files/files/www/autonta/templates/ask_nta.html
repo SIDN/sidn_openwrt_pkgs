@@ -1,0 +1,18 @@
+$def with (name, names)
+<div>
+    <p>
+    The domain name $name does not seem to resolve, this may be due
+    to a DNSSEC failure.
+    </p>
+    <p>
+        Set NTA?
+    </p>
+$for name in names:
+    <p>
+        <a href="/set_nta/$name">Set NTA for $name</a>
+    </p>
+
+<p>
+    <a href="/">Manage current NTAs</a>
+</p>
+</div>
