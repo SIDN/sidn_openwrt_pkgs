@@ -38,6 +38,8 @@ server:
 	# interface: 192.0.2.154
 	# interface: 192.0.2.154@5003
 	# interface: 2001:DB8::5
+    interface: 127.0.0.1
+    interface: ::1
 	interface: XIP4ADDRX
 	interface: XIP6ADDRX
 
