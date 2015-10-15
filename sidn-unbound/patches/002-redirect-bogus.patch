@@ -1,74 +1,40 @@
 Index: daemon/worker.c
 ===================================================================
-diff --git a/daemon/worker.c b/tags/release-1.5.4/daemon/worker.c
---- a/daemon/worker.c	(revision 3493)
-+++ b/daemon/worker.c	(working copy)
-@@ -581,12 +581,29 @@
+--- daemon/worker.c	(revision 3509)
++++ daemon/worker.c	(working copy)
+@@ -580,13 +580,21 @@
+ 	}
  	/* check security status of the cached answer */
  	if( rep->security == sec_status_bogus && must_validate) {
- 		/* BAD cached */
+-		/* BAD cached */
 -		edns->edns_version = EDNS_ADVERTISED_VERSION;
 -		edns->udp_size = EDNS_ADVERTISED_SIZE;
 -		edns->ext_rcode = 0;
 -		edns->bits &= EDNS_DO;
 -		error_encode(repinfo->c->buffer, LDNS_RCODE_SERVFAIL, 
--			qinfo, id, flags, edns);
 +		if (qinfo->qtype == LDNS_RR_TYPE_A &&
-+			worker->env.cfg->redirect_bogus_ipv4) {
-+				/* BAD cached */
-+				edns->edns_version = EDNS_ADVERTISED_VERSION;
-+				edns->udp_size = EDNS_ADVERTISED_SIZE;
-+				edns->ext_rcode = 0;
-+				edns->bits &= EDNS_DO;
-+				fixed_address_encode(repinfo->c->buffer, LDNS_RCODE_NOERROR,
-+						qinfo, id, flags, edns,
-+						worker->env.cfg->redirect_bogus_ipv4);
++		    worker->env.cfg->redirect_bogus_ipv4) {
++			/* BAD cached */
++			fixed_address_encode(repinfo->c->buffer, LDNS_RCODE_NOERROR, 
++				qinfo, id, flags, edns,
++				worker->env.cfg->redirect_bogus_ipv4);
 +		} else if (qinfo->qtype == LDNS_RR_TYPE_AAAA &&
-+		worker->env.cfg->redirect_bogus_ipv6) {
-+				edns->edns_version = EDNS_ADVERTISED_VERSION;
-+				edns->udp_size = EDNS_ADVERTISED_SIZE;
-+				edns->ext_rcode = 0;
-+				edns->bits &= EDNS_DO;
-+				fixed_address_encode(repinfo->c->buffer, LDNS_RCODE_NOERROR,
-+						qinfo, id, flags, edns,
-+						worker->env.cfg->redirect_bogus_ipv6);
++		           worker->env.cfg->redirect_bogus_ipv6) {
++			fixed_address_encode(repinfo->c->buffer, LDNS_RCODE_NOERROR, 
++				qinfo, id, flags, edns,
++				worker->env.cfg->redirect_bogus_ipv6);
 +		} else {
-+				error_encode(repinfo->c->buffer, LDNS_RCODE_SERVFAIL,
-+				qinfo, id, flags, edns);
++			error_encode(repinfo->c->buffer, LDNS_RCODE_SERVFAIL, 
+ 			qinfo, id, flags, edns);
 +		}
  		rrset_array_unlock_touch(worker->env.rrset_cache, 
  			worker->scratchpad, rep->ref, rep->rrset_count);
  		regional_free_all(worker->scratchpad);
-Index: doc/example.conf.in
-===================================================================
-diff --git a/doc/example.conf.in b/tags/release-1.5.4/doc/example.conf.in
---- a/doc/example.conf.in	(revision 3493)
-+++ b/doc/example.conf.in	(working copy)
-@@ -579,6 +579,18 @@
- 	# can give this multiple times, the name closest to the zone is used.
- 	# ratelimit-below-domain: example 1000
- 
-+	# Set a fixed address for DNSSEC failures that are cached
-+	# Instead of responding to A queries with SERVFAIL, respond
-+	# with NOERROR and the address specified here
-+	# The TTL of the response will be 5 seconds
-+	#redirect-bogus-ipv4: 127.0.0.1
-+
-+	# Set a fixed address for DNSSEC failures that are cached
-+	# Instead of responding to AAAA queries with SERVFAIL, respond
-+	# with NOERROR and the address specified here
-+	# The TTL of the response will be 5 seconds
-+	#redirect-bogus-ipv6: ::1
-+
- # Python config section. To enable:
- # o use --with-pythonmodule to configure before compiling.
- # o list python in the module-config string (above) to enable.
 Index: doc/unbound.conf.5.in
 ===================================================================
-diff --git a/doc/unbound.conf.5.in b/tags/release-1.5.4/doc/unbound.conf.5.in
---- a/doc/unbound.conf.5.in	(revision 3493)
-+++ b/doc/unbound.conf.5.in	(working copy)
-@@ -1042,6 +1042,18 @@
+--- doc/unbound.conf.5.in	(revision 3509)
++++ doc/unbound.conf.5.in	(working copy)
+@@ -1048,6 +1048,18 @@
  to determine the qps limit.  The rate for the exact matching domain name
  is not changed, use ratelimit\-for\-domain to set that, you might want
  to use different settings for a top\-level\-domain and subdomains.
@@ -87,12 +53,42 @@ diff --git a/doc/unbound.conf.5.in b/tags/release-1.5.4/doc/unbound.conf.5.in
  .SS "Remote Control Options"
  In the
  .B remote\-control:
+Index: iterator/iterator.c
+===================================================================
+--- iterator/iterator.c	(revision 3509)
++++ iterator/iterator.c	(working copy)
+@@ -2201,11 +2201,13 @@
+ 		 * point to the referral. */
+ 		iq->deleg_msg = iq->response;
+ 		iq->dp = delegpt_from_message(iq->response, qstate->region);
+-		if(!iq->dp)
++		if(!iq->dp) {
+ 			return error_response(qstate, id, LDNS_RCODE_SERVFAIL);
++		}
+ 		if(!cache_fill_missing(qstate->env, iq->qchase.qclass, 
+-			qstate->region, iq->dp))
++			qstate->region, iq->dp)) {
+ 			return error_response(qstate, id, LDNS_RCODE_SERVFAIL);
++		}
+ 		if(iq->store_parent_NS && query_dname_compare(iq->dp->name,
+ 			iq->store_parent_NS->name) == 0)
+ 			iter_merge_retry_counts(iq->dp, iq->store_parent_NS);
+@@ -2267,8 +2269,9 @@
+ 		}
+ 		/* Process the CNAME response. */
+ 		if(!handle_cname_response(qstate, iq, iq->response, 
+-			&sname, &snamelen))
++			&sname, &snamelen)) {
+ 			return error_response(qstate, id, LDNS_RCODE_SERVFAIL);
++		}
+ 		/* cache the CNAME response under the current query */
+ 		/* NOTE : set referral=1, so that rrsets get stored but not 
+ 		 * the partial query answer (CNAME only). */
 Index: util/config_file.c
 ===================================================================
-diff --git a/util/config_file.c b/tags/release-1.5.4/util/config_file.c
---- a/util/config_file.c	(revision 3493)
-+++ b/util/config_file.c	(working copy)
-@@ -237,6 +237,8 @@
+--- util/config_file.c	(revision 3509)
++++ util/config_file.c	(working copy)
+@@ -240,6 +240,8 @@
  	cfg->ratelimit_for_domain = NULL;
  	cfg->ratelimit_below_domain = NULL;
  	cfg->ratelimit_factor = 10;
@@ -101,7 +97,7 @@ diff --git a/util/config_file.c b/tags/release-1.5.4/util/config_file.c
  	return cfg;
  error_exit:
  	config_delete(cfg); 
-@@ -484,6 +486,10 @@
+@@ -490,6 +492,10 @@
  		}
  		oi[cfg->num_out_ifs++] = d;
  		cfg->out_ifs = oi;
@@ -112,7 +108,7 @@ diff --git a/util/config_file.c b/tags/release-1.5.4/util/config_file.c
  	} else {
  		/* unknown or unsupported (from the set_option interface):
  		 * interface, outgoing-interface, access-control, 
-@@ -951,6 +957,12 @@
+@@ -958,6 +964,12 @@
  	free(cfg->dnstap_version);
  	config_deldblstrlist(cfg->ratelimit_for_domain);
  	config_deldblstrlist(cfg->ratelimit_below_domain);
@@ -127,10 +123,9 @@ diff --git a/util/config_file.c b/tags/release-1.5.4/util/config_file.c
  
 Index: util/config_file.h
 ===================================================================
-diff --git a/util/config_file.h b/tags/release-1.5.4/util/config_file.h
---- a/util/config_file.h	(revision 3493)
-+++ b/util/config_file.h	(working copy)
-@@ -362,6 +362,10 @@
+--- util/config_file.h	(revision 3509)
++++ util/config_file.h	(working copy)
+@@ -364,6 +364,10 @@
  	struct config_str2list* ratelimit_below_domain;
  	/** ratelimit factor, 0 blocks all, 10 allows 1/10 of traffic */
  	int ratelimit_factor;
@@ -143,51 +138,48 @@ diff --git a/util/config_file.h b/tags/release-1.5.4/util/config_file.h
  /** from cfg username, after daemonise setup performed */
 Index: util/configlexer.lex
 ===================================================================
-diff --git a/util/configlexer.lex b/tags/release-1.5.4/util/configlexer.lex
---- a/util/configlexer.lex	(revision 3493)
-+++ b/util/configlexer.lex	(working copy)
-@@ -358,6 +358,8 @@
+--- util/configlexer.lex	(revision 3509)
++++ util/configlexer.lex	(working copy)
+@@ -363,6 +363,8 @@
  ratelimit-for-domain{COLON}	{ YDVAR(2, VAR_RATELIMIT_FOR_DOMAIN) }
  ratelimit-below-domain{COLON}	{ YDVAR(2, VAR_RATELIMIT_BELOW_DOMAIN) }
  ratelimit-factor{COLON}		{ YDVAR(1, VAR_RATELIMIT_FACTOR) }
-+redirect-bogus-ipv4{COLON}     { YDVAR(1, VAR_REDIRECT_BOGUS_IPV4) }
-+redirect-bogus-ipv6{COLON}     { YDVAR(1, VAR_REDIRECT_BOGUS_IPV6) }
++redirect-bogus-ipv4{COLON}	{ YDVAR(1, VAR_REDIRECT_BOGUS_IPV4) }
++redirect-bogus-ipv6{COLON}	{ YDVAR(1, VAR_REDIRECT_BOGUS_IPV6) }
  <INITIAL,val>{NEWLINE}		{ LEXOUT(("NL\n")); cfg_parser->line++; }
  
  	/* Quoted strings. Strip leading and ending quotes */
 Index: util/configparser.y
 ===================================================================
-diff --git a/util/configparser.y b/tags/release-1.5.4/util/configparser.y
---- a/util/configparser.y	(revision 3493)
-+++ b/util/configparser.y	(working copy)
-@@ -48,6 +48,8 @@
- #include "util/config_file.h"
- #include "util/net_help.h"
+--- util/configparser.y	(revision 3509)
++++ util/configparser.y	(working copy)
+@@ -44,6 +44,7 @@
+ #include <stdlib.h>
+ #include <assert.h>
  
 +#include "sldns/str2wire.h"
-+
- int ub_c_lex(void);
- void ub_c_error(const char *message);
- 
-@@ -122,6 +124,7 @@
+ #include "util/configyyrename.h"
+ #include "util/config_file.h"
+ #include "util/net_help.h"
+@@ -122,6 +123,7 @@
  %token VAR_RATELIMIT VAR_RATELIMIT_SLABS VAR_RATELIMIT_SIZE
  %token VAR_RATELIMIT_FOR_DOMAIN VAR_RATELIMIT_BELOW_DOMAIN VAR_RATELIMIT_FACTOR
- %token VAR_CAPS_WHITELIST VAR_CACHE_MAX_NEGATIVE_TTL
+ %token VAR_CAPS_WHITELIST VAR_CACHE_MAX_NEGATIVE_TTL VAR_PERMIT_SMALL_HOLDDOWN
 +%token VAR_REDIRECT_BOGUS_IPV4 VAR_REDIRECT_BOGUS_IPV6
  
  %%
  toplevelvars: /* empty */ | toplevelvars toplevelvar ;
-@@ -185,7 +188,8 @@
- 	server_ip_transparent | server_ratelimit | server_ratelimit_slabs |
+@@ -186,7 +188,8 @@
  	server_ratelimit_size | server_ratelimit_for_domain |
  	server_ratelimit_below_domain | server_ratelimit_factor |
--	server_caps_whitelist | server_cache_max_negative_ttl
-+	server_caps_whitelist | server_cache_max_negative_ttl |
+ 	server_caps_whitelist | server_cache_max_negative_ttl |
+-	server_permit_small_holddown
++	server_permit_small_holddown |
 +	server_redirect_bogus_ipv4 | server_redirect_bogus_ipv6
  	;
  stubstart: VAR_STUB_ZONE
  	{
-@@ -1308,6 +1312,31 @@
+@@ -1318,6 +1321,34 @@
  		free($2);
  	}
  	;
@@ -196,10 +188,12 @@ diff --git a/util/configparser.y b/tags/release-1.5.4/util/configparser.y
 +		uint8_t data[4];
 +		size_t data_len = 4;
 +		OUTYY(("P(name:%s)\n", $2));
-+		if(cfg_parser->cfg->redirect_bogus_ipv4)
-+			yyerror("redirect bogus ipv4, can only use one address");
-+		if (sldns_str2wire_a_buf($2, data, &data_len) != LDNS_WIREPARSE_ERR_OK)
++		if(cfg_parser->cfg->redirect_bogus_ipv4) {
++			yyerror("redirect-bogus-ipv4, can only use one address");
++		}
++		if(sldns_str2wire_a_buf($2, data, &data_len) != LDNS_WIREPARSE_ERR_OK) {
 +			yyerror("redirect-bogus-ipv4, not a valid IPv4 address");
++		}
 +		free(cfg_parser->cfg->redirect_bogus_ipv4);
 +		cfg_parser->cfg->redirect_bogus_ipv4 = $2;
 +	}
@@ -208,11 +202,12 @@ diff --git a/util/configparser.y b/tags/release-1.5.4/util/configparser.y
 +		uint8_t data[16];
 +		size_t data_len = 16;
 +		OUTYY(("P(name:%s)\n", $2));
-+		if(cfg_parser->cfg->redirect_bogus_ipv6)
-+			yyerror("redirect bogus ipv6, can only use one address");
-+		free(cfg_parser->cfg->redirect_bogus_ipv6);
-+		if (sldns_str2wire_aaaa_buf($2, data, &data_len) != LDNS_WIREPARSE_ERR_OK)
++		if(cfg_parser->cfg->redirect_bogus_ipv6) {
++			yyerror("redirect-bogus-ipv6, can only use one address");
++		}
++		if(sldns_str2wire_aaaa_buf($2, data, &data_len) != LDNS_WIREPARSE_ERR_OK) {
 +			yyerror("redirect-bogus-ipv6, not a valid IPv6 address");
++		}
 +		free(cfg_parser->cfg->redirect_bogus_ipv6);
 +		cfg_parser->cfg->redirect_bogus_ipv6 = $2;
 +	}
@@ -221,15 +216,22 @@ diff --git a/util/configparser.y b/tags/release-1.5.4/util/configparser.y
  		OUTYY(("P(name:%s)\n", $2));
 Index: util/data/msgencode.c
 ===================================================================
-diff --git a/util/data/msgencode.c b/tags/release-1.5.4/util/data/msgencode.c
---- a/util/data/msgencode.c	(revision 3493)
-+++ b/util/data/msgencode.c	(working copy)
-@@ -839,3 +839,65 @@
+--- util/data/msgencode.c	(revision 3509)
++++ util/data/msgencode.c	(working copy)
+@@ -48,6 +48,7 @@
+ #include "util/regional.h"
+ #include "util/net_help.h"
+ #include "sldns/sbuffer.h"
++#include "sldns/str2wire.h"
+ 
+ /** return code that means the function ran out of memory. negative so it does
+  * not conflict with DNS rcodes. */
+@@ -839,3 +840,63 @@
  		attach_edns_record(buf, &es);
  	}
  }
 +
-+void
++void 
 +fixed_address_encode(sldns_buffer* buf, int r, struct query_info* qinfo,
 +	uint16_t qid, uint16_t qflags, struct edns_data* edns, char* data)
 +{
@@ -237,7 +239,6 @@ diff --git a/util/data/msgencode.c b/tags/release-1.5.4/util/data/msgencode.c
 +	uint8_t addr_data[16];
 +	size_t addr_len = 16;
 +	if (qinfo->qtype == LDNS_RR_TYPE_A) {
-+		addr_len = 4;
 +		sldns_str2wire_a_buf(data, addr_data, &addr_len);
 +	} else if (qinfo->qtype == LDNS_RR_TYPE_AAAA) {
 +		sldns_str2wire_aaaa_buf(data, addr_data, &addr_len);
@@ -250,7 +251,7 @@ diff --git a/util/data/msgencode.c b/tags/release-1.5.4/util/data/msgencode.c
 +	flags |= (qflags & (BIT_RD|BIT_CD)); /* copy RD and CD bit */
 +	sldns_buffer_write_u16(buf, flags);
 +	if(qinfo) flags = 1;
-+	else    flags = 0;
++	else	flags = 0;
 +	sldns_buffer_write_u16(buf, flags);
 +	sldns_buffer_write_u16(buf, 1);
 +	flags = 0;
@@ -260,14 +261,13 @@ diff --git a/util/data/msgencode.c b/tags/release-1.5.4/util/data/msgencode.c
 +		// query
 +		if(sldns_buffer_current(buf) == qinfo->qname)
 +			sldns_buffer_skip(buf, (ssize_t)qinfo->qname_len);
-+		else    sldns_buffer_write(buf, qinfo->qname, qinfo->qname_len);
++		else	sldns_buffer_write(buf, qinfo->qname, qinfo->qname_len);
 +		sldns_buffer_write_u16(buf, qinfo->qtype);
 +		sldns_buffer_write_u16(buf, qinfo->qclass);
 +		// faked answer
 +		if(sldns_buffer_current(buf) == qinfo->qname)
 +			sldns_buffer_skip(buf, (ssize_t)qinfo->qname_len);
-+		else
-+			sldns_buffer_write(buf, qinfo->qname, qinfo->qname_len);
++		else	sldns_buffer_write(buf, qinfo->qname, qinfo->qname_len);
 +		sldns_buffer_write_u16(buf, qinfo->qtype);
 +		sldns_buffer_write_u16(buf, qinfo->qclass);
 +		sldns_buffer_write_u16(buf, 0);
@@ -292,15 +292,17 @@ diff --git a/util/data/msgencode.c b/tags/release-1.5.4/util/data/msgencode.c
 +}
 Index: util/data/msgencode.h
 ===================================================================
-diff --git a/util/data/msgencode.h b/tags/release-1.5.4/util/data/msgencode.h
---- a/util/data/msgencode.h	(revision 3493)
-+++ b/util/data/msgencode.h	(working copy)
-@@ -128,4 +128,19 @@
+--- util/data/msgencode.h	(revision 3509)
++++ util/data/msgencode.h	(working copy)
+@@ -128,4 +128,20 @@
  void error_encode(struct sldns_buffer* pkt, int r, struct query_info* qinfo,
  	uint16_t qid, uint16_t qflags, struct edns_data* edns);
  
-+/** 
-+ * Encode an fixed address answer (A or AAAA). With QR and RA set.
++/**
++ * Encode a fixed address response.
++ * This is a fake answer to either an A or AAA query
++ *
++ * It will answer with that address
 + *
 + * @param pkt: where to store the packet.
 + * @param r: RCODE value to encode.
@@ -309,9 +311,22 @@ diff --git a/util/data/msgencode.h b/tags/release-1.5.4/util/data/msgencode.h
 + * @param qflags: original query flags (to copy RD and CD bits). host order.
 + * @param edns: if not NULL, this is the query edns info,
 + * 	and an edns reply is attached. Only attached if EDNS record fits reply.
-+ * @param address The fixed address to respond with, as a string
 + */
 +void fixed_address_encode(struct sldns_buffer* pkt, int r, struct query_info* qinfo,
 +	uint16_t qid, uint16_t qflags, struct edns_data* edns, char* address);
-+
  #endif /* UTIL_DATA_MSGENCODE_H */
+Index: validator/validator.c
+===================================================================
+--- validator/validator.c	(revision 3509)
++++ validator/validator.c	(working copy)
+@@ -1680,8 +1680,9 @@
+ 			LDNS_RR_TYPE_DNSKEY, vq->key_entry->key_class);
+ 		vq->chase_reply->security = sec_status_bogus;
+ 		errinf(qstate, "while building chain of trust");
+-		if(vq->restart_count >= VAL_MAX_RESTART_COUNT)
++		if(vq->restart_count >= VAL_MAX_RESTART_COUNT) {
+ 			key_cache_insert(ve->kcache, vq->key_entry, qstate);
++		}
+ 		return 1;
+ 	}
+ 
