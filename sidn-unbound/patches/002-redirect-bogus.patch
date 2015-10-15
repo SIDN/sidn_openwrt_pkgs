@@ -1,7 +1,8 @@
 Index: daemon/worker.c
 ===================================================================
---- daemon/worker.c	(revision 3509)
-+++ daemon/worker.c	(working copy)
+diff --git a/trunk/daemon/worker.c b/trunk/daemon/worker.c
+--- a/trunk/daemon/worker.c	(revision 3509)
++++ b/trunk/daemon/worker.c	(working copy)
 @@ -580,13 +580,21 @@
  	}
  	/* check security status of the cached answer */
@@ -32,8 +33,9 @@ Index: daemon/worker.c
  		regional_free_all(worker->scratchpad);
 Index: doc/unbound.conf.5.in
 ===================================================================
---- doc/unbound.conf.5.in	(revision 3509)
-+++ doc/unbound.conf.5.in	(working copy)
+diff --git a/trunk/doc/unbound.conf.5.in b/trunk/doc/unbound.conf.5.in
+--- a/trunk/doc/unbound.conf.5.in	(revision 3509)
++++ b/trunk/doc/unbound.conf.5.in	(working copy)
 @@ -1048,6 +1048,18 @@
  to determine the qps limit.  The rate for the exact matching domain name
  is not changed, use ratelimit\-for\-domain to set that, you might want
@@ -55,8 +57,9 @@ Index: doc/unbound.conf.5.in
  .B remote\-control:
 Index: iterator/iterator.c
 ===================================================================
---- iterator/iterator.c	(revision 3509)
-+++ iterator/iterator.c	(working copy)
+diff --git a/trunk/iterator/iterator.c b/trunk/iterator/iterator.c
+--- a/trunk/iterator/iterator.c	(revision 3509)
++++ b/trunk/iterator/iterator.c	(working copy)
 @@ -2201,11 +2201,13 @@
  		 * point to the referral. */
  		iq->deleg_msg = iq->response;
@@ -86,8 +89,9 @@ Index: iterator/iterator.c
  		 * the partial query answer (CNAME only). */
 Index: util/config_file.c
 ===================================================================
---- util/config_file.c	(revision 3509)
-+++ util/config_file.c	(working copy)
+diff --git a/trunk/util/config_file.c b/trunk/util/config_file.c
+--- a/trunk/util/config_file.c	(revision 3509)
++++ b/trunk/util/config_file.c	(working copy)
 @@ -240,6 +240,8 @@
  	cfg->ratelimit_for_domain = NULL;
  	cfg->ratelimit_below_domain = NULL;
@@ -123,8 +127,9 @@ Index: util/config_file.c
  
 Index: util/config_file.h
 ===================================================================
---- util/config_file.h	(revision 3509)
-+++ util/config_file.h	(working copy)
+diff --git a/trunk/util/config_file.h b/trunk/util/config_file.h
+--- a/trunk/util/config_file.h	(revision 3509)
++++ b/trunk/util/config_file.h	(working copy)
 @@ -364,6 +364,10 @@
  	struct config_str2list* ratelimit_below_domain;
  	/** ratelimit factor, 0 blocks all, 10 allows 1/10 of traffic */
@@ -138,8 +143,9 @@ Index: util/config_file.h
  /** from cfg username, after daemonise setup performed */
 Index: util/configlexer.lex
 ===================================================================
---- util/configlexer.lex	(revision 3509)
-+++ util/configlexer.lex	(working copy)
+diff --git a/trunk/util/configlexer.lex b/trunk/util/configlexer.lex
+--- a/trunk/util/configlexer.lex	(revision 3509)
++++ b/trunk/util/configlexer.lex	(working copy)
 @@ -363,6 +363,8 @@
  ratelimit-for-domain{COLON}	{ YDVAR(2, VAR_RATELIMIT_FOR_DOMAIN) }
  ratelimit-below-domain{COLON}	{ YDVAR(2, VAR_RATELIMIT_BELOW_DOMAIN) }
@@ -151,8 +157,9 @@ Index: util/configlexer.lex
  	/* Quoted strings. Strip leading and ending quotes */
 Index: util/configparser.y
 ===================================================================
---- util/configparser.y	(revision 3509)
-+++ util/configparser.y	(working copy)
+diff --git a/trunk/util/configparser.y b/trunk/util/configparser.y
+--- a/trunk/util/configparser.y	(revision 3509)
++++ b/trunk/util/configparser.y	(working copy)
 @@ -44,6 +44,7 @@
  #include <stdlib.h>
  #include <assert.h>
@@ -216,8 +223,9 @@ Index: util/configparser.y
  		OUTYY(("P(name:%s)\n", $2));
 Index: util/data/msgencode.c
 ===================================================================
---- util/data/msgencode.c	(revision 3509)
-+++ util/data/msgencode.c	(working copy)
+diff --git a/trunk/util/data/msgencode.c b/trunk/util/data/msgencode.c
+--- a/trunk/util/data/msgencode.c	(revision 3509)
++++ b/trunk/util/data/msgencode.c	(working copy)
 @@ -48,6 +48,7 @@
  #include "util/regional.h"
  #include "util/net_help.h"
@@ -292,8 +300,9 @@ Index: util/data/msgencode.c
 +}
 Index: util/data/msgencode.h
 ===================================================================
---- util/data/msgencode.h	(revision 3509)
-+++ util/data/msgencode.h	(working copy)
+diff --git a/trunk/util/data/msgencode.h b/trunk/util/data/msgencode.h
+--- a/trunk/util/data/msgencode.h	(revision 3509)
++++ b/trunk/util/data/msgencode.h	(working copy)
 @@ -128,4 +128,20 @@
  void error_encode(struct sldns_buffer* pkt, int r, struct query_info* qinfo,
  	uint16_t qid, uint16_t qflags, struct edns_data* edns);
@@ -317,8 +326,9 @@ Index: util/data/msgencode.h
  #endif /* UTIL_DATA_MSGENCODE_H */
 Index: validator/validator.c
 ===================================================================
---- validator/validator.c	(revision 3509)
-+++ validator/validator.c	(working copy)
+diff --git a/trunk/validator/validator.c b/trunk/validator/validator.c
+--- a/trunk/validator/validator.c	(revision 3509)
++++ b/trunk/validator/validator.c	(working copy)
 @@ -1680,8 +1680,9 @@
  			LDNS_RR_TYPE_DNSKEY, vq->key_entry->key_class);
  		vq->chase_reply->security = sec_status_bogus;
