@@ -13,7 +13,7 @@ server:
 	# whitespace is not necessary, but looks cleaner.
 
 	# verbosity number, 0 is least verbose. 1 is default.
-	verbosity: 1
+	verbosity: 0
 
 	# print statistics to the log (for every thread) every N seconds.
 	# Set to "" or 0 to disable. Default is disabled.
@@ -246,7 +246,6 @@ server:
 	# the log file, "" means log to stderr. 
 	# Use of this option sets use-syslog to "no".
 	# logfile: ""
-    logfile: "/tmp/ub.log"
 
 	# Log to syslog(3) if yes. The log facility LOG_DAEMON is used to 
 	# log to, with identity "unbound". If yes, it overrides the logfile.
