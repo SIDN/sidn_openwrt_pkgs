@@ -18,12 +18,14 @@ import subprocess
 import time
 import web
 import os
+import logging
+from logging import handlers
 
-DEFAULT_REDIRECT_HOST = "http://tjeb.nl"
 DEFAULT_REDIRECT_SUFFIX = "/"
 
 UNBOUND_CONTROL = "/usr/sbin/unbound-control"
 
+# Note that these should be fqdn's including the root dot
 SELF_HOST = "valibox."
 # queries wihtout host are always redirected
 # otherwise this list is checked,
@@ -39,6 +41,12 @@ urls = [
  '/', 'NTA',
 ]
 render = web.template.render('templates/', base='base')
+
+logging.basicConfig()
+logger = logging.getLogger('autonta')
+logger.setLevel(logging.INFO)
+handler = logging.handlers.SysLogHandler()
+logger.addHandler(handler)
 
 def store_pid():
     pid = os.getpid()
@@ -66,33 +74,45 @@ def is_valid_ipv4_address(address):
         try:
             socket.inet_aton(address)
         except socket.error:
+            logger.debug("%s is not an IPv4 address" % address)
             return False
         return address.count('.') == 3
     except socket.error:  # not a valid address
+        logger.debug("%s is not an IPv4 address" % address)
         return False
 
+    logger.debug("%s is an IPv4 address" % address)
     return True
 
 def is_valid_ipv6_address(address):
     try:
         socket.inet_pton(socket.AF_INET6, address)
     except socket.error:  # not a valid address
+        logger.debug("%s is not an IPv6 address" % address)
         return False
+    logger.debug("%s is an IPv6 address" % address)
     return True
 
 def is_valid_ip_address(address):
     return is_valid_ipv4_address(address) or is_valid_ipv6_address(address)
 
 def is_known_host(host):
+    if not host.endswith('.'):
+        host = host + '.'
     for known_host in KNOWN_HOSTS:
+        logger.debug("Try for known host: %s" % known_host)
         if host.endswith(known_host):
+            logger.debug("%s is a known host" % host)
             return True
+    logger.debug("%s is not a known host" % host)
     return False
 
 def add_nta(host):
+    logger.info("Adding %s to NTA List" % host)
     run_cmd(["insecure_add", host])
 
 def remove_nta(host):
+    logger.info("Removing %s from NTA List" % host)
     run_cmd(["insecure_remove", host])
 
 def get_ntas():
@@ -100,20 +120,20 @@ def get_ntas():
 
 class SetNTA:
     def GET(self, host):
-        print("[GET]")
+        logger.debug("SetNTA called")
         # TODO: full URI.
         add_nta(host)
         return render.nta_set(host)
 
 class RemoveNTA:
     def GET(self, host):
-        print("[GET]")
+        logger.debug("RemoveNTA called")
         remove_nta(host)
         raise web.seeother("/")
 
 class AskNTA:
     def GET(self, host):
-        print("[GET]")
+        logger.debug("AskNTA called")
         # make a list of domains to possibly set an NTA for
         if host.endswith('.'):
             host = host[:-1]
@@ -128,10 +148,12 @@ class AskNTA:
 
 class NTA:
     def GET(self):
-        print("[GET]")
+        logger.debug("Base NTA called")
         host = web.ctx.env.get('HTTP_HOST')
         (host, port) = split_host(host)
-        print("[XX] host: %s" % host)
+        logger.debug("Host: %s" % (host))
+        if port is not None:
+            logger.debug("Port: %d" % (port))
         if is_valid_ip_address(host) or is_known_host(host):
             # show NTA list?
             ntas = get_ntas()
@@ -143,10 +165,8 @@ class NTA:
                 redirect = "http://%s:%s/autonta/ask_nta/%s" % (SELF_HOST, port, host)
             else:
                 redirect = "http://%s/autonta/ask_nta/%s" % (SELF_HOST, host)
-            print("[XX] redirect to %s" % redirect)
+            logger.debug("Redirecting to %s" % redirect)
             raise web.seeother(redirect)
-            
-        raise web.seeother(DEFAULT_REDIRECT_HOST + DEFAULT_REDIRECT_SUFFIX)
 
 if __name__ == "__main__":
     store_pid()
