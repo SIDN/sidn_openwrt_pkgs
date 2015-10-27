@@ -1,3 +1,7 @@
+body {
+    font-family: "Sans Serif";
+}
+
 .red {
     color: #ff0000;
 }
@@ -51,15 +55,17 @@ div.logo {
 }
 
 .main_header {
-    //border: 1px solid #aaaaaa;
     margin-left: 4px;
     margin-bottom: 4px;
-    //background-color: #eeeeee;
 }
 
 .main_header_title {
     top: 0px;
     padding-left: 4px;
+}
+
+.main_header_error {
+    color: #DD0000;
 }
 
 .main_header_title h2 {
@@ -68,7 +74,6 @@ div.logo {
 
 
 .main {
-    //border-top: 1px dashed #aaaaaa;
     border-bottom: 1px dashed #aaaaaa;
     padding-left: 1em;
     background-color: #ffffff;
@@ -79,3 +84,7 @@ div.logo {
     width: 50%;
 }
 
+.nta_domain {
+    font-weight: bold;
+    color: #009900;
+}

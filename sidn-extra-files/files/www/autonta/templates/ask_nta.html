@@ -1,7 +1,7 @@
 $def with (name, names)
 <div class="main" id="main">
   <div class="inlay">
-    <h2>Probleem met $name</h2>
+    <h2 class="main_header_error">Probleem met $name</h2>
         
     <p>
         Er is een fout opgetreden bij het opzoeken van de domeinnaam $name.
@@ -22,9 +22,13 @@ $for name in names:
     <p>
         <a href="/autonta/set_nta/$name">Zet een Negative Trust Anchor voor $name</a>
     </p>
-
-<p>
-    <a href="valibox./autonta">Klik hier om de huidige set Negative Trust Anchors te beheren.</a>
-</p>
+  </div>
+  <div>
+      <p>&nbsp;</p>
+  </div>
+  <div>
+    <p>
+        <a href="//valibox./autonta">Klik hier om de huidige set Negative Trust Anchors te beheren.</a>
+    </p>
   </div>
 </div>

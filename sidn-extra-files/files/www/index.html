@@ -1,67 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <title>SIDN ValiBox</title>
+<head>
+    <title>SIDN Labs ValiBox</title>
     <link rel='stylesheet' href='resources/default.css' type='text/css' />
-  </head>
+</head>
 
-  <body>
-
-    <div>
-      <div class="main_header">
+<body>
+    <div class="main" id="main">
         <div class="header">
-          <h2 class="main_header_title">SIDN Labs ValiBox</h2>
+            <h2 class="main_header_title">SIDN Labs ValiBox</h2>
         </div>
         <div class="main">
-          <div>
-            <p>
-              Welkom op de SIDN Labs ValiBox 
-            </p>
-          </div>
-          <div>
-            <p>
-              <a href="/autonta">Negative Trust Anchor management</a>
-            </p>
-            <div class="inlay">
-            <p>
-              Hier kun je de huidige Negative Trust Anchors bekijken en 
-              eventueel weer uitschakelen.
-            </p>
-            <p>
-              Als er een Negative Trust Anchor voor een domein gezet 
-              is, betekent dat dat de DNSSEC-validatie voor dit 
-              domein uitgeschakeld staat. Daarmee kun je websites toch 
-              bereiken als er door een fout van de beheerders de 
-              DNSSEC-validatie mis gaat. Gebruik deze *niet* als je een 
-              foutmelding krijgt en het niet vertrouwt.
-            </p>
-            <p>
-              Op het moment dat je via je browser naar een website 
-              probeert te gaan waarvan de domeinnaam niet valideert, 
-              zal de ValiBox je automatisch vragen of er een Negative 
-              Trust Anchor voor dit domein gezet moet worden.
-            </p>
+            <div>
+                <p>Welkom op de SIDN Labs ValiBox</p>
             </div>
-          </div>
-          <div>
-            <p>
-              <a href="/cgi-bin/luci">Configureer de ValiBox</a>
-            </p>
-            <div class="inlay">
-            <p>
-              Hier kun je de instellingen van de ValiBox wijzigen, de 
-              wachtwoorden veranderen, de logs bekijken, de software 
-              updaten, en backups maken.
-            </p>
-          </div>
-          <p>
-          </p>
+            <div>
+                <p>
+                <a href="/autonta">Negative Trust Anchor management</a>
+                </p>
+                <div class="inlay">
+                    <p>
+                    Hier kun je de huidige Negative Trust Anchors bekijken 
+                    en eventueel weer uitschakelen.
+                    </p>
+                    <p>
+                    Als er een Negative Trust Anchor voor een domein gezet 
+                    is, betekent dat dat de DNSSEC-validatie voor dit 
+                    domein uitgeschakeld staat. Daarmee kun je websites 
+                    toch bereiken als er door een fout van de beheerders de 
+                    DNSSEC-validatie mis gaat. Gebruik deze *niet* als je 
+                    een foutmelding krijgt en het niet vertrouwt.
+                    </p>
+                    <p>
+                    Op het moment dat je via je browser naar een website 
+                    probeert te gaan waarvan de domeinnaam niet valideert, 
+                    zal de ValiBox je automatisch vragen of er een Negative 
+                    Trust Anchor voor dit domein gezet moet worden.
+                    </p>
+                </div>
+            </div>
+            <div>
+                <p>
+                    <a href="/cgi-bin/luci">Configureer de ValiBox</a>
+                </p>
+                <div class="inlay">
+                    <p>
+                    Hier kun je de instellingen van de ValiBox wijzigen, de 
+                    wachtwoorden veranderen, de logs bekijken, de software 
+                    updaten, en backups maken.
+                    </p>
+                </div>
+                <p></p>
+            </div>
         </div>
-      </div>
     </div>
     <div class="logo" id="logo">
-        <img src="resources/valibox-logo-300x225.png" />
+        <img src="resources/valibox-logo-300x225.png" alt="valibox-logo" />
     </div>
-  </body>
+</body>
 </html>
