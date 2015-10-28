@@ -146,7 +146,7 @@ class RemoveNTA:
     def GET(self, host):
         logger.debug("RemoveNTA called")
         remove_nta(host)
-        raise web.seeother("/")
+        raise web.seeother("http://valibox./autonta")
 
 class AskNTA:
     def GET(self, host):
