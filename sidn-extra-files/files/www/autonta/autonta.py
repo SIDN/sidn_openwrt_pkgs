@@ -197,7 +197,7 @@ WGET='/usr/bin/wget'
 # The information file about updates should be at
 # UPDATE_CHECK_BASE/versions.txt
 # It should be of the following form:
-# boardname current_version download_file info_file sha1sum
+# boardname current_version download_file info_file sha256sum
 # Download file and info file are paths relative to UPDATE_CHECK_BASE
 #
 # Example:
@@ -240,7 +240,7 @@ class FirmwareVersionInfo:
         if board in self.versions:
             return UPDATE_CHECK_BASE + self.versions[board][2]
 
-    def get_sha1sum_for(self, board):
+    def get_sha256sum_for(self, board):
         if board in self.versions:
             return self.versions[board][3]
 
@@ -309,6 +309,16 @@ def install_update():
     time.sleep(2)
     run_cmd(["/sbin/sysupgrade", "-n", "/tmp/firmware_update.bin"])
 
+def check_sha256sum(filename, expected_sum):
+    output = run_cmd(["/usr/bin/sha256sum", filename])
+    if len(output) > 0:
+        filesum = output[0]
+        logger.debug("sha256sum of file: " + filesum)
+        logger.debug("Expected: " + expected_sum)
+        return filesum == expected_sum
+    logger.debug("sha256sum command failed")
+    return False
+
 class UpdateInstall:
     def GET(self):
         logger.debug("UpdateInstall called")
@@ -326,7 +336,7 @@ class UpdateInstall:
             # there is a new version
             # Fetch info
             success = fetch_file(fvi.get_firmware_url_for(board_name), "/tmp/firmware_update.bin", False)
-            if success:
+            if success and check_sha256sum("/tmp/firmware_update.bin", fvi.get_sha256sum_for(board_name)):
                 threading.Thread(target=install_update).start()
                 return render.update_install(True, update_version)
             else:
