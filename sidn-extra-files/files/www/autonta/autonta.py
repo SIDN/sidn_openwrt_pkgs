@@ -21,6 +21,9 @@ import os
 import logging
 from logging import handlers
 
+import threading
+import time
+
 DEFAULT_REDIRECT_SUFFIX = "/"
 
 UNBOUND_CONTROL = "/usr/sbin/unbound-control"
@@ -301,6 +304,11 @@ class UpdateCheck:
             return render.update_check(False, True, current_version, update_version, info)
         return render.nta_set(host)
 
+def install_update():
+    # sleep a little while so the page can still render
+    time.sleep(2)
+    run_cmd(["/sbin/sysupgrade", "-n", "/tmp/firmware_update.bin"])
+
 class UpdateInstall:
     def GET(self):
         logger.debug("UpdateInstall called")
@@ -319,7 +327,7 @@ class UpdateInstall:
             # Fetch info
             success = fetch_file(fvi.get_firmware_url_for(board_name), "/tmp/firmware_update.bin", False)
             if success:
-                os.system("sleep 2; /sbin/sysupgrade -n /tmp/firmware_update.bin &")
+                threading.Thread(target=install_update).start()
                 return render.update_install(True, update_version)
             else:
                 return render.update_install(False, update_version)
