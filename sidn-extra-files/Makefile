@@ -18,7 +18,7 @@ define Package/sidn-extra-files
   TITLE:=Extra files for SIDN ValiBox
   #DESCRIPTION:=This variable is obsolete. use the Package/name/description define instead!
   URL:=http://www.sidnlabs.nl
-  DEPENDS:=+sidn-unbound +uhttpd +nginx +NGINX_SSL +python-webpy +luci-ssl +dnsmasq +dropbear +drill +coreutils-sha256sum
+  DEPENDS:=+sidn-unbound +uhttpd +nginx +python-webpy +luci-ssl +dnsmasq +dropbear +drill +coreutils-sha256sum
 endef
 
 define Package/sidn-extra-files/description
