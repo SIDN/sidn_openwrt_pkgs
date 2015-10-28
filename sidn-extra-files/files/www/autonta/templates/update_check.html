@@ -1,0 +1,37 @@
+$def with (update_check_failed, update_available, current_version, update_version, update_info)
+
+    <div>
+        <b>SIDN Valibox Update</b>
+    <div class="inlay">
+    
+$if update_check_failed:
+        <p>
+            Er kon niet gecontroleerd worden of er updates beschikbaar zijn. Heeft de ValiBox toegang tot het Internet?
+        </p>
+        <p>
+            Huidige versie: $current_version
+        </p>
+        <p>
+            <a href="//valibox./autonta/update_check">Probeer opnieuw</a>
+        </p>
+$else:
+    $if update_available:
+        <p>
+            Versie $update_version beschikbaar (huidige versie: $current_version).
+        </p>
+        <p>
+            <pre>
+                $update_info
+            </pre>
+        </p>
+        <p>
+            <a href="//valibox./autonta/update_install">Klik hier om de update te installeren</a>
+        </p>
+    $else:
+        <p>
+            Er is geen update beschikbaar (huidige versie: $current_version).
+        </p>
+        <p>
+            <a href="//valibox./autonta/update_check">Controleer opnieuw</a>
+        </p>
+    </div>

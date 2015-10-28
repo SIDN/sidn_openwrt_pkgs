@@ -1,0 +1,24 @@
+$def with (update_download_success, update_version)
+
+    <div>
+        <b>SIDN Valibox Update</b>
+    <div class="inlay">
+    
+$if update_download_success:
+        <p>
+            Versie $update_version wordt geinstalleerd
+        </p>
+        <p>
+            Schakel de ValiBox niet uit en wacht een minuut of 5 tot 10 tot de update geinstalleerd is en de ValiBox opnieuw is gestart.
+        </p>
+        <p>
+            U kunt dit scherm sluiten.
+        </p>
+$else:
+        <p>
+            Er is een fout opgetreden bij het downloaden van versie $update_version. Probeer het later opnieuw. Als deze fout blijft optreden, neem contact op met de ValiBox servicedesk.
+        </p>
+        <p>
+            <a href="//valibox./autonta/update_install">Probeer opnieuw</a>
+        </p>
+    </div>

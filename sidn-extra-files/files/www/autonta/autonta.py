@@ -39,12 +39,14 @@ urls = [
  '/autonta/ask_nta/([a-zA-Z0-9.-]+)', 'AskNTA',
  '/autonta', 'NTA',
  '/', 'NTA',
+ '/autonta/update_check', 'UpdateCheck',
+ '/autonta/update_install', 'UpdateInstall'
 ]
 render = web.template.render('templates/', base='base')
 
 logging.basicConfig()
 logger = logging.getLogger('autonta')
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 handler = logging.handlers.SysLogHandler()
 logger.addHandler(handler)
 
@@ -53,19 +55,31 @@ def store_pid():
     with open("/var/autonta.pid", 'w') as output:
         output.write("%d\n" % pid)
 
+#
+# general utility
+#
+def run_cmd(arguments):
+    logger.debug("Run command: " + " ".join(arguments))
+    proc = subprocess.Popen(arguments,
+                            stdout = subprocess.PIPE,
+                            stderr = subprocess.PIPE)
+    stdout, _ = proc.communicate()
+    return stdout.split("\n")[:-1]
+
+def read_file(filename):
+    with open(filename, 'r') as inputfile:
+        return inputfile.readlines()
+
+#
+# Code for NTA management
+#
+
 def split_host(host):
     parts = host.split(':')
     if len(parts) > 1:
         return parts[0], parts[1]
     else:
         return host, None
-
-def run_cmd(arguments):
-    proc = subprocess.Popen([UNBOUND_CONTROL] + arguments,
-                            stdout = subprocess.PIPE,
-                            stderr = subprocess.PIPE)
-    stdout, _ = proc.communicate()
-    return stdout.split("\n")[:-1]
 
 def is_valid_ipv4_address(address):
     try:
@@ -109,14 +123,14 @@ def is_known_host(host):
 
 def add_nta(host):
     logger.info("Adding %s to NTA List" % host)
-    run_cmd(["insecure_add", host])
+    run_cmd([UNBOUND_CONTROL, "insecure_add", host])
 
 def remove_nta(host):
     logger.info("Removing %s from NTA List" % host)
-    run_cmd(["insecure_remove", host])
+    run_cmd([UNBOUND_CONTROL, "insecure_remove", host])
 
 def get_ntas():
-    return run_cmd(["list_insecure"])
+    return run_cmd([UNBOUND_CONTROL, "list_insecure"])
 
 class SetNTA:
     def GET(self, host):
@@ -167,6 +181,149 @@ class NTA:
                 redirect = "http://%s/autonta/ask_nta/%s" % (SELF_HOST, host)
             logger.debug("Redirecting to %s" % redirect)
             raise web.seeother(redirect)
+
+#
+# Code for update checks
+# (Note: this could be separated into a whole new instance, but
+# we do not want to run even more python instances)
+#
+#UPDATE_CHECK_BASE='https://check.sidnlabs.nl/valibox/'
+UPDATE_CHECK_BASE='https://tjeb.nl/opendir/valibox/'
+WGET='/usr/bin/wget'
+
+# The information file about updates should be at
+# UPDATE_CHECK_BASE/versions.txt
+# It should be of the following form:
+# boardname current_version download_file info_file sha1sum
+# Download file and info file are paths relative to UPDATE_CHECK_BASE
+#
+# Example:
+# gl_ar150 0.1.5 gl_ar150/sidn_valibox_0.1.5.bin gl_ar150/0.1.5.info.txt <sha1sum>
+# gl_ar150 0.1.5 gl_ar150/sidn_valibox_0.1.5.bin gl_ar150/0.1.5.info.txt <sha1sum>
+#
+# Note: for now, each board name can only have one version; it signals
+# the 'current' version. There is no concept of 'newer/older' versions
+# Also note that we should sign these probably :p
+class FirmwareVersionInfo:
+    def __init__(self):
+        # Store as 'board'->(version, sha1sum ,firmware_url,update_url)
+        self.versions = {}
+    
+    def fetch_version_info(self):
+        # Retrieve it with curl?
+        # Retrieve it through a call to wget; this python version
+        # has some SSL issues
+        # There is also very little checking on data for now
+        try:
+            tmpfile = "/tmp/versions.txt"
+            for line in fetch_file(UPDATE_CHECK_BASE + "versions.txt", tmpfile):
+                parts = line.split(' ')
+                self.versions[parts[0]] = parts[1:]
+            return True
+        except Exception as exc:
+            logger.debug("Error in fetch: " + str(exc))
+            raise exc
+            return False
+
+    def get_version_for(self, board):
+        if board in self.versions:
+            return self.versions[board][0]
+
+    def get_firmware_url_for(self, board):
+        if board in self.versions:
+            return UPDATE_CHECK_BASE + self.versions[board][1]
+
+    def get_info_url_for(self, board):
+        if board in self.versions:
+            return UPDATE_CHECK_BASE + self.versions[board][2]
+
+    def get_sha1sum_for(self, board):
+        if board in self.versions:
+            return self.versions[board][3]
+
+def fetch_file(url, output_file, return_data=True):
+    # If return_data is true, return the contents of the file
+    # Otherwise, simply return True/False
+    logger.debug("Fetch file from: " + url)
+    logger.debug("Store in " + output_file)
+    run_cmd([WGET,"-O", output_file, url])
+    if os.path.exists(output_file):
+        logger.debug("Success!")
+        if return_data:
+            return read_file(output_file)
+        else:
+            return True
+    else:
+        logger.debug("Failure. file not downloaded")
+        # perhaps none?
+        if return_data:
+            return []
+        else:
+            return False
+    
+def get_board_name():
+    """
+    Read the board name of this device
+    """
+    lines = read_file("/tmp/sysinfo/board_name")
+    if len(lines) > 0:
+        return lines[0].strip()
+    else:
+        return None
+
+def get_current_version():
+    """
+    Read the current version
+    """
+    lines = read_file("/etc/valibox.version")
+    if len(lines) > 0:
+        return lines[0].strip()
+    else:
+        return None
+
+class UpdateCheck:
+    def GET(self):
+        logger.debug("UpdateCheck called")
+        current_version = get_current_version()
+        board_name = get_board_name()
+        fvi = FirmwareVersionInfo()
+
+        if not fvi.fetch_version_info():
+            return render.update_check(True, False, current_version, None, None)
+        update_version = fvi.get_version_for(board_name)
+        if update_version is None or update_version == current_version:
+            return render.update_check(False, False, current_version, None, None)
+        else:
+            # there is a new version
+            # Fetch info
+            lines = fetch_file(fvi.get_info_url_for(board_name), "/tmp/update_info.txt")
+            info = "\n".join(lines)
+            return render.update_check(False, True, current_version, update_version, info)
+        return render.nta_set(host)
+
+class UpdateInstall:
+    def GET(self):
+        logger.debug("UpdateInstall called")
+        current_version = get_current_version()
+        board_name = get_board_name()
+        # Note, we download it again (just in case it was an old link)
+        fvi = FirmwareVersionInfo()
+
+        if not fvi.fetch_version_info():
+            return render.update_check(True, False, current_version, None, None)
+        update_version = fvi.get_version_for(board_name)
+        if update_version is None or update_version == current_version:
+            return render.update_check(False, False, current_version, None, None)
+        else:
+            # there is a new version
+            # Fetch info
+            success = fetch_file(fvi.get_firmware_url_for(board_name), "/tmp/firmware_update.bin", False)
+            if success:
+                os.system("sleep 2; /sbin/sysupgrade -n /tmp/firmware_update.bin &")
+                return render.update_install(True, update_version)
+            else:
+                return render.update_install(False, update_version)
+        return render.nta_set(host)
 
 if __name__ == "__main__":
     store_pid()
