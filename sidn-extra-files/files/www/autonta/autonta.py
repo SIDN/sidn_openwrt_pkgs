@@ -190,8 +190,7 @@ class NTA:
 # (Note: this could be separated into a whole new instance, but
 # we do not want to run even more python instances)
 #
-#UPDATE_CHECK_BASE='https://check.sidnlabs.nl/valibox/'
-UPDATE_CHECK_BASE='https://tjeb.nl/opendir/valibox/'
+UPDATE_CHECK_BASE='https://check.sidnlabs.nl/valibox/'
 WGET='/usr/bin/wget'
 
 # The information file about updates should be at
@@ -220,7 +219,7 @@ class FirmwareVersionInfo:
         try:
             tmpfile = "/tmp/versions.txt"
             for line in fetch_file(UPDATE_CHECK_BASE + "versions.txt", tmpfile):
-                parts = line.split(' ')
+                parts = line.strip().split(' ')
                 self.versions[parts[0]] = parts[1:]
             return True
         except Exception as exc:
@@ -311,8 +310,9 @@ def install_update():
 
 def check_sha256sum(filename, expected_sum):
     output = run_cmd(["/usr/bin/sha256sum", filename])
+    expected_sum += "  " + filename
     if len(output) > 0:
-        filesum = output[0]
+        filesum = output[0].strip()
         logger.debug("sha256sum of file: " + filesum)
         logger.debug("Expected: " + expected_sum)
         return filesum == expected_sum
