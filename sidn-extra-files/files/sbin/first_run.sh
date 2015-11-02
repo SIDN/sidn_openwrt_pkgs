@@ -9,6 +9,8 @@ else
     # generate unbound_control key and cert
     /usr/sbin/unbound-control-setup
 
+    # just in case we are slow, wait for a link-local address on br-lan
+    /sbin/wait_for_if.sh br-lan fe80
     echo "output of ifconfig:" >> /tmp/wtf
     /sbin/ifconfig >> /tmp/wtf
     echo $? >> /tmp/wtf
