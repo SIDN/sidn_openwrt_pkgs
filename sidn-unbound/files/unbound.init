@@ -3,15 +3,15 @@
 START=61
 
 start () {
-    # Wait a few seconds for the network interfaces to negotiate
-    # their addresses
-    sleep 3;
-	unbound
+    # unbound will fail to start if the interface isn't completely up yet
+    # Note: is this link-local always the same?
+    /sbin/wait_for_if.sh br-lan fd48:430c:f4bc::1
+    unbound
 }
 
 stop () {
-	PIDFILE='/var/run/unbound.pid'
-	if [ -f $PIDFILE ] ; then
-		kill $(cat $PIDFILE)
-	fi
+    PIDFILE='/var/run/unbound.pid'
+    if [ -f $PIDFILE ] ; then
+        kill $(cat $PIDFILE)
+    fi
 }
