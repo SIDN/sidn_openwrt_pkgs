@@ -3,6 +3,9 @@
 START=61
 
 start () {
+    # Wait a few seconds for the network interfaces to negotiate
+    # their addresses
+    sleep 3;
 	unbound
 }
 
