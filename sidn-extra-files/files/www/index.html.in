@@ -19,7 +19,7 @@
                 <p>
                 <a href="/autonta">Negative Trust Anchor management</a>
                 </p>
-                <div class="inlay">
+                <div class="inlay lined">
                     <p>
                     Hier kun je de huidige Negative Trust Anchors bekijken 
                     en eventueel weer uitschakelen.
@@ -44,7 +44,7 @@
                 <p>
                     <a href="/cgi-bin/luci">Configureer de ValiBox</a>
                 </p>
-                <div class="inlay">
+                <div class="inlay lined">
                     <p>
                     Hier kun je de instellingen van de ValiBox wijzigen, de 
                     wachtwoorden veranderen, de logs bekijken, de software 
@@ -60,7 +60,7 @@
                 <div class="inlay">
                     <p>
                     Hier kun je kijken of er een nieuwe versie van de firmware
-                    voor de ValiBox is, en deze installeren.
+                    voor de ValiBox is, en deze installeren. Huidige versie: XVERSIONX
                     </p>
                 </div>
                 <p></p>

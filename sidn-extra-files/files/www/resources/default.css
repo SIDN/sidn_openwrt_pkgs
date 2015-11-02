@@ -72,6 +72,9 @@ div.logo {
     font-weight: bold;
 }
 
+.lined {
+    border-bottom: 1px dashed #aaaaaa;
+}
 
 .main {
     border-bottom: 1px dashed #aaaaaa;

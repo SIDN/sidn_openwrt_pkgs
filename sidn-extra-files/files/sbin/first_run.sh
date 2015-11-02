@@ -31,6 +31,10 @@ else
     echo "SSID:     SIDN-GL-Inet-${HWADDR}" >> "$CHECK_FILE"
     /etc/init.d/network restart
     
+    # Show the current version in the main html menu
+    VERSION=`cat /etc/valibox.version`
+    cat /www/index.html.in | sed "s/XVERSIONX/${VERSION}/" > /www/index.html
+    
     # sleep some more
     sleep 5
     # we run before dnsmasq and unbound so restarting those is not necessare

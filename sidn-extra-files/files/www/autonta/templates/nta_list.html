@@ -2,32 +2,19 @@ $def with (ntas)
 
     <div>
         <b>Huidige Negative Trust Anchors:</b>
-    <div class="inlay">
-    $if ntas:
-        <p>
-        <table>
-        $for nta in ntas:
-            <tr>
-                <td class="nta_domain">$nta</td>
-                <td>&nbsp;</td>
-                <td><a href="/autonta/remove_nta/$nta">Verwijder</a></td>
-            </tr>
-        </table>
-        </p>
-    $else:
-        <p>Er zijn op dit moment geen Negative Trust Anchors gezet.</p>
-    </div>
-    </div>
-    <div class="list">
-    <div>
-        <p>
-            <a href="//valibox./cgi-bin/luci">Configureer de ValiBox</a>
-        </p>
-        <div class="inlay">
-        <p>
-            Hier kun je de instellingen van de ValiBox wijzigen, de 
-            wachtwoorden veranderen, de logs bekijken, de software 
-            updaten, en backups maken.
-        </p>
+        <div class="inlay lined">
+        $if ntas:
+            <p>
+            <table>
+            $for nta in ntas:
+                <tr>
+                    <td class="nta_domain">$nta</td>
+                    <td>&nbsp;</td>
+                    <td><a href="/autonta/remove_nta/$nta">Verwijder</a></td>
+                </tr>
+            </table>
+            </p>
+        $else:
+            <p>Er zijn op dit moment geen Negative Trust Anchors gezet.</p>
         </div>
     </div>
