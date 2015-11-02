@@ -4,7 +4,7 @@ START=61
 
 start () {
     # unbound will fail to start if the interface isn't completely up yet
-    /sbin/wait_for_if.sh br-lan fe80
+    /sbin/wait_for_if.sh br-lan fd48:430c:f4bc
     unbound
 }
 

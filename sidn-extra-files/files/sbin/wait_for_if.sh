@@ -15,9 +15,10 @@ OK=1
 while [ ${ATTEMPTS} -le ${MAX_ATTEMPTS} ]            
 do
   if ifconfig ${IFACE} | grep -q ${IPADDR}; then  
+    echo "if is up"
     exit                                        
   fi                                     
-  echo "if not up, waiting ($ATTEMPTS)"  
+  echo "if is not up, waiting ($ATTEMPTS)"  
   sleep $SLEEPTIME                       
   ATTEMPTS=$((ATTEMPTS+1))               
 done

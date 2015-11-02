@@ -10,7 +10,7 @@ else
     /usr/sbin/unbound-control-setup
 
     # just in case we are slow, wait for a link-local address on br-lan
-    /sbin/wait_for_if.sh br-lan fe80 >> /tmp/wtf
+    /sbin/wait_for_if.sh br-lan fd48:430c:f4bc >> /tmp/wtf
     echo "output of ifconfig:" >> /tmp/wtf
     /sbin/ifconfig >> /tmp/wtf
     echo $? >> /tmp/wtf
