@@ -41,7 +41,7 @@ server:
     interface: 127.0.0.1
     interface: ::1
 	interface: XIP4ADDRX
-	interface: XIP6ADDRX%br-lan
+	interface: XIP6ADDRX
 
 	# enable this feature to copy the source address of queries to reply.
 	# Socket options are not supported on all platforms. experimental. 
