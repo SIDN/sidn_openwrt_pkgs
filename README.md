@@ -62,6 +62,11 @@ src-git oldpackages http://git.openwrt.org/packages.git
 src-git sidn https://github.com/SIDN/sidn_openwrt_pkgs
 __
 
+Note: if you are editing the packages in a local clone of 
+sidn_openwrt_pkgs (or any of the sources above), you can use src-link, 
+so that you do not have to commit and push each change when testing. 
+See http://wiki.openwrt.org/doc/devel/feeds for more information.
+
 Now update and install the feeds sources:
 
 __
@@ -91,7 +96,12 @@ Build environments
 ------------------
 
 You can create images for multiple devices with build environments.
-TODO
+
+There are two helper scripts in scripts/; to use them, copy them to 
+your openwrt source base directory. The script build_new.sh assumes 
+there are two environments (gl-inet and gl_ar150), and rebuilds the 
+source. The create_release.py script builds a filetree and info file
+we can publish, which works with the automatic update system.
 
 
 Finding the images
