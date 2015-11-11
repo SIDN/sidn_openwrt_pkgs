@@ -73,6 +73,11 @@ def read_file(filename):
     with open(filename, 'r') as inputfile:
         return inputfile.readlines()
 
+def nocache():
+    web.header('Cache-Control', 'no-store, no-cache, must-revalidate')
+    web.header('Cache-Control', 'post-check=0, pre-check=0', False)
+    web.header('Pragma', 'no-cache')
+
 #
 # Code for NTA management
 #
@@ -137,6 +142,7 @@ def get_ntas():
 
 class SetNTA:
     def GET(self, host):
+        nocache()
         logger.debug("SetNTA called")
         # TODO: full URI.
         add_nta(host)
@@ -144,12 +150,14 @@ class SetNTA:
 
 class RemoveNTA:
     def GET(self, host):
+        nocache()
         logger.debug("RemoveNTA called")
         remove_nta(host)
         raise web.seeother("http://valibox./autonta")
 
 class AskNTA:
     def GET(self, host):
+        nocache()
         logger.debug("AskNTA called")
         # make a list of domains to possibly set an NTA for
         if host.endswith('.'):
@@ -165,6 +173,7 @@ class AskNTA:
 
 class NTA:
     def GET(self):
+        nocache()
         logger.debug("Base NTA called")
         host = web.ctx.env.get('HTTP_HOST')
         (host, port) = split_host(host)
@@ -285,6 +294,7 @@ def get_current_version():
 
 class UpdateCheck:
     def GET(self):
+        nocache()
         logger.debug("UpdateCheck called")
         current_version = get_current_version()
         board_name = get_board_name()
@@ -321,6 +331,7 @@ def check_sha256sum(filename, expected_sum):
 
 class UpdateInstall:
     def GET(self):
+        nocache()
         logger.debug("UpdateInstall called")
         current_version = get_current_version()
         board_name = get_board_name()

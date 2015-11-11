@@ -10,17 +10,18 @@ else
     /usr/sbin/unbound-control-setup
 
     # just in case we are slow, wait for a link-local address on br-lan
-    /sbin/wait_for_if.sh br-lan fd48:430c:f4bc >> /tmp/wtf
-    echo "output of ifconfig:" >> /tmp/wtf
-    /sbin/ifconfig >> /tmp/wtf
-    echo $? >> /tmp/wtf
     echo "doing first run setup"
     HWADDR=`/sbin/get_hwaddr.sh`
-    IP4ADDR=`/sbin/get_ip4addr.sh`
-    IP6ADDR=`/sbin/get_ip6addr.sh`
+    # If we want to automatically determine ip addresses we could use
+    # this, but currently they are hard-configured to local address
+    # space anyway
+    #IP4ADDR=`/sbin/get_ip4addr.sh`
+    #IP6ADDR=`/sbin/get_ip6addr.sh`
     
     # Replace addresses in unbound.conf file
-    cat /etc/unbound/unbound.conf.in | sed "s/XIP4ADDRX/${IP4ADDR}/" | sed "s/XIP6ADDRX/${IP6ADDR}/" > /etc/unbound/unbound.conf
+    #cat /etc/unbound/unbound.conf.in | sed "s/XIP4ADDRX/${IP4ADDR}/" | sed "s/XIP6ADDRX/${IP6ADDR}/" > /etc/unbound/unbound.conf
+    cp /etc/unbound/unbound.conf.in /etc/unbound/unbound.conf
+    
     cat /etc/config/wireless.in | sed "s/XHWADDRX/${HWADDR}/" > /etc/config/wireless
 
     # Replace dnsmasq conf
@@ -28,8 +29,8 @@ else
 
     # Store results
     touch "$CHECK_FILE"
-    echo "LAN IPv4: ${IP4ADDR}" >> "$CHECK_FILE"
-    echo "LAN IPv6: ${IP6ADDR}" >> "$CHECK_FILE"
+    #echo "LAN IPv4: ${IP4ADDR}" >> "$CHECK_FILE"
+    #echo "LAN IPv6: ${IP6ADDR}" >> "$CHECK_FILE"
     echo "SSID:     SIDN-GL-Inet-${HWADDR}" >> "$CHECK_FILE"
     /etc/init.d/network restart
     
