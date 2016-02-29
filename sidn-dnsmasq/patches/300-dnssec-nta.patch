@@ -1,11 +1,12 @@
 diff --git a/src/cache.c b/src/cache.c
-index a9eaa65..6859772 100644
+index 178d654..564baa8 100644
 --- a/src/cache.c
 +++ b/src/cache.c
-@@ -1008,6 +1008,61 @@ int read_hostsfile(char *filename, unsigned int index, int cache_size, struct cr
+@@ -1028,6 +1028,62 @@ int read_hostsfile(char *filename, unsigned int index, int cache_size, struct cr
    
    return name_count;
  }
++
 +
 +#ifdef HAVE_DNSSEC
 +struct nta_list *add_nta(const char *nta, struct nta_list *prev_nta) {
@@ -64,29 +65,19 @@ index a9eaa65..6859772 100644
  	    
  void cache_reload(void)
  {
-@@ -1079,6 +1134,9 @@ void cache_reload(void)
+@@ -1099,6 +1155,10 @@ void cache_reload(void)
  	cache->uid = ds->class;
  	cache_hash(cache);
        }
++
 +  if (daemon->nta_file) {
 +    read_nta_file(daemon->nta_file, &daemon->ntas);
 +  }
  #endif
    
    /* borrow the packet buffer for a temporary by-address hash */
-@@ -1128,7 +1186,9 @@ void cache_reload(void)
- #ifdef HAVE_INOTIFY
-   set_dynamic_inotify(AH_HOSTS, total_size, (struct crec **)daemon->packet, revhashsz);
- #endif
--  
-+
-+  // XX read NTA list
-+  //*daemon->nta_f = NULL;
- } 
- 
- #ifdef HAVE_DHCP
 diff --git a/src/dnsmasq.c b/src/dnsmasq.c
-index 96aa780..dc3f3f1 100644
+index 81254f6..900e711 100644
 --- a/src/dnsmasq.c
 +++ b/src/dnsmasq.c
 @@ -30,6 +30,9 @@ static void sig_handler(int sig);
@@ -99,22 +90,22 @@ index 96aa780..dc3f3f1 100644
  static void poll_resolv(int force, int do_reload, time_t now);
  
  int main (int argc, char **argv)
-@@ -753,6 +756,11 @@ int main (int argc, char **argv)
-       if (rc == 1)
- 	my_syslog(LOG_INFO, _("DNSSEC signature timestamps not checked until system time valid"));
-     }
+@@ -728,6 +731,10 @@ int main (int argc, char **argv)
+       
+       if (option_bool(OPT_DNSSEC_TIME))
+ 	my_syslog(LOG_INFO, _("DNSSEC signature timestamps not checked until first cache reload"));
 +
 +    daemon->ntas = NULL;
 +    daemon->nta_mtime = 0;
 +    daemon->last_nta_poll = 0;
+       
+       if (rc == 1)
+ 	my_syslog(LOG_INFO, _("DNSSEC signature timestamps not checked until system time valid"));
+@@ -987,6 +994,18 @@ int main (int argc, char **argv)
+ 
+       if (poll_check(piperead, POLLIN))
+ 	async_event(piperead, now);
 +
- #endif
- 
-   if (log_err != 0)
-@@ -1016,6 +1024,18 @@ int main (int argc, char **argv)
- 	}
- #endif
- 
 +#ifdef HAVE_DNSSEC
 +      /* Check for changes to nta file once per second max. */
 +      /* Don't go silent for long periods if the clock goes backwards. */
@@ -126,11 +117,10 @@ index 96aa780..dc3f3f1 100644
 +          daemon->last_nta_poll = now;
 +        }
 +#endif
-+
-       if (poll_check(piperead, POLLIN))
- 	async_event(piperead, now);
        
-@@ -1370,6 +1390,27 @@ static void async_event(int pipe, time_t now)
+ #ifdef HAVE_DBUS
+       /* if we didn't create a DBus connection, retry now. */ 
+@@ -1339,6 +1358,27 @@ static void async_event(int pipe, time_t now)
        }
  }
  
@@ -159,10 +149,10 @@ index 96aa780..dc3f3f1 100644
  {
    struct resolvc *res, *latest;
 diff --git a/src/dnsmasq.h b/src/dnsmasq.h
-index 6d1c5ae..9cf2d0f 100644
+index cf1a782..4abd44b 100644
 --- a/src/dnsmasq.h
 +++ b/src/dnsmasq.h
-@@ -599,6 +599,11 @@ struct hostsfile {
+@@ -603,6 +603,11 @@ struct hostsfile {
  #define HASH_SIZE sizeof(int)
  #endif
  
@@ -174,7 +164,7 @@ index 6d1c5ae..9cf2d0f 100644
  struct frec {
    union mysockaddr source;
    struct all_addr dest;
-@@ -992,7 +997,11 @@ extern struct daemon {
+@@ -995,7 +1000,11 @@ extern struct daemon {
    struct ds_config *ds;
    int back_to_the_future;
    char *timestamp_file;
@@ -186,7 +176,7 @@ index 6d1c5ae..9cf2d0f 100644
  
    /* globally used stuff for DNS */
    char *packet; /* packet buffer */
-@@ -1090,6 +1099,8 @@ void blockdata_report(void);
+@@ -1093,6 +1102,8 @@ void blockdata_report(void);
  struct blockdata *blockdata_alloc(char *data, size_t len);
  void *blockdata_retrieve(struct blockdata *block, size_t len, void *data);
  void blockdata_free(struct blockdata *blocks);
@@ -196,66 +186,33 @@ index 6d1c5ae..9cf2d0f 100644
  
  /* domain.c */
 diff --git a/src/dnssec.c b/src/dnssec.c
-index ebb9c93..3a5d490 100644
+index 4deda24..8b8706f 100644
 --- a/src/dnssec.c
 +++ b/src/dnssec.c
-@@ -805,6 +805,7 @@ static int validate_rrset(time_t now, struct dns_header *header, size_t plen, in
-     *wildcard_out = NULL;
-   
-   name_labels = count_labels(name); /* For 4035 5.3.2 check */
-+  printf("[XX] Validate RRSET for %s\n", name);
- 
-   /* Sort RRset records into canonical order. 
-      Note that at this point keyname and daemon->workspacename buffs are
-@@ -1167,6 +1168,8 @@ int dnssec_validate_ds(time_t now, struct dns_header *header, size_t plen, char
-   unsigned long ttl;
+@@ -984,6 +984,11 @@ int dnssec_validate_by_ds(time_t now, struct dns_header *header, size_t plen, ch
+   struct blockdata *key;
    struct all_addr a;
  
-+  printf("[XX] validate DS for %s\n", name);
++  /* If this domain is mentioned in the NTA list, consider it insecure */
++  if (nta_list_contains(daemon->ntas, name)) {
++      return STAT_INSECURE;
++  }
 +
    if (ntohs(header->qdcount) != 1 ||
-       !(p = skip_name(p, header, plen, 4)))
+       !extract_name(header, plen, &p, name, 1, 4))
      return STAT_BOGUS;
-@@ -1346,6 +1349,7 @@ static int hostname_cmp(const char *a, const char *b)
-   
-   sa = ea = (char *)a + strlen(a);
-   sb = eb = (char *)b + strlen(b);
-+  printf("[XX] compare hostnames: %s <> %s\n", a, b);
-  
-   while (1)
-     {
-@@ -1412,6 +1416,8 @@ static int prove_non_existence_nsec(struct dns_header *header, size_t plen, unsi
- 
-   if (nons)
-     *nons = 1;
+@@ -1000,6 +1005,7 @@ int dnssec_validate_by_ds(time_t now, struct dns_header *header, size_t plen, ch
+       strcpy(keyname, name);
+       return STAT_NEED_DS;
+     }
 +
-+  printf("[XX] prove nonexistence NSEC\n");
    
-   /* Find NSEC record that proves name doesn't exist */
-   for (i = 0; i < nsec_count; i++)
-@@ -1672,6 +1678,8 @@ static int prove_non_existence_nsec3(struct dns_header *header, size_t plen, uns
-   
-   if (nons)
-     *nons = 1;
-+
-+  printf("[XX] prove nonexistence NSEC3\n");
-   
-   /* Look though the NSEC3 records to find the first one with 
-      an algorithm we support.
-@@ -1820,7 +1828,8 @@ static int prove_non_existence(struct dns_header *header, size_t plen, char *key
-   int type_found = 0;
-   unsigned char *p = skip_questions(header, plen);
-   int type, class, rdlen, i, nsecs_found;
--  
-+
-+  printf("[XX] prove nonexistence\n");
-   /* Move to NS section */
-   if (!p || !(p = skip_section(p, ntohs(header->ancount), header, plen)))
-     return 0;
-@@ -1863,6 +1872,17 @@ static int prove_non_existence(struct dns_header *header, size_t plen, char *key
-     return 0;
+   /* If we've cached that DS provably doesn't exist, result must be INSECURE */
+   if (crecp->flags & F_NEG)
+@@ -1804,6 +1810,17 @@ static int prove_non_existence_nsec3(struct dns_header *header, size_t plen, uns
+   return STAT_SECURE;
  }
- 
+     
 +int nta_list_contains(struct nta_list *ntas, const char* name) {
 +  if (ntas && ntas->nta)
 +    {
@@ -267,46 +224,16 @@ index ebb9c93..3a5d490 100644
 +  return 0;
 +}
 +
- /* Check signing status of name.
-    returns:
-    STAT_SECURE   zone is signed.
-@@ -1877,6 +1897,11 @@ static int zone_status(char *name, int class, char *keyname, time_t now)
-   struct crec *crecp;
-   char *p;
- 
-+  /* If this domain is mentioned in the NTA list, consider it insecure */
-+  if (nta_list_contains(daemon->ntas, name)) {
-+      return STAT_INSECURE;
-+  }
-+
-   /* First, work towards the root, looking for a trust anchor.
-      This can either be one configured, or one previously cached.
-      We can assume, if we don't find one first, that there is
-@@ -1966,11 +1991,16 @@ int dnssec_validate_reply(time_t now, struct dns_header *header, size_t plen, ch
-   int type1, class1, rdlen1, type2, class2, rdlen2, qclass, qtype, targetidx;
-   int i, j, rc;
- 
-+  printf("[XX] Status of reply? %s\n", name);
-+  //return STAT_INSECURE;
-+
-   if (neganswer)
-     *neganswer = 0;
-   
--  if (RCODE(header) == SERVFAIL || ntohs(header->qdcount) != 1)
-+  if (RCODE(header) == SERVFAIL || ntohs(header->qdcount) != 1) {
-+    printf("[XX] header rcode is SERVFAIL\n");
-     return STAT_BOGUS;
-+  }
-   
-   if (RCODE(header) != NXDOMAIN && RCODE(header) != NOERROR)
-     return STAT_INSECURE;
+ /* Validate all the RRsets in the answer and authority sections of the reply (4035:3.2.3) */
+ /* Returns are the same as validate_rrset, plus the class if the missing key is in *class */
+ int dnssec_validate_reply(time_t now, struct dns_header *header, size_t plen, char *name, char *keyname, 
 diff --git a/src/forward.c b/src/forward.c
-index 9b464d3..d6e187b 100644
+index 2731b90..e49af33 100644
 --- a/src/forward.c
 +++ b/src/forward.c
-@@ -424,8 +424,11 @@ static int forward_query(int udpfd, union mysockaddr *udpaddr,
- 	  plen = new;
- 	      
+@@ -421,8 +421,11 @@ static int forward_query(int udpfd, union mysockaddr *udpaddr,
+ 	  size_t new_plen = add_do_bit(header, plen, ((char *) header) + daemon->packet_buff_sz);
+ 	 
  	  /* For debugging, set Checking Disabled, otherwise, have the upstream check too,
 -	     this allows it to select auth servers when one is returning bad data. */
 -	  if (option_bool(OPT_DNSSEC_DEBUG))
@@ -317,28 +244,20 @@ index 9b464d3..d6e187b 100644
 +	  if (option_bool(OPT_DNSSEC_DEBUG) || is_nta)
  	    header->hb4 |= HB4_CD;
  
- 	}
-@@ -691,6 +694,7 @@ static size_t process_reply(struct dns_header *header, time_t now, struct server
-   if (bogusanswer && !(header->hb4 & HB4_CD) && !option_bool(OPT_DNSSEC_DEBUG))
-     {
-       /* Bogus reply, turn into SERVFAIL */
-+      printf("[XX] answer is BOGUS\n");
-       SET_RCODE(header, SERVFAIL);
-       munged = 1;
-     }
+ 	  if (new_plen != plen)
 diff --git a/src/option.c b/src/option.c
-index c98bdc9..2f47f69 100644
+index ecc2619..afa597c 100644
 --- a/src/option.c
 +++ b/src/option.c
-@@ -157,6 +157,7 @@ struct myoption {
- #define LOPT_MAXPORT       345
- #define LOPT_CPE_ID        346
- #define LOPT_SCRIPT_ARP    347
+@@ -154,6 +154,7 @@ struct myoption {
+ #define LOPT_HOST_INOTIFY  342
+ #define LOPT_DNSSEC_STAMP  343
+ #define LOPT_TFTP_NO_FAIL  344
 +#define LOPT_DNSSEC_NTA_FILE 348
  
  #ifdef HAVE_GETOPT_LONG
  static const struct option opts[] =  
-@@ -309,6 +310,7 @@ static const struct myoption opts[] =
+@@ -304,6 +305,7 @@ static const struct myoption opts[] =
      { "dnssec-check-unsigned", 0, 0, LOPT_DNSSEC_CHECK },
      { "dnssec-no-timecheck", 0, 0, LOPT_DNSSEC_TIME },
      { "dnssec-timestamp", 1, 0, LOPT_DNSSEC_STAMP },
@@ -346,7 +265,7 @@ index c98bdc9..2f47f69 100644
  #ifdef OPTION6_PREFIX_CLASS 
      { "dhcp-prefix-class", 1, 0, LOPT_PREF_CLSS },
  #endif
-@@ -478,6 +480,7 @@ static struct {
+@@ -469,6 +471,7 @@ static struct {
    { LOPT_DNSSEC_CHECK, OPT_DNSSEC_NO_SIGN, NULL, gettext_noop("Ensure answers without DNSSEC are in unsigned zones."), NULL },
    { LOPT_DNSSEC_TIME, OPT_DNSSEC_TIME, NULL, gettext_noop("Don't check DNSSEC signature timestamps until first cache-reload"), NULL },
    { LOPT_DNSSEC_STAMP, ARG_ONE, "<path>", gettext_noop("Timestamp file to verify system clock for DNSSEC"), NULL },
@@ -354,7 +273,7 @@ index c98bdc9..2f47f69 100644
  #ifdef OPTION6_PREFIX_CLASS 
    { LOPT_PREF_CLSS, ARG_DUP, "set:tag,<class>", gettext_noop("Specify DHCPv6 prefix class"), NULL },
  #endif
-@@ -4018,6 +4021,16 @@ static int one_opt(int option, char *arg, char *errstr, char *gen_err, int comma
+@@ -3929,6 +3932,16 @@ static int one_opt(int option, char *arg, char *errstr, char *gen_err, int comma
  	
  	break;
        }
@@ -371,10 +290,10 @@ index c98bdc9..2f47f69 100644
  #endif
  		
      default:
-@@ -4488,6 +4501,7 @@ void read_opts(int argc, char **argv, char *compile_opts)
+@@ -4398,6 +4411,7 @@ void read_opts(int argc, char **argv, char *compile_opts)
+   daemon->soa_refresh = SOA_REFRESH;
    daemon->soa_retry = SOA_RETRY;
    daemon->soa_expiry = SOA_EXPIRY;
-   daemon->max_port = MAX_PORT;
 +  daemon->nta_file = NULL;
  
    add_txt("version.bind", "dnsmasq-" VERSION, 0 );
