@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=sidn_dnsmasq
-PKG_VERSION:=2.75_sidn1
+PKG_VERSION:=2.75
 PKG_RELEASE:=5
 
 PKG_SOURCE:=dnsmasq-$(PKG_VERSION).tar.xz
