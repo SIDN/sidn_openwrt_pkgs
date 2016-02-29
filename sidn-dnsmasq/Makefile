@@ -11,7 +11,7 @@ PKG_NAME:=sidn_dnsmasq
 PKG_VERSION:=2.75_sidn1
 PKG_RELEASE:=5
 
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
+PKG_SOURCE:=dnsmasq-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=http://thekelleys.org.uk/dnsmasq
 PKG_MD5SUM:=887236f1ddde6eb57cdb9d01916c9f72
 
