@@ -1,0 +1,93 @@
+body {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.red {
+    color: #ff0000;
+}
+
+.white {
+    color: #bbbbbb;
+}
+
+a {
+    font-weight: bold;
+    height: 1.8em;
+    margin-right: 0.5em;
+    text-decoration: none;
+    color: #214754;
+    background: #fefffe;
+}
+
+a.selected {
+    color: #436976;
+    border: 1px solid #8CACBB;
+    border-bottom: White 1px solid;
+    font-weight: normal;
+    text-decoration: none;
+    background: #ffffff;
+}
+
+a:hover {
+    background: #dee7ec;
+    border-color: #8CACBB;
+    border-bottom-color: #dee7ec;
+    color: #436976;
+    text-decoration: none;
+}
+
+div.itemseparator {
+    margin-top: 10px;
+    height: 1px;
+}
+
+div.itemseparator-line {
+    width: 80%;
+    float: left;
+}
+
+div.logo {
+    position: absolute;
+    top: 0px;
+    right: 10px;
+    z-index: 2;
+    height: 53px;
+}
+
+.main_header {
+    margin-left: 4px;
+    margin-bottom: 4px;
+}
+
+.main_header_title {
+    top: 0px;
+    padding-left: 4px;
+}
+
+.main_header_error {
+    color: #DD0000;
+}
+
+.main_header_title h2 {
+    font-weight: bold;
+}
+
+.lined {
+    border-bottom: 1px dashed #aaaaaa;
+}
+
+.main {
+    border-bottom: 1px dashed #aaaaaa;
+    padding-left: 1em;
+    background-color: #ffffff;
+}
+
+.inlay {
+    padding-left: 2em;
+    width: 50%;
+}
+
+.nta_domain {
+    font-weight: bold;
+    color: #009900;
+}
