@@ -7,7 +7,7 @@ PKG_RELEASE:=1
 PKG_BUILD_DIR:=$(BUILD_DIR)/sidn-extra-files-dnsmasq
 PKG_SOURCE:=sidn-extra-files-dnsmasq.tar.gz
 PKG_SOURCE_URL:=https://tjeb.nl
-PKG_MD5SUM:=95dd2ad2a0740c18478ad89a574cac26
+PKG_MD5SUM:=3731d04fa7cee86e564cf6be6f0fe5e4
 
 include $(INCLUDE_DIR)/package.mk
 
