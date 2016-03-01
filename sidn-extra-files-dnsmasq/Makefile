@@ -29,6 +29,7 @@ define Build/Configure
 endef
 
 define Package/sidn-extra-files-dnsmasq/install
+  echo "$(CP) -r ./files/* $(1)/"
   $(CP) -r ./files/* $(1)/
 endef
 
