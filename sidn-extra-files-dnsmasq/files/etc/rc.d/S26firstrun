@@ -1,0 +1,31 @@
+#!/bin/sh
+
+CHECK_FILE="/etc/first_run.done"
+
+if [ -f "$CHECK_FILE" ]; then
+    echo "first run already done, delete $CHECK_FILE to run setup again"
+else
+    # just in case we are slow, wait for a link-local address on br-lan
+    echo "doing first run setup"
+    HWADDR=`/sbin/get_hwaddr.sh`
+    # If we want to automatically determine ip addresses we could use
+    # this, but currently they are hard-configured to local address
+    # space anyway
+    #IP4ADDR=`/sbin/get_ip4addr.sh`
+    #IP6ADDR=`/sbin/get_ip6addr.sh`
+    
+    cat /etc/config/wireless.in | sed "s/XHWADDRX/${HWADDR}/" > /etc/config/wireless
+
+    # Replace dhcp conf
+    cp /etc/config/dhcp.in /etc/config/dhcp
+
+    # Store results
+    touch "$CHECK_FILE"
+    echo "SSID:     SIDN-GL-Inet-${HWADDR}" >> "$CHECK_FILE"
+    /etc/init.d/network restart
+    
+    # Show the current version in the main html menu
+    VERSION=`cat /etc/valibox.version`
+    cat /www/index.html.in | sed "s/XVERSIONX/${VERSION}/" > /www/index.html
+    
+fi
