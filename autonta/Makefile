@@ -19,21 +19,26 @@ PKG_SHA256SUM:=d95ec2d6acee7da03443ce64961e168f0109fd252bb5b7f1fbc4f8d7d7c539de
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/autonta/Default
-  TITLE:=Negative Trust Anchor management
-  URL:=http://valibox.sidnlabs.nl
-endef
-
 define Package/autonta
-  $(call Package/autonta/Default)
   SECTION:=base
   CATEGORY:=Network
   SUBMENU:=SIDN
-  TITLE+= (daemon)
-#  DEPENDS+= 
+  TITLE:=Negative Trust Anchor Management system
+  #DESCRIPTION:=This variable is obsolete. use the Package/name/description define instead!
+  URL:=http://www.sidnlabs.nl
+  DEPENDS:=+nginx +python-webpy
 endef
 
-define Package/sidn-unbound/description
-  This package contains the web-interface for negative trust anchors
+define Package/autonta/description
+ This package contains the web-interface for negative trust anchors
 endef
+
+define Build/Configure
+endef
+
+define Package/autonta/install
+  $(CP) -r ./files/* $(1)/
+endef
+
+$(eval $(call BuildPackage,autonta))
 
