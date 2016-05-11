@@ -199,7 +199,7 @@ class NTA:
 # (Note: this could be separated into a whole new instance, but
 # we do not want to run even more python instances)
 #
-UPDATE_CHECK_BASE='https://check.sidnlabs.nl/valibox/'
+UPDATE_CHECK_BASE='https://valibox.sidnlabs.nli/download/valibox/'
 WGET='/usr/bin/wget'
 
 # The information file about updates should be at
@@ -341,7 +341,7 @@ class UpdateInstall:
         if not fvi.fetch_version_info():
             return render.update_check(True, False, current_version, None, None)
         update_version = fvi.get_version_for(board_name)
-        if update_version is None or update_version == current_version:
+        if update_version is None:# or update_version == current_version:
             return render.update_check(False, False, current_version, None, None)
         else:
             # there is a new version
