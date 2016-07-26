@@ -29,7 +29,7 @@ define Build/Configure
 endef
 
 define Package/sidn-extra-files/install
-  $(CP) -r ./files/* $(1)/
+  $(CP) --remove-destination -r ./files/* $(1)/
 endef
 
 $(eval $(call BuildPackage,sidn-extra-files))

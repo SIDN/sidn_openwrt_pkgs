@@ -199,7 +199,8 @@ class NTA:
 # (Note: this could be separated into a whole new instance, but
 # we do not want to run even more python instances)
 #
-UPDATE_CHECK_BASE='https://valibox.sidnlabs.nli/download/valibox/'
+UPDATE_CHECK_BASE='https://valibox.sidnlabs.nl/download/valibox/'
+UPDATE_CHECK_BETA_BASE='https://valibox.sidnlabs.nl/download/valibox/beta'
 WGET='/usr/bin/wget'
 
 # The information file about updates should be at
