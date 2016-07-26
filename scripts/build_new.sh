@@ -35,13 +35,15 @@ fi
 rm -rf bin/ar71xx
 
 # Ok now build
-./scripts/env switch gl-inet
+#./scripts/env switch gl-inet
+cp dotconfig-gl-inet .config
 make -j4
 if [ $? != 0 ]; then
     echo "Error! Aborting";
     exit;
 fi
-./scripts/env switch gl_ar150
+#./scripts/env switch gl_ar150
+cp dotconfig-gl_ar150 .config
 make -j4
 if [ $? != 0 ]; then
     echo "Error! Aborting";
