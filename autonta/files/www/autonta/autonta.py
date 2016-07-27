@@ -304,7 +304,7 @@ class UpdateCheck:
         if not fvi.fetch_version_info():
             return render.update_check(True, False, current_version, None, None)
         update_version = fvi.get_version_for(board_name)
-        if update_version is None or update_version == current_version:
+        if update_version is None or update_version == current_version and not "beta" in version:
             return render.update_check(False, False, current_version, None, None)
         else:
             # there is a new version
