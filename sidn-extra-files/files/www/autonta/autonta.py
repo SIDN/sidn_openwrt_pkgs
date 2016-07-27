@@ -234,7 +234,7 @@ class FirmwareVersionInfo:
             return True
         except Exception as exc:
             logger.debug("Error in fetch: " + str(exc))
-            raise exc
+            #raise exc
             return False
 
     def get_version_for(self, board):
