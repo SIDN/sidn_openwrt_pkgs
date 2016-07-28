@@ -199,8 +199,8 @@ class NTA:
 # (Note: this could be separated into a whole new instance, but
 # we do not want to run even more python instances)
 #
-UPDATE_CHECK_BASE='https://valibox.sidnlabs.nl/download/valibox/'
-UPDATE_CHECK_BASE_BETA='https://valibox.sidnlabs.nl/download/valibox/beta'
+UPDATE_CHECK_BASE='https://valibox.sidnlabs.nl/downloads/valibox/'
+UPDATE_CHECK_BASE_BETA='https://valibox.sidnlabs.nl/downloads/valibox/beta/'
 WGET='/usr/bin/wget'
 
 # The information file about updates should be at
@@ -227,7 +227,7 @@ class FirmwareVersionInfo:
         # has some SSL issues
         # There is also very little checking on data for now
         try:
-            if "beta" in self.get_current_version():
+            if "beta" in get_current_version():
                 base_url = UPDATE_CHECK_BASE_BETA
             else:
                 base_url = UPDATE_CHECK_BASE
