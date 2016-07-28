@@ -245,13 +245,23 @@ class FirmwareVersionInfo:
         if board in self.versions:
             return self.versions[board][0]
 
-    def get_firmware_url_for(self, board):
-        if board in self.versions:
-            return UPDATE_CHECK_BASE + self.versions[board][1]
+    def get_firmware_url_for(self, board):                                            
+        if "beta" in get_current_version():                                       
+            base_url = UPDATE_CHECK_BASE_BETA                                         
+        else:                                                                     
+            base_url = UPDATE_CHECK_BASE                                          
+                                                                                  
+        if board in self.versions:                                                
+            return base_url + self.versions[board][1]           
 
     def get_info_url_for(self, board):
+        if "beta" in get_current_version():                                       
+            base_url = UPDATE_CHECK_BASE_BETA                                         
+        else:                                                                     
+            base_url = UPDATE_CHECK_BASE                                          
+                                                                                  
         if board in self.versions:
-            return UPDATE_CHECK_BASE + self.versions[board][2]
+            return base_url + self.versions[board][2]
 
     def get_sha256sum_for(self, board):
         if board in self.versions:
