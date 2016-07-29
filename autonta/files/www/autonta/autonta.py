@@ -43,7 +43,8 @@ urls = [
  '/autonta', 'NTA',
  '/', 'NTA',
  '/autonta/update_check', 'UpdateCheck',
- '/autonta/update_install', 'UpdateInstall'
+ '/autonta/update_install', 'UpdateInstall',
+ '/autonta/update_install_beta', 'UpdateInstallBeta'
 ]
 render = web.template.render('templates/', base='base')
 
@@ -167,8 +168,8 @@ class AskNTA:
         lc = len(labels)
         for i in range(lc-1):
             domains.append(".".join(labels[i:lc]))
-            
-        
+
+
         return render.ask_nta(host, domains)
 
 class NTA:
@@ -216,23 +217,24 @@ WGET='/usr/bin/wget'
 # Note: for now, each board name can only have one version; it signals
 # the 'current' version. There is no concept of 'newer/older' versions
 # Also note that we should sign these probably :p
+#
 class FirmwareVersionInfo:
-    def __init__(self):
+    def __init__(self, beta=False):
         # Store as 'board'->(version, sha1sum ,firmware_url,update_url)
         self.versions = {}
-    
+        if beta:
+            self.base_url = UPDATE_CHECK_BASE_BETA
+        else:
+            self.base_url = UPDATE_CHECK_BASE
+
     def fetch_version_info(self):
         # Retrieve it with curl?
         # Retrieve it through a call to wget; this python version
         # has some SSL issues
         # There is also very little checking on data for now
         try:
-            if "beta" in get_current_version():
-                base_url = UPDATE_CHECK_BASE_BETA
-            else:
-                base_url = UPDATE_CHECK_BASE
-            tmpfile = "/tmp/versions.txt"
-            for line in fetch_file(base_url + "versions.txt", tmpfile):
+            tmpfile = "/tmp/versions_release.txt"
+            for line in fetch_file(self.base_url + "versions.txt", tmpfile):
                 parts = line.strip().split(' ')
                 self.versions[parts[0]] = parts[1:]
             return True
@@ -245,25 +247,15 @@ class FirmwareVersionInfo:
         if board in self.versions:
             return self.versions[board][0]
 
-    def get_firmware_url_for(self, board):                                            
-        if "beta" in get_current_version():                                       
-            base_url = UPDATE_CHECK_BASE_BETA                                         
-        else:                                                                     
-            base_url = UPDATE_CHECK_BASE                                          
-                                                                                  
-        if board in self.versions:                                                
-            return base_url + self.versions[board][1]           
-
-    def get_info_url_for(self, board):
-        if "beta" in get_current_version():                                       
-            base_url = UPDATE_CHECK_BASE_BETA                                         
-        else:                                                                     
-            base_url = UPDATE_CHECK_BASE                                          
-                                                                                  
+    def get_firmware_url(self, board):
         if board in self.versions:
-            return base_url + self.versions[board][2]
+            return self.base_url + self.versions[board][1]
 
-    def get_sha256sum_for(self, board):
+    def get_info_url(self, board):
+        if board in self.versions:
+            return self.base_url + self.versions[board][2]
+
+    def get_sha256sum(self, board):
         if board in self.versions:
             return self.versions[board][3]
 
@@ -286,7 +278,7 @@ def fetch_file(url, output_file, return_data=True):
             return []
         else:
             return False
-    
+
 def get_board_name():
     """
     Read the board name of this device
@@ -312,20 +304,25 @@ class UpdateCheck:
         nocache()
         logger.debug("UpdateCheck called")
         current_version = get_current_version()
+        currently_beta = "beta" in current_version
         board_name = get_board_name()
-        fvi = FirmwareVersionInfo()
+        fvi_release = FirmwareVersionInfo()
+        fvi_beta = FirmwareVersionInfo(True)
 
-        if not fvi.fetch_version_info():
+        if not fvi_release.fetch_version_info() or not fvi_beta.fetch_version_info():
             return render.update_check(True, False, current_version, None, None)
-        update_version = fvi.get_version_for(board_name)
-        if update_version is None or update_version == current_version and not "beta" in version:
+        if not currently_beta:
+            update_version = fvi_release.get_version(board_name)
+        else:
+            update_version = fvi_beta.get_version(board_name)
+        if update_version is None or update_version == current_version:
             return render.update_check(False, False, current_version, None, None)
         else:
             # there is a new version
             # Fetch info
             lines = fetch_file(fvi.get_info_url_for(board_name), "/tmp/update_info.txt")
             info = "\n".join(lines)
-            return render.update_check(False, True, current_version, update_version, info)
+            return render.update_check(False, True, current_version, currently_beta, update_version, info)
         return render.nta_set(host)
 
 def install_update():
@@ -352,6 +349,31 @@ class UpdateInstall:
         board_name = get_board_name()
         # Note, we download it again (just in case it was an old link)
         fvi = FirmwareVersionInfo()
+
+        if not fvi.fetch_version_info():
+            return render.update_check(True, False, current_version, None, None)
+        update_version = fvi.get_version_for(board_name)
+        if update_version is None:# or update_version == current_version:
+            return render.update_check(False, False, current_version, None, None)
+        else:
+            # there is a new version
+            # Fetch info
+            success = fetch_file(fvi.get_firmware_url_for(board_name), "/tmp/firmware_update.bin", False)
+            if success and check_sha256sum("/tmp/firmware_update.bin", fvi.get_sha256sum_for(board_name)):
+                threading.Thread(target=install_update).start()
+                return render.update_install(True, update_version)
+            else:
+                return render.update_install(False, update_version)
+        return render.nta_set(host)
+
+class UpdateInstallBeta:
+    def GET(self):
+        nocache()
+        logger.debug("UpdateInstall called")
+        current_version = get_current_version()
+        board_name = get_board_name()
+        # Note, we download it again (just in case it was an old link)
+        fvi = FirmwareVersionInfo(beta=True)
 
         if not fvi.fetch_version_info():
             return render.update_check(True, False, current_version, None, None)
