@@ -1,4 +1,4 @@
-$def with (update_check_failed, update_available, current_version, currently_beta, update_version, update_info)
+$def with (update_check_failed, update_available, current_version, currently_beta, other_version, update_version, update_info)
 
     <div>
         <b>SIDN Valibox Update</b>
@@ -37,11 +37,11 @@ $else:
         </p>
 $if currently_beta:
         <p>
-            <a href="//valibox./autonta/update_install">Klik hier om de laatste release-versie te installeren</a>
+            <a href="//valibox./autonta/update_install">Klik hier om de laatste release-versie te installeren ($other_version)</a>
         </p>
 $else:
         <p>
-            <a href="//valibox./autonta/update_install_beta">Klik hier om de laatste beta-versie te installeren</a>
+            <a href="//valibox./autonta/update_install_beta">Klik hier om de laatste beta-versie te installeren ($other_version)</a>
         </p>
      </div>
     </div>

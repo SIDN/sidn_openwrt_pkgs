@@ -243,7 +243,7 @@ class FirmwareVersionInfo:
             #raise exc
             return False
 
-    def get_version_for(self, board):
+    def get_version(self, board):
         if board in self.versions:
             return self.versions[board][0]
 
@@ -313,16 +313,22 @@ class UpdateCheck:
             return render.update_check(True, False, current_version, None, None)
         if not currently_beta:
             update_version = fvi_release.get_version(board_name)
+            other_version = fvi_beta.get_version(board_name)
         else:
             update_version = fvi_beta.get_version(board_name)
+            other_version = fvi_release.get_version(board_name)
         if update_version is None or update_version == current_version:
             return render.update_check(False, False, current_version, None, None)
         else:
             # there is a new version
             # Fetch info
-            lines = fetch_file(fvi.get_info_url_for(board_name), "/tmp/update_info.txt")
+            if currently_beta:
+                fvi = fvi_beta
+            else:
+                fvi = fvi_release
+            lines = fetch_file(fvi.get_info_url(board_name), "/tmp/update_info.txt")
             info = "\n".join(lines)
-            return render.update_check(False, True, current_version, currently_beta, update_version, info)
+            return render.update_check(False, True, current_version, currently_beta, other_version, update_version, info)
         return render.nta_set(host)
 
 def install_update():
@@ -352,14 +358,14 @@ class UpdateInstall:
 
         if not fvi.fetch_version_info():
             return render.update_check(True, False, current_version, None, None)
-        update_version = fvi.get_version_for(board_name)
+        update_version = fvi.get_version(board_name)
         if update_version is None:# or update_version == current_version:
             return render.update_check(False, False, current_version, None, None)
         else:
             # there is a new version
             # Fetch info
-            success = fetch_file(fvi.get_firmware_url_for(board_name), "/tmp/firmware_update.bin", False)
-            if success and check_sha256sum("/tmp/firmware_update.bin", fvi.get_sha256sum_for(board_name)):
+            success = fetch_file(fvi.get_firmware_url(board_name), "/tmp/firmware_update.bin", False)
+            if success and check_sha256sum("/tmp/firmware_update.bin", fvi.get_sha256sum(board_name)):
                 threading.Thread(target=install_update).start()
                 return render.update_install(True, update_version)
             else:
@@ -377,14 +383,14 @@ class UpdateInstallBeta:
 
         if not fvi.fetch_version_info():
             return render.update_check(True, False, current_version, None, None)
-        update_version = fvi.get_version_for(board_name)
+        update_version = fvi.get_version(board_name)
         if update_version is None:# or update_version == current_version:
             return render.update_check(False, False, current_version, None, None)
         else:
             # there is a new version
             # Fetch info
-            success = fetch_file(fvi.get_firmware_url_for(board_name), "/tmp/firmware_update.bin", False)
-            if success and check_sha256sum("/tmp/firmware_update.bin", fvi.get_sha256sum_for(board_name)):
+            success = fetch_file(fvi.get_firmware_url(board_name), "/tmp/firmware_update.bin", False)
+            if success and check_sha256sum("/tmp/firmware_update.bin", fvi.get_sha256sum(board_name)):
                 threading.Thread(target=install_update).start()
                 return render.update_install(True, update_version)
             else:
