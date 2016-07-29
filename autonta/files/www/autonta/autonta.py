@@ -310,7 +310,7 @@ class UpdateCheck:
         fvi_beta = FirmwareVersionInfo(True)
 
         if not fvi_release.fetch_version_info() or not fvi_beta.fetch_version_info():
-            return render.update_check(True, False, current_version, None, None)
+            return render.update_check(True, False, current_version, currently_beta, "", None, None)
         if not currently_beta:
             update_version = fvi_release.get_version(board_name)
             other_version = fvi_beta.get_version(board_name)
@@ -318,7 +318,7 @@ class UpdateCheck:
             update_version = fvi_beta.get_version(board_name)
             other_version = fvi_release.get_version(board_name)
         if update_version is None or update_version == current_version:
-            return render.update_check(False, False, current_version, None, None)
+            return render.update_check(False, False, current_version, currently_beta, other_version, None, None)
         else:
             # there is a new version
             # Fetch info
@@ -357,10 +357,10 @@ class UpdateInstall:
         fvi = FirmwareVersionInfo()
 
         if not fvi.fetch_version_info():
-            return render.update_check(True, False, current_version, None, None)
+            raise web.seeother("//valibox./update_check")
         update_version = fvi.get_version(board_name)
         if update_version is None:# or update_version == current_version:
-            return render.update_check(False, False, current_version, None, None)
+            raise web.seeother("//valibox./update_check")
         else:
             # there is a new version
             # Fetch info
@@ -382,10 +382,10 @@ class UpdateInstallBeta:
         fvi = FirmwareVersionInfo(beta=True)
 
         if not fvi.fetch_version_info():
-            return render.update_check(True, False, current_version, None, None)
+            raise web.seeother("//valibox./update_check")
         update_version = fvi.get_version(board_name)
         if update_version is None:# or update_version == current_version:
-            return render.update_check(False, False, current_version, None, None)
+            raise web.seeother("//valibox./update_check")
         else:
             # there is a new version
             # Fetch info
