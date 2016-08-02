@@ -1,4 +1,4 @@
-$def with (name, names)
+$def with (name, names, err_html)
   <div class="inlay lined">
     <h2 class="main_header_error">Probleem met $name</h2>
         
@@ -8,6 +8,10 @@ $def with (name, names)
     <p>
         Dit kan komen doordat de DNSSEC-validatie niet is gelukt.
     </p>
+    <p>
+        De foutmelding was:
+    </p>
+    $:err_html
     <p>
         Als je denkt dat het om een configuratiefout van de beheerder 
         gaat, kun je een Negative Trust Anchor zetten, waarna dit 

@@ -13,16 +13,16 @@
 # If the request is for an IP address or one of the known names,
 # it will redirect to that.
 
-import socket
-import subprocess
-import time
-import web
-import os
 import logging
 from logging import handlers
-
+import os
+import re
+import socket
+import subprocess
 import threading
 import time
+import web
+
 
 DEFAULT_REDIRECT_SUFFIX = "/"
 
@@ -78,6 +78,62 @@ def nocache():
     web.header('Cache-Control', 'no-store, no-cache, must-revalidate')
     web.header('Cache-Control', 'post-check=0, pre-check=0', False)
     web.header('Pragma', 'no-cache')
+
+#
+# Code for DNSSEC error presentation
+#
+# Errors are of the form:
+# validation failure \<<dname> <type> <class>\>: <message> for <type> <dname> while building chain of trust
+# Groups:
+# 1: target domain name
+# 2: error message
+# 3: auth server
+# 4: failing type
+# 5: failing domain name
+class DNSSECFailData:
+    valfail_regex = "validation failure <([a-zA-Z.-]+) [A-Z]+ [A-Z]+>: (.*) from (.*) for (.*) (.*) while building chain of trust"
+    matcher = re.compile(valfail_regex)
+
+    def __init__(self, inputline):
+        self.m = DNSSECFailData.matcher.match(inputline)
+        if self.m is not None:
+            self.parse()
+
+    def matched(self):
+        return self.m is not None
+
+    def parse(self):
+        self.target_dname = self.m.group(1)
+        self.err_msg = self.m.group(2)
+        self.auth_server = self.m.group(3)
+        self.fail_type = self.m.group(4)
+        self.fail_dname = self.m.group(5)
+
+    def as_message_list(self):
+        return [
+          "Validation failed for %s" % self.target_dname,
+          "Because the server at %s returned a bad answer" % self.auth_server,
+          "Error: %s" % self.err_msg,
+          "For the %s record of %s" % (self.fail_type, self.fail_dname),
+        ]
+
+    def as_html(self):
+        return \
+          "<p>Validation failed for <b>%s</b></p>\n" % self.target_dname +\
+          "<p>Because the server at <b>%s</b> returned a bad answer</p>\n" % self.auth_server +\
+          "<p style=\"color:red\">Error: %s</p>\n" % self.err_msg +\
+          "<p>For the %s record of %s</p>\n" % (self.fail_type, self.fail_dname)
+
+def get_unbound_host_valfail(dname):
+    cmd = "unbound-host -C /etc/unbound/unbound.conf %s" % dname
+    #cmd = "unbound-host -D %s" % dname
+    logger.debug(cmd)
+    stdout = run_cmd(shlex.split(cmd))
+    for fl in stdout:
+        dfd = DNSSECFailData(fl)
+        if dfd.matched():
+            return dfd
+
 
 #
 # Code for NTA management
@@ -160,6 +216,14 @@ class AskNTA:
     def GET(self, host):
         nocache()
         logger.debug("AskNTA called")
+
+        # Get the actual error
+        err = get_unbound_host_valfail(dname)
+        if err is not None:
+            err_html = err.as_html()
+        else:
+            err_html = "Unknown error! Not DNSSEC?"
+
         # make a list of domains to possibly set an NTA for
         if host.endswith('.'):
             host = host[:-1]
@@ -170,7 +234,7 @@ class AskNTA:
             domains.append(".".join(labels[i:lc]))
 
 
-        return render.ask_nta(host, domains)
+        return render.ask_nta(host, domains, err_html)
 
 class NTA:
     def GET(self):
