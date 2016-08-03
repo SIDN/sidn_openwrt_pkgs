@@ -198,13 +198,29 @@ def remove_nta(host):
 def get_ntas():
     return run_cmd([UNBOUND_CONTROL, "list_insecure"])
 
+def check_validity(host):
+    # the referer must be the ask_nta page
+    referer = web.ctx.env.get("HTTP_REFERER")
+    if referer is None:
+        logger.debug("Invalid request: no referer")
+	return False
+    regex = "https?://(valibox\.)|(192\.168\.53\.1)/autonta/ask_nta/%s" % host
+    referer_match = re.match(regex, referer)
+    if referer_match is None:
+        logger.debug("Invalid request: bad referer: %s does not match %s" % (referer, regex))
+        return False
+    return True
+
 class SetNTA:
     def GET(self, host):
         nocache()
         logger.debug("SetNTA called")
         # TODO: full URI.
-        add_nta(host)
-        return render.nta_set(host)
+        if check_validity(host):
+            add_nta(host)
+            return render.nta_set(host)
+        else:
+            raise web.seeother("http://valibox./autonta/ask_nta/%s" % host)
 
 class RemoveNTA:
     def GET(self, host):
