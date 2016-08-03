@@ -17,6 +17,7 @@ import logging
 from logging import handlers
 import os
 import re
+import shlex
 import socket
 import subprocess
 import threading
@@ -218,7 +219,7 @@ class AskNTA:
         logger.debug("AskNTA called")
 
         # Get the actual error
-        err = get_unbound_host_valfail(dname)
+        err = get_unbound_host_valfail(host)
         if err is not None:
             err_html = err.as_html()
         else:
