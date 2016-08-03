@@ -1,4 +1,4 @@
-$def with (name, names, err_html)
+$def with (name, names, err_html, dst)
   <div class="inlay lined">
     <h2 class="main_header_error">Probleem met $name</h2>
         
@@ -23,6 +23,6 @@ $def with (name, names, err_html)
     </p>
 $for name in names:
     <p>
-        <a href="/autonta/set_nta/$name">Zet een Negative Trust Anchor voor $name</a>
+        <a href="/autonta/set_nta/$name?dst=$dst">Zet een Negative Trust Anchor voor $name</a>
     </p>
   </div>

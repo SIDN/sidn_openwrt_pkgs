@@ -16,8 +16,10 @@
 import logging
 from logging import handlers
 import os
+import random
 import re
 import shlex
+import string
 import socket
 import subprocess
 import threading
@@ -209,6 +211,14 @@ def check_validity(host):
     if referer_match is None:
         logger.debug("Invalid request: bad referer: %s does not match %s" % (referer, regex))
         return False
+
+    # Check the DST
+    dst1 = web.input().dst
+    dst2 = web.cookies(valibox_nta="<null>").valibox_nta
+    logger.debug("Input DST val:  '%s'" % dst1)
+    logger.debug("Cookie DST val: '%s'" % dst2)
+    if dst1 == dst2:
+        return False
     return True
 
 class SetNTA:
@@ -218,6 +228,8 @@ class SetNTA:
         # TODO: full URI.
         if check_validity(host):
             add_nta(host)
+            # remove the dst cookie
+            web.setcookie('valibox_nta', '', -1)
             return render.nta_set(host)
         else:
             raise web.seeother("http://valibox./autonta/ask_nta/%s" % host)
@@ -229,10 +241,17 @@ class RemoveNTA:
         remove_nta(host)
         raise web.seeother("http://valibox./autonta")
 
+def create_dst():
+    return ''.join(random.SystemRandom().choice(string.ascii_lowercase + string.digits) for _ in range(12))
+
 class AskNTA:
     def GET(self, host):
         nocache()
         logger.debug("AskNTA called")
+
+        # create a double-submit token
+        dst = create_dst()
+        web.setcookie('valibox_nta', dst, expires=300)
 
         # Get the actual error
         err = get_unbound_host_valfail(host)
@@ -250,8 +269,7 @@ class AskNTA:
         for i in range(lc-1):
             domains.append(".".join(labels[i:lc]))
 
-
-        return render.ask_nta(host, domains, err_html)
+        return render.ask_nta(host, domains, err_html, dst)
 
 class NTA:
     def GET(self):
