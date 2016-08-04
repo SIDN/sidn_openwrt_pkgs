@@ -1,0 +1,7 @@
+
+config language
+	option language 'nl_NL'
+
+config options
+	option disable_nta '1'
+
