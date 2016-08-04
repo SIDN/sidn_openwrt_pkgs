@@ -17,34 +17,45 @@ $if update_check_failed:
 $else:
     $if update_available:
         <p>
-            Versie $update_version beschikbaar (huidige versie: $current_version).
+            Versie $update_version beschikbaar! (huidige versie: $current_version)
         </p>
         <pre>
             $update_info
         </pre>
-        <p>
         $if currently_beta:
-            <a href="//valibox./autonta/update_install_beta">Klik hier om de update te installeren</a>
+            <p>
+                <a href="//valibox./autonta/update_install_beta">Klik hier om de update te installeren</a>
+            </p>
+            <p>
+                <a href="//valibox./autonta/update_install">Klik hier om de laatste release-versie te installeren ($other_version)
+            </p>
         $else:
-            <a href="//valibox./autonta/update_install">Klik hier om de update te installeren</a>
-        </p>
+            <p>
+                <a href="//valibox./autonta/update_install">Klik hier om de update te installeren</a>
+            </p>
+            <p>
+                <a href="//valibox./autonta/update_install_beta">Klik hier om de laatste beta-versie te installeren ($other_version)
+            </p>
     $else:
         <p>
-            Er is geen update beschikbaar (huidige versie: $current_version).
+            Er is geen update beschikbaar (huidige versie: $current_version)
         </p>
         <p>
             <a href="//valibox./autonta/update_check">Controleer opnieuw</a>
         </p>
-        <p>
-            <a href="//valibox./autonta/update_install">Klik hier om de huidige versie opnieuw te installeren</a>
-        </p>
-$if currently_beta:
-        <p>
-            <a href="//valibox./autonta/update_install">Klik hier om de laatste release-versie te installeren ($other_version)</a>
-        </p>
-$else:
-        <p>
-            <a href="//valibox./autonta/update_install_beta">Klik hier om de laatste beta-versie te installeren ($other_version)</a>
-        </p>
-     </div>
+        $if currently_beta:
+            <p>
+                <a href="//valibox./autonta/update_install_beta">Klik hier om de huidige versie opnieuw te installeren</a>
+            </p>
+            <p>
+                <a href="//valibox./autonta/update_install">Klik hier om de laatste release-versie te installeren ($other_version)
+            </p>
+        $else:
+            <p>
+                <a href="//valibox./autonta/update_install">Klik hier om de huidige versie opnieuw te installeren</a>
+            </p>
+            <p>
+                <a href="//valibox./autonta/update_install_beta">Klik hier om de laatste beta-versie te installeren ($other_version)
+            </p>
+    </div>
     </div>
