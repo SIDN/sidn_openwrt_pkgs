@@ -140,7 +140,7 @@ def get_unbound_host_valfail(dname):
 #
 # Language keys
 #
-BASE_LANGKEY_PATH = "/var/valibox/autonta_lang"
+BASE_LANGKEY_PATH = "/usr/lib/valibox/autonta_lang"
 
 class LanguageKey:
     def __init__(self, keystr):
