@@ -137,6 +137,81 @@ def get_unbound_host_valfail(dname):
         if dfd.matched():
             return dfd
 
+#
+# Language keys
+#
+BASE_LANGKEY_PATH = "/var/valibox/autonta_lang"
+
+class LanguageKey:
+    def __init__(self, keystr):
+        self.keystr = keystr.strip()
+
+    def __str__(self):
+        return self.keystr
+
+    def __call__(self, args):
+        return self.keystr % args
+
+class LanguageKeys:
+    def __init__(self, language):
+        self.keys = {}
+        self.read_keys(language)
+
+    def read_keys(self, language):
+        filename = "%s/%s" % (BASE_LANGKEY_PATH, language)
+        try:
+            with open(filename, 'r') as inputfile:
+                for line in inputfile:
+                    parts = line.partition(':')
+                    key = parts[0]
+                    value = parts[2]
+                    self.keys[parts[0]] = LanguageKey(parts[2])
+        except Exception as exc:
+            # log error (TODO)
+            # just read the english one
+            if language != 'en_US':
+                self.read_keys('en_US')
+            else:
+                raise exc
+        logger.debug("Read %d langkeys from %s" % (len(self.keys.keys()), filename))
+
+    def __getattr__(self, key):
+        if key in self.keys:
+            return self.keys[key]
+        else:
+            return LanguageKey("<MISSING_LANGUAGE_KEY: %s>" % key)
+
+
+#
+# General config
+#
+class AutoNTAConfig:
+    def __init__(self, filename):
+        self.config_values = {}
+        self.read_file(filename)
+
+    def read_file(self, filename):
+        with open(filename) as inputfile:
+            for line in inputfile.readlines():
+                parts = line.strip().split()
+                if len(parts) > 2 and parts[0] == 'option':
+                    pval = parts[2]
+                    if pval == "'1'" or pval == "1":
+                        pval = True
+                    elif pval == "'0'" or pval == "0":
+                        pval = False
+                    else:
+                        pval = pval[1:-1]
+                    self.config_values[parts[1]] = pval
+
+    def get(self, name, default = None):
+        if name in self.config_values:
+            return self.config_values[name]
+        else:
+            return default
+
+config = AutoNTAConfig("/etc/config/valibox")
+langkeys = LanguageKeys(config.get('language'))
 
 #
 # Code for NTA management
