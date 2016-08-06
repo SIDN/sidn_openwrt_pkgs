@@ -26,7 +26,7 @@ UPDATE_TRY_AGAIN: Try again
 UPDATE_CHECK_FAILED: Could not check whether updates are available. Is the ValiBox connected to the Internet?
 UPDATE_CHECK_CURRENT_VERSION: Current version: %s
 UPDATE_CHECK_AVAILABLE: Version %s available! (current version: %s)
-UPDATE_CHECK_NO_VERSION: No update available (current version: %s)
+UPDATE_CHECK_NO_UPDATE: No update available (current version: %s)
 
 UPDATE_INSTALL_CURRENT: Click here to install the update
 UPDATE_INSTALL_LATEST: Click here to install the latest release version (%s)

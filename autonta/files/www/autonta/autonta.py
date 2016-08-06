@@ -13,19 +13,20 @@
 # If the request is for an IP address or one of the known names,
 # it will redirect to that.
 
+import atexit
 import logging
 from logging import handlers
 import os
 import random
 import re
 import shlex
+import signal
 import string
 import socket
 import subprocess
 import threading
 import time
 import web
-import atexit
 
 DEFAULT_REDIRECT_SUFFIX = "/"
 
@@ -160,6 +161,7 @@ class LanguageKey:
         return self.keystr
 
     def __call__(self, args):
+        logger.debug("[LANG] Replacing values in language key '%s' with '%s'" % (self.keystr, str(args)))
         return self.keystr % args
 
 class LanguageKeys:
@@ -193,6 +195,7 @@ class LanguageKeys:
         if key in self.keys:
             return self.keys[key]
         else:
+            logger.debug("Error: missing language key: %s" % key)
             return LanguageKey("<MISSING_LANGUAGE_KEY: %s>" % key)
 
 
