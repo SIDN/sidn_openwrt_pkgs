@@ -1,3 +1,9 @@
+SIDNLABS: SIDN Labs
+VALIBOX: ValiBox
+
+MAINMENU: Main menu
+SETTINGS_DESCRIPTION: Here you can change the settings of the ValiBox, update passwords, see log files, and make backups.
+
 TRUST_ANCHOR_SET: A negative trust anchor has been set for the domain %s
 TRUST_ANCHOR_MINUTES: It can take a few minutes before this is visible in the browser.
 TRUST_ANCHOR_WAIT: You can wait until then, or you can close the browser and start a new session.
