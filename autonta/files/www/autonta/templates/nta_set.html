@@ -1,16 +1,16 @@
-$def with (name)
+$def with (lk, name)
 
 <div class="inlay lined">
 <p>
-    Er is een negative trust anchor gezet voor het domein $name
+    $lk.TRUST_ANCHOR_SET($name)
 </p>
 <p>
-    Het kan een paar minuten duren voordat dit in de browser merkbaar is.
+    $lk.TRUST_ANCHOR_MINUTES
 </p>
 <p>
-    Je kunt wachten tot het zover is, of je kunt de browser afsluiten en een nieuwe sessie starten.
+    $lk.TRUST_ANCHOR_WAIT
 </p>
 <p>
-    <a href="http://$name">Probeer het direct.</a>
+    <a href="http://$name">$lk.TRY_NOW</a>
 </p>
 </div>

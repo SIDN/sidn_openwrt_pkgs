@@ -162,7 +162,11 @@ class LanguageKeys:
         try:
             with open(filename, 'r') as inputfile:
                 for line in inputfile:
+                    if line.startswith("#"):
+                        continue
                     parts = line.partition(':')
+                    if len(parts) != 3:
+                        continue
                     key = parts[0]
                     value = parts[2]
                     self.keys[parts[0]] = LanguageKey(parts[2])
@@ -280,7 +284,7 @@ def check_validity(host):
     referer = web.ctx.env.get("HTTP_REFERER")
     if referer is None:
         logger.debug("Invalid request: no referer")
-	return False
+        return False
     regex = "https?://(valibox\.)|(192\.168\.53\.1)/autonta/ask_nta/%s" % host
     referer_match = re.match(regex, referer)
     if referer_match is None:
@@ -290,84 +294,95 @@ def check_validity(host):
     # Check the DST
     dst1 = web.input().dst
     dst2 = web.cookies(valibox_nta="<null>").valibox_nta
-    logger.debug("Input DST val:  '%s'" % dst1)
-    logger.debug("Cookie DST val: '%s'" % dst2)
-    if dst1 == dst2:
+    if dst1 != dst2:
+        logger.debug("DST mismatch: %s != %s" % (dst1, dst2))
         return False
     return True
 
 class SetNTA:
     def GET(self, host):
-        nocache()
-        logger.debug("SetNTA called")
-        # TODO: full URI.
-        if check_validity(host):
-            add_nta(host)
-            # remove the dst cookie
-            web.setcookie('valibox_nta', '', -1)
-            return render.nta_set(host)
-        else:
-            raise web.seeother("http://valibox./autonta/ask_nta/%s" % host)
+        try:
+            nocache()
+            logger.debug("SetNTA called")
+            # TODO: full URI.
+            if check_validity(host):
+                add_nta(host)
+                # remove the dst cookie
+                web.setcookie('valibox_nta', '', -1)
+                return render.nta_set(langkeys, host)
+            else:
+                raise web.seeother("http://valibox./autonta/ask_nta/%s" % host)
+        except Exception as exc:
+            return render.error(str(exc))
 
 class RemoveNTA:
     def GET(self, host):
-        nocache()
-        logger.debug("RemoveNTA called")
-        remove_nta(host)
-        raise web.seeother("http://valibox./autonta")
+        try:
+            nocache()
+            logger.debug("RemoveNTA called")
+            remove_nta(host)
+            raise web.seeother("http://valibox./autonta")
+        except Exception as exc:
+            return render.error(str(exc))
 
 def create_dst():
     return ''.join(random.SystemRandom().choice(string.ascii_lowercase + string.digits) for _ in range(12))
 
 class AskNTA:
     def GET(self, host):
-        nocache()
-        logger.debug("AskNTA called")
+        try:
+            nocache()
+            logger.debug("AskNTA called")
 
-        # create a double-submit token
-        dst = create_dst()
-        web.setcookie('valibox_nta', dst, expires=300)
+            # create a double-submit token
+            dst = create_dst()
+            web.setcookie('valibox_nta', dst, expires=300)
 
-        # Get the actual error
-        err = get_unbound_host_valfail(host)
-        if err is not None:
-            err_html = err.as_html()
-        else:
-            err_html = "Unknown error! Not DNSSEC?"
+            # Get the actual error
+            err = get_unbound_host_valfail(host)
+            if err is not None:
+                err_html = err.as_html()
+            else:
+                err_html = "Unknown error! Not DNSSEC?"
 
-        # make a list of domains to possibly set an NTA for
-        if host.endswith('.'):
-            host = host[:-1]
-        domains = []
-        labels = host.split('.')
-        lc = len(labels)
-        for i in range(lc-1):
-            domains.append(".".join(labels[i:lc]))
+            # make a list of domains to possibly set an NTA for
+            if host.endswith('.'):
+                host = host[:-1]
+            domains = []
+            labels = host.split('.')
+            lc = len(labels)
+            for i in range(lc-1):
+                domains.append(".".join(labels[i:lc]))
 
-        return render.ask_nta(host, domains, err_html, dst)
+            return render.ask_nta(host, domains, err_html, dst)
+        except Exception as exc:
+            return render.error(str(exc))
 
 class NTA:
     def GET(self):
-        nocache()
-        logger.debug("Base NTA called")
-        host = web.ctx.env.get('HTTP_HOST')
-        (host, port) = split_host(host)
-        logger.debug("Host: %s" % (host))
-        if port is not None:
-            logger.debug("Port: %d" % (port))
-        if is_valid_ip_address(host) or is_known_host(host):
-            # show NTA list?
-            ntas = get_ntas()
-            return render.nta_list(ntas)
-        else:
-            if host + "." in get_ntas():
-                return render.nta_set(host)
+        try:
+            nocache()
+            logger.debug("Base NTA called")
+            host = web.ctx.env.get('HTTP_HOST')
+            (host, port) = split_host(host)
+            logger.debug("Host: %s" % (host))
             if port is not None:
-                redirect = "http://%s:%s/autonta/ask_nta/%s" % (SELF_HOST, port, host)
+                logger.debug("Port: %d" % (port))
+            if is_valid_ip_address(host) or is_known_host(host):
+                # show NTA list?
+                ntas = get_ntas()
+                return render.nta_list(ntas)
             else:
-                redirect = "http://%s/autonta/ask_nta/%s" % (SELF_HOST, host)
-            logger.debug("Redirecting to %s" % redirect)
-            raise web.seeother(redirect)
+                if host + "." in get_ntas():
+                    return render.nta_set(langkeys, host)
+                if port is not None:
+                    redirect = "http://%s:%s/autonta/ask_nta/%s" % (SELF_HOST, port, host)
+                else:
+                    redirect = "http://%s/autonta/ask_nta/%s" % (SELF_HOST, host)
+                logger.debug("Redirecting to %s" % redirect)
+                raise web.seeother(redirect)
+        except Exception as exc:
+            return render.error(str(exc))
 
 #
 # Code for update checks
@@ -475,35 +490,38 @@ def get_current_version():
 
 class UpdateCheck:
     def GET(self):
-        nocache()
-        logger.debug("UpdateCheck called")
-        current_version = get_current_version()
-        currently_beta = "beta" in current_version
-        board_name = get_board_name()
-        fvi_release = FirmwareVersionInfo()
-        fvi_beta = FirmwareVersionInfo(True)
+        try:
+            nocache()
+            logger.debug("UpdateCheck called")
+            current_version = get_current_version()
+            currently_beta = "beta" in current_version
+            board_name = get_board_name()
+            fvi_release = FirmwareVersionInfo()
+            fvi_beta = FirmwareVersionInfo(True)
 
-        if not fvi_release.fetch_version_info() or not fvi_beta.fetch_version_info():
-            return render.update_check(True, False, current_version, currently_beta, "", None, None)
-        if not currently_beta:
-            update_version = fvi_release.get_version(board_name)
-            other_version = fvi_beta.get_version(board_name)
-        else:
-            update_version = fvi_beta.get_version(board_name)
-            other_version = fvi_release.get_version(board_name)
-        if update_version is None or update_version == current_version:
-            return render.update_check(False, False, current_version, currently_beta, other_version, None, None)
-        else:
-            # there is a new version
-            # Fetch info
-            if currently_beta:
-                fvi = fvi_beta
+            if not fvi_release.fetch_version_info() or not fvi_beta.fetch_version_info():
+                return render.update_check(True, False, current_version, currently_beta, "", None, None)
+            if not currently_beta:
+                update_version = fvi_release.get_version(board_name)
+                other_version = fvi_beta.get_version(board_name)
             else:
-                fvi = fvi_release
-            lines = fetch_file(fvi.get_info_url(board_name), "/tmp/update_info.txt")
-            info = "\n".join(lines)
-            return render.update_check(False, True, current_version, currently_beta, other_version, update_version, info)
-        return render.nta_set(host)
+                update_version = fvi_beta.get_version(board_name)
+                other_version = fvi_release.get_version(board_name)
+            if update_version is None or update_version == current_version:
+                return render.update_check(False, False, current_version, currently_beta, other_version, None, None)
+            else:
+                # there is a new version
+                # Fetch info
+                if currently_beta:
+                    fvi = fvi_beta
+                else:
+                    fvi = fvi_release
+                lines = fetch_file(fvi.get_info_url(board_name), "/tmp/update_info.txt")
+                info = "\n".join(lines)
+                return render.update_check(False, True, current_version, currently_beta, other_version, update_version, info)
+            return render.nta_set(langkeys, host)
+        except Exception as exc:
+            return render.error(str(exc))
 
 def install_update():
     # sleep a little while so the page can still render
@@ -523,53 +541,59 @@ def check_sha256sum(filename, expected_sum):
 
 class UpdateInstall:
     def GET(self):
-        nocache()
-        logger.debug("UpdateInstall called")
-        current_version = get_current_version()
-        board_name = get_board_name()
-        # Note, we download it again (just in case it was an old link)
-        fvi = FirmwareVersionInfo()
+        try:
+            nocache()
+            logger.debug("UpdateInstall called")
+            current_version = get_current_version()
+            board_name = get_board_name()
+            # Note, we download it again (just in case it was an old link)
+            fvi = FirmwareVersionInfo()
 
-        if not fvi.fetch_version_info():
-            raise web.seeother("//valibox./update_check")
-        update_version = fvi.get_version(board_name)
-        if update_version is None:# or update_version == current_version:
-            raise web.seeother("//valibox./update_check")
-        else:
-            # there is a new version
-            # Fetch info
-            success = fetch_file(fvi.get_firmware_url(board_name), "/tmp/firmware_update.bin", False)
-            if success and check_sha256sum("/tmp/firmware_update.bin", fvi.get_sha256sum(board_name)):
-                threading.Thread(target=install_update).start()
-                return render.update_install(True, update_version)
+            if not fvi.fetch_version_info():
+                raise web.seeother("//valibox./update_check")
+            update_version = fvi.get_version(board_name)
+            if update_version is None:# or update_version == current_version:
+                raise web.seeother("//valibox./update_check")
             else:
-                return render.update_install(False, update_version)
-        return render.nta_set(host)
+                # there is a new version
+                # Fetch info
+                success = fetch_file(fvi.get_firmware_url(board_name), "/tmp/firmware_update.bin", False)
+                if success and check_sha256sum("/tmp/firmware_update.bin", fvi.get_sha256sum(board_name)):
+                    threading.Thread(target=install_update).start()
+                    return render.update_install(True, update_version)
+                else:
+                    return render.update_install(False, update_version)
+            return render.nta_set(langkeys, host)
+        except Exception as exc:
+            return render.error(str(exc))
 
 class UpdateInstallBeta:
     def GET(self):
-        nocache()
-        logger.debug("UpdateInstall called")
-        current_version = get_current_version()
-        board_name = get_board_name()
-        # Note, we download it again (just in case it was an old link)
-        fvi = FirmwareVersionInfo(beta=True)
+        try:
+            nocache()
+            logger.debug("UpdateInstall called")
+            current_version = get_current_version()
+            board_name = get_board_name()
+            # Note, we download it again (just in case it was an old link)
+            fvi = FirmwareVersionInfo(beta=True)
 
-        if not fvi.fetch_version_info():
-            raise web.seeother("//valibox./update_check")
-        update_version = fvi.get_version(board_name)
-        if update_version is None:# or update_version == current_version:
-            raise web.seeother("//valibox./update_check")
-        else:
-            # there is a new version
-            # Fetch info
-            success = fetch_file(fvi.get_firmware_url(board_name), "/tmp/firmware_update.bin", False)
-            if success and check_sha256sum("/tmp/firmware_update.bin", fvi.get_sha256sum(board_name)):
-                threading.Thread(target=install_update).start()
-                return render.update_install(True, update_version)
+            if not fvi.fetch_version_info():
+                raise web.seeother("//valibox./update_check")
+            update_version = fvi.get_version(board_name)
+            if update_version is None:# or update_version == current_version:
+                raise web.seeother("//valibox./update_check")
             else:
-                return render.update_install(False, update_version)
-        return render.nta_set(host)
+                # there is a new version
+                # Fetch info
+                success = fetch_file(fvi.get_firmware_url(board_name), "/tmp/firmware_update.bin", False)
+                if success and check_sha256sum("/tmp/firmware_update.bin", fvi.get_sha256sum(board_name)):
+                    threading.Thread(target=install_update).start()
+                    return render.update_install(True, update_version)
+                else:
+                    return render.update_install(False, update_version)
+            return render.nta_set(langkeys, host)
+        except Exception as exc:
+            return render.error(str(exc))
 
 if __name__ == "__main__":
     store_pid()

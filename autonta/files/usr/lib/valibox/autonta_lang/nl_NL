@@ -1,0 +1,4 @@
+TRUST_ANCHOR_SET: Er is een negative trust anchor gezet voor het domein %s
+TRUST_ANCHOR_MINUTES: Het kan een paar minuten duren voordat dit in de browser merkbaar is.
+TRUST_ANCHOR_WAIT: Je kunt wachten tot het zover is, of je kunt de browser afsluiten en een nieuwe sessie starten.
+TRY_NOW: Probeer het direct
