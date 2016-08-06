@@ -1,7 +1,8 @@
-$def with (name, names, err_html, dst)
+$def with (lk, name, names, err_html, dst)
+$var lk = lk
   <div class="inlay lined">
     <h2 class="main_header_error">Probleem met $name</h2>
-        
+
     <p>
         Er is een fout opgetreden bij het opzoeken van de domeinnaam $name.
     </p>
@@ -13,8 +14,8 @@ $def with (name, names, err_html, dst)
     </p>
     $:err_html
     <p>
-        Als je denkt dat het om een configuratiefout van de beheerder 
-        gaat, kun je een Negative Trust Anchor zetten, waarna dit 
+        Als je denkt dat het om een configuratiefout van de beheerder
+        gaat, kun je een Negative Trust Anchor zetten, waarna dit
         domein alsnog te bereiken is. De NTA zal blijven staan totdat
         de valibox opnieuw opgestart wordt.
     </p>

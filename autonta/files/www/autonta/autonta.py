@@ -313,7 +313,7 @@ class SetNTA:
             else:
                 raise web.seeother("http://valibox./autonta/ask_nta/%s" % host)
         except Exception as exc:
-            return render.error(str(exc))
+            return render.error(langkeys, str(exc))
 
 class RemoveNTA:
     def GET(self, host):
@@ -323,7 +323,7 @@ class RemoveNTA:
             remove_nta(host)
             raise web.seeother("http://valibox./autonta")
         except Exception as exc:
-            return render.error(str(exc))
+            return render.error(langkeys, str(exc))
 
 def create_dst():
     return ''.join(random.SystemRandom().choice(string.ascii_lowercase + string.digits) for _ in range(12))
@@ -354,9 +354,9 @@ class AskNTA:
             for i in range(lc-1):
                 domains.append(".".join(labels[i:lc]))
 
-            return render.ask_nta(host, domains, err_html, dst)
+            return render.ask_nta(langkeys, host, domains, err_html, dst)
         except Exception as exc:
-            return render.error(str(exc))
+            return render.error(langkeys, str(exc))
 
 class NTA:
     def GET(self):
@@ -371,7 +371,7 @@ class NTA:
             if is_valid_ip_address(host) or is_known_host(host):
                 # show NTA list?
                 ntas = get_ntas()
-                return render.nta_list(ntas)
+                return render.nta_list(langkeys, ntas)
             else:
                 if host + "." in get_ntas():
                     return render.nta_set(langkeys, host)
@@ -382,7 +382,7 @@ class NTA:
                 logger.debug("Redirecting to %s" % redirect)
                 raise web.seeother(redirect)
         except Exception as exc:
-            return render.error(str(exc))
+            return render.error(langkeys, str(exc))
 
 #
 # Code for update checks
@@ -500,7 +500,7 @@ class UpdateCheck:
             fvi_beta = FirmwareVersionInfo(True)
 
             if not fvi_release.fetch_version_info() or not fvi_beta.fetch_version_info():
-                return render.update_check(True, False, current_version, currently_beta, "", None, None)
+                return render.update_check(langkeys, True, False, current_version, currently_beta, "", None, None)
             if not currently_beta:
                 update_version = fvi_release.get_version(board_name)
                 other_version = fvi_beta.get_version(board_name)
@@ -508,7 +508,7 @@ class UpdateCheck:
                 update_version = fvi_beta.get_version(board_name)
                 other_version = fvi_release.get_version(board_name)
             if update_version is None or update_version == current_version:
-                return render.update_check(False, False, current_version, currently_beta, other_version, None, None)
+                return render.update_check(langkeys, False, False, current_version, currently_beta, other_version, None, None)
             else:
                 # there is a new version
                 # Fetch info
@@ -518,10 +518,10 @@ class UpdateCheck:
                     fvi = fvi_release
                 lines = fetch_file(fvi.get_info_url(board_name), "/tmp/update_info.txt")
                 info = "\n".join(lines)
-                return render.update_check(False, True, current_version, currently_beta, other_version, update_version, info)
+                return render.update_check(langkeys, False, True, current_version, currently_beta, other_version, update_version, info)
             return render.nta_set(langkeys, host)
         except Exception as exc:
-            return render.error(str(exc))
+            return render.error(langkeys, str(exc))
 
 def install_update():
     # sleep a little while so the page can still render
@@ -560,12 +560,12 @@ class UpdateInstall:
                 success = fetch_file(fvi.get_firmware_url(board_name), "/tmp/firmware_update.bin", False)
                 if success and check_sha256sum("/tmp/firmware_update.bin", fvi.get_sha256sum(board_name)):
                     threading.Thread(target=install_update).start()
-                    return render.update_install(True, update_version)
+                    return render.update_install(langkeys, True, update_version)
                 else:
-                    return render.update_install(False, update_version)
-            return render.nta_set(langkeys, host)
+                    return render.update_install(langkeys, False, update_version)
+            return render.nta_set(langkeys, langkeys, host)
         except Exception as exc:
-            return render.error(str(exc))
+            return render.error(langkeys, str(exc))
 
 class UpdateInstallBeta:
     def GET(self):
@@ -588,12 +588,12 @@ class UpdateInstallBeta:
                 success = fetch_file(fvi.get_firmware_url(board_name), "/tmp/firmware_update.bin", False)
                 if success and check_sha256sum("/tmp/firmware_update.bin", fvi.get_sha256sum(board_name)):
                     threading.Thread(target=install_update).start()
-                    return render.update_install(True, update_version)
+                    return render.update_install(langkeys, True, update_version)
                 else:
-                    return render.update_install(False, update_version)
+                    return render.update_install(langkeys, False, update_version)
             return render.nta_set(langkeys, host)
         except Exception as exc:
-            return render.error(str(exc))
+            return render.error(langkeys, str(exc))
 
 if __name__ == "__main__":
     store_pid()

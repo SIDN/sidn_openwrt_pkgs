@@ -1,9 +1,10 @@
-$def with (update_download_success, update_version)
+$def with (lk, update_download_success, update_version)
+$var lk = lk
 
     <div>
         <b>SIDN Valibox Update</b>
     <div class="inlay lined">
-    
+
 $if update_download_success:
         <p>
             Versie $update_version wordt geinstalleerd
