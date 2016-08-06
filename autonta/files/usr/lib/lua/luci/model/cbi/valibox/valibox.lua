@@ -1,5 +1,9 @@
 m = Map("valibox", "Valibox") -- We want to edit the uci config file /etc/config/valibox
 
+m.on_after_commit = function()
+    luci.sys.call("/etc/init.d/autonta restart")
+end
+
 s = m:section(TypedSection, "language", "Language")
 s.anonymous = true
 

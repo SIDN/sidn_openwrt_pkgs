@@ -25,7 +25,7 @@ import subprocess
 import threading
 import time
 import web
-
+import atexit
 
 DEFAULT_REDIRECT_SUFFIX = "/"
 
@@ -61,6 +61,9 @@ def store_pid():
     pid = os.getpid()
     with open("/var/autonta.pid", 'w') as output:
         output.write("%d\n" % pid)
+
+def remove_pidfile():
+    os.unlink("/var/autonta.pid")
 
 #
 # general utility
@@ -597,5 +600,6 @@ class UpdateInstallBeta:
 
 if __name__ == "__main__":
     store_pid()
+    atexit.register(remove_pidfile)
     app = web.application(urls, globals())
     app.run()
