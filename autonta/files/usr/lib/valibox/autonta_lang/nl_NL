@@ -2,9 +2,46 @@ SIDNLABS: SIDN Labs
 VALIBOX: ValiBox
 
 MAINMENU: Hoofdmenu
+GO_TO_MAIN: Ga naar ValiBox hoofdmenu
 SETTINGS_DESCRIPTION: Hier kun je de instellingen van de ValiBox wijzigen, de wachtwoorden veranderen, de logs bekijken, de software updaten, en backups maken.
+
+ERROR: Er is een interne fout opgetreden. De foutmelding is: %s
 
 TRUST_ANCHOR_SET: Er is een negative trust anchor gezet voor het domein %s
 TRUST_ANCHOR_MINUTES: Het kan een paar minuten duren voordat dit in de browser merkbaar is.
 TRUST_ANCHOR_WAIT: Je kunt wachten tot het zover is, of je kunt de browser afsluiten en een nieuwe sessie starten.
 TRY_NOW: Probeer het direct
+
+TRUST_ANCHOR_LIST: Huidige Negative Trust Anchors:
+TRUST_ANCHOR_REMOVE: Verwijder
+TRUST_ANCHOR_NO_ANCHORS: Er zijn op dit moment geen Negative Trust Anchors gezet.
+
+UPDATE: Update
+UPDATE_INSTALLING: Versie %s wordt geinstalleerd
+UPDATE_WAIT: Schakel de ValiBox niet uit en wacht een minuut of 5 tot 10 tot de update geinstalleerd is en de ValiBox opnieuw is gestart.
+UPDATE_CLOSE: U kunt dit scherm sluiten.
+UPDATE_ERROR: Er is een fout opgetreden bij het downloaden van versie %s. Probeer het later opnieuw. Als deze fout blijft optreden, neem contact op met de ValiBox servicedesk.
+UPDATE_TRY_AGAIN: Probeer opnieuw
+
+UPDATE_CHECK_FAILED: Er kon niet gecontroleerd worden of er updates beschikbaar zijn. Heeft de ValiBox toegang tot het Internet?
+UPDATE_CHECK_CURRENT_VERSION: Huidige versie: %s
+UPDATE_CHECK_AVAILABLE: Versie %s beschikbaar! (huidige versie: %s)
+UPDATE_CHECK_NO_VERSION: Er is geen update beschikbaar (huidige versie: %s)
+
+UPDATE_INSTALL_CURRENT: Klik hier om de update te installeren
+UPDATE_INSTALL_LATEST: Klik hier om de laatste release-versie te installeren (%s)
+UPDATE_INSTALL_LATEST_BETA: Klik hier om de laatste beta-versie te installeren (%s)
+UPDATE_INSTALL_REINSTALL: Klik hier om de huidige versie opnieuw te installeren
+
+DNSSEC_ERROR_NAME: Probleem met %s
+DNSSEC_ERROR_NAME_LONG: Er is een fout opgetreden bij het opzoeken van de domeinnaam %s.
+DNSSEC_ERROR_REASON: Dit kan komen doordat de DNSSEC-validatie niet is gelukt.
+
+DNSSEC_ERROR_SERVER: De server %s gaf een niet-validerend antwoord.
+DNSSEC_ERROR_ERROR: Error: %s
+DNSSEC_ERROR_RECORD: Voor het DNS-record: %s %s
+
+DNSSEC_ERROR_SET_NTA_DESCRIPTION: Als je denkt dat het om een configuratiefout van de beheerder gaat, kun je een Negative Trust Anchor zetten, waarna dit domein alsnog te bereiken is. De NTA zal blijven staan totdat de valibox opnieuw opgestart wordt.
+DNSSEC_ERROR_NOT_IF_NOT_TRUSTED: Doe dit NIET als je het niet vertrouwt.
+
+DNSSEC_ERROR_SET_NTA: Zet een Negative Trust Anchor voor %s

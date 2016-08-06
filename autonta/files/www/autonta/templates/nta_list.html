@@ -2,7 +2,7 @@ $def with (lk, ntas)
 $var lk = lk
 
     <div>
-        <b>Huidige Negative Trust Anchors:</b>
+        <b>$lk.TRUST_ANCHOR_LIST</b>
         <div class="inlay lined">
         $if ntas:
             <p>
@@ -11,11 +11,11 @@ $var lk = lk
                 <tr>
                     <td class="nta_domain">$nta</td>
                     <td>&nbsp;</td>
-                    <td><a href="/autonta/remove_nta/$nta">Verwijder</a></td>
+                    <td><a href="/autonta/remove_nta/$nta">$lk.TRUST_ANCHOR_REMOVE</a></td>
                 </tr>
             </table>
             </p>
         $else:
-            <p>Er zijn op dit moment geen Negative Trust Anchors gezet.</p>
+            <p>$lk.TRUST_ANCHOR_NO_ANCHORS</p>
         </div>
     </div>

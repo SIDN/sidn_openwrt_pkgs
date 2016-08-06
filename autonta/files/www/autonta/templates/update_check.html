@@ -2,61 +2,61 @@ $def with (lk, update_check_failed, update_available, current_version, currently
 $var lk = lk
 
     <div>
-        <b>SIDN Valibox Update</b>
+        <b>$lk.SIDNLABS $lk.VALIBOX $lk.UPDATE</b>
     <div class="inlay lined">
 
 $if update_check_failed:
         <p>
-            Er kon niet gecontroleerd worden of er updates beschikbaar zijn. Heeft de ValiBox toegang tot het Internet?
+            $lk.UPDATE_CHECK_FAILED
         </p>
         <p>
-            Huidige versie: $current_version
+            $lk.UPDATE_CHECK_CURRENT_VERSION(current_version)
         </p>
         <p>
-            <a href="//valibox./autonta/update_check">Probeer opnieuw</a>
+            <a href="//valibox./autonta/update_check">$lk.UPDATE_TRY_AGAIN</a>
         </p>
 $else:
     $if update_available:
         <p>
-            Versie $update_version beschikbaar! (huidige versie: $current_version)
+            $lk.UPDATE_CHECK_AVAILABLE(update_version, current_version)
         </p>
         <pre>
             $update_info
         </pre>
         $if currently_beta:
             <p>
-                <a href="//valibox./autonta/update_install_beta">Klik hier om de update te installeren</a>
+                <a href="//valibox./autonta/update_install_beta">$lk.UPDATE_INSTALL_CURRENT</a>
             </p>
             <p>
-                <a href="//valibox./autonta/update_install">Klik hier om de laatste release-versie te installeren ($other_version)
+                <a href="//valibox./autonta/update_install">$lk.UPDATE_INSTALL_LATEST(other_version)</a>
             </p>
         $else:
             <p>
-                <a href="//valibox./autonta/update_install">Klik hier om de update te installeren</a>
+                <a href="//valibox./autonta/update_install">$lk.UPDATE_INSTALL_CURRENT</a>
             </p>
             <p>
-                <a href="//valibox./autonta/update_install_beta">Klik hier om de laatste beta-versie te installeren ($other_version)
+                <a href="//valibox./autonta/update_install_beta">$UPDATE_INSTALL_LATEST_BETA(other_version)</a>
             </p>
     $else:
         <p>
-            Er is geen update beschikbaar (huidige versie: $current_version)
+            $lk.UPDATE_CHECK_NO_UPDATE(current_version)
         </p>
         <p>
-            <a href="//valibox./autonta/update_check">Controleer opnieuw</a>
+            <a href="//valibox./autonta/update_check">$lk.UPDATE_TRY_AGAIN</a>
         </p>
         $if currently_beta:
             <p>
-                <a href="//valibox./autonta/update_install_beta">Klik hier om de huidige versie opnieuw te installeren</a>
+                <a href="//valibox./autonta/update_install_beta">$lk.UPDATE_INSTALL_REINSTALL</a>
             </p>
             <p>
-                <a href="//valibox./autonta/update_install">Klik hier om de laatste release-versie te installeren ($other_version)
+                <a href="//valibox./autonta/update_install">$lk.UPDATE_INSTALL_LATEST(other_version)</a>
             </p>
         $else:
             <p>
-                <a href="//valibox./autonta/update_install">Klik hier om de huidige versie opnieuw te installeren</a>
+                <a href="//valibox./autonta/update_install">$lk.UPDATE_INSTALL_REINSTALL</a>
             </p>
             <p>
-                <a href="//valibox./autonta/update_install_beta">Klik hier om de laatste beta-versie te installeren ($other_version)
+                <a href="//valibox./autonta/update_install_beta">$lk.UPDATE_INSTALL_LATEST_BETA(other_version)</a>
             </p>
     </div>
     </div>

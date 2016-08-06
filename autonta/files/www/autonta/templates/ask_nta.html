@@ -1,29 +1,31 @@
 $def with (lk, name, names, err_html, dst)
 $var lk = lk
   <div class="inlay lined">
-    <h2 class="main_header_error">Probleem met $name</h2>
+    <h2 class="main_header_error">$lk.DNSSEC_ERROR_NAME(name)</h2>
 
     <p>
-        Er is een fout opgetreden bij het opzoeken van de domeinnaam $name.
+        $lk.DNSSEC_ERROR_NAME_LONG(name)
     </p>
     <p>
-        Dit kan komen doordat de DNSSEC-validatie niet is gelukt.
+        $lk.DNSSEC_ERROR_REASON
     </p>
     <p>
-        De foutmelding was:
+        $lk.DNSSEC_ERROR_SERVER(err.auth_server)
     </p>
-    $:err_html
-    <p>
-        Als je denkt dat het om een configuratiefout van de beheerder
-        gaat, kun je een Negative Trust Anchor zetten, waarna dit
-        domein alsnog te bereiken is. De NTA zal blijven staan totdat
-        de valibox opnieuw opgestart wordt.
+    <p style="color: red">
+        $lk.DNSSEC_ERROR_ERROR(err.err_msg)
     </p>
     <p>
-        Doe dit NIET als je het niet vertrouwt.
+        $lk.DNSSEC_ERROR_RECORD(err.fail_type, err.fail_name)
+    </p>
+    <p>
+        $lk.DNSSEC_ERROR_SET_NTA_DESCRIPTION
+    </p>
+    <p>
+        $lk.DNSSEC_ERROR_NOT_IF_NOT_TRUSTED
     </p>
 $for name in names:
     <p>
-        <a href="/autonta/set_nta/$name?dst=$dst">Zet een Negative Trust Anchor voor $name</a>
+        <a href="/autonta/set_nta/$name?dst=$dst">$DNSSEC_ERROR_SET_NTA(name)</a>
     </p>
   </div>

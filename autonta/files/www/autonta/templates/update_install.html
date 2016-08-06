@@ -2,28 +2,28 @@ $def with (lk, update_download_success, update_version)
 $var lk = lk
 
     <div>
-        <b>SIDN Valibox Update</b>
+        <b>$lk.SIDNLABS $lk.VALIBOX $lk.UPDATE</b>
     <div class="inlay lined">
 
 $if update_download_success:
         <p>
-            Versie $update_version wordt geinstalleerd
+            $lk.UPDATE_INSTALLING(update_version)
         </p>
         <p>
-            Schakel de ValiBox niet uit en wacht een minuut of 5 tot 10 tot de update geinstalleerd is en de ValiBox opnieuw is gestart.
+            $lk.UPDATE_WAIT
         </p>
         <p>
-            U kunt dit scherm sluiten.
+            $lk.UPDATE_CLOSE
         </p>
         <p>
-            <a href="//valibox.">Ga naar ValiBox hoofdscherm</a>
+            <a href="//valibox.">$lk.GO_TO_MAIN</a>
         </p>
 $else:
         <p>
-            Er is een fout opgetreden bij het downloaden van versie $update_version. Probeer het later opnieuw. Als deze fout blijft optreden, neem contact op met de ValiBox servicedesk.
+            $lk.UPDATE_ERROR(update_version)
         </p>
         <p>
-            <a href="//valibox./autonta/update_install">Probeer opnieuw</a>
+            <a href="//valibox./autonta/update_install">$lk.UPDATE_TRY_AGAIN</a>
         </p>
     </div>
     </div>

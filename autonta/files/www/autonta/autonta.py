@@ -354,7 +354,7 @@ class AskNTA:
             for i in range(lc-1):
                 domains.append(".".join(labels[i:lc]))
 
-            return render.ask_nta(langkeys, host, domains, err_html, dst)
+            return render.ask_nta(langkeys, host, domains, err, dst)
         except Exception as exc:
             return render.error(langkeys, str(exc))
 
