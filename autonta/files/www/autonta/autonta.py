@@ -63,7 +63,14 @@ def store_pid():
         output.write("%d\n" % pid)
 
 def remove_pidfile():
-    os.unlink("/var/autonta.pid")
+    try:
+        os.unlink("/var/autonta.pid")
+    except Exception as exc:
+        # n/m
+        pass
+
+def on_exit(signum, frame):
+    remove_pidfile()
 
 #
 # general utility
@@ -601,5 +608,7 @@ class UpdateInstallBeta:
 if __name__ == "__main__":
     store_pid()
     atexit.register(remove_pidfile)
+    signal.signal(signal.SIGINT, on_exit)
+    signal.signal(signal.SIGTERM, on_exit)
     app = web.application(urls, globals())
     app.run()

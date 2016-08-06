@@ -1,0 +1,51 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2009-2012 OpenWrt.org
+
+START=50
+
+start() {
+    (cd /www/autonta; /www/autonta/autonta.py 127.0.0.1:8001 >& /tmp/an.log&)
+}
+
+stop() {
+    if [ -e /var/autonta.pid ]; then
+        kill `cat /var/autonta.pid`
+        # Wait until pid disappears
+        while [ -e /var/autonta.pid ]; do
+            sleep 1
+        done
+    fi
+}
+
+reload() {
+    if [ -e /var/autonta.pid ]; then
+        kill `cat /var/autonta.pid`
+        # Wait until pid disappears
+        while [ -e /var/autonta.pid ]; do
+            sleep 1
+        done
+    fi
+    (cd /www/autonta; /www/autonta/autonta.py 127.0.0.1:8001 >& /tmp/an.log&)
+}
+
+restart() {
+    if [ -e /var/autonta.pid ]; then
+        kill `cat /var/autonta.pid`
+        # Wait until pid disappears
+        while [ -e /var/autonta.pid ]; do
+            sleep 1
+        done
+    fi
+    (cd /www/autonta; /www/autonta/autonta.py 127.0.0.1:8001 >& /tmp/an.log&)
+}
+
+shutdown() {
+    if [ -e /var/autonta.pid ]; then
+        kill `cat /var/autonta.pid`
+        # Wait until pid disappears
+        while [ -e /var/autonta.pid ]; do
+            sleep 1
+        done
+    fi
+}
+
