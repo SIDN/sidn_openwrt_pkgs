@@ -58,14 +58,17 @@ logger.setLevel(logging.DEBUG)
 handler = logging.handlers.SysLogHandler()
 logger.addHandler(handler)
 
+PIDFILE="/var/autonta.pid"
 def store_pid():
     pid = os.getpid()
-    with open("/var/autonta.pid", 'w') as output:
+    with open(PIDFILE, 'w') as output:
         output.write("%d\n" % pid)
+    logger.debug("Wrote pid %d to %s" % (pid, PIDFILE))
 
 def remove_pidfile():
     try:
-        os.unlink("/var/autonta.pid")
+        os.unlink(PIDFILE)
+        logger.debug("Removed pidfile %s" % PIDFILE)
     except Exception as exc:
         # n/m
         pass
