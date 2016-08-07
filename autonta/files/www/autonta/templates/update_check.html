@@ -17,46 +17,71 @@ $if update_check_failed:
         </p>
 $else:
     $if update_available:
-        <p>
-            $lk.UPDATE_CHECK_AVAILABLE((update_version, current_version))
-        </p>
-        <pre>
-            $:update_info
-        </pre>
-        $if currently_beta:
+        <div class="inlay">
             <p>
-                <a href="//valibox./autonta/update_install_beta?dst=$dst">$lk.UPDATE_INSTALL_CURRENT</a>
+                $lk.UPDATE_CHECK_AVAILABLE((update_version, current_version))
             </p>
+            <pre>
+                $:update_info
+            </pre>
+
+            <form method="GET" target="http://valibox./autonta/update_install" />
+            <input type="hidden" name="dst" value="$dst" />
+            <input type="checkbox" name="keepsettings" checked="checked">$lk.UPDATE_KEEP_SETTINGS</input>
+            $if currently_beta:
+                <p>
+                    <input type="radio" name="version" value="beta" checked="checked">$lk.UPDATE_INSTALL_CURRENT</input>
+                </p>
+                <p>
+                    <input type="radio" name="version" value="release">$lk.UPDATE_INSTALL_LATEST(other_version)</option>
+                </p>
+            $else:
+                <p>
+                    <input type="radio" name="version" value="release" checked="checked">$lk.UPDATE_INSTALL_CURRENT</input>
+                </p>
+                <p>
+                    <input type="radio" name="version" value="beta">$lk.UPDATE_INSTALL_LATEST_BETA(other_version)</option>
+                </p>
             <p>
-                <a href="//valibox./autonta/update_install?dst=$dst">$lk.UPDATE_INSTALL_LATEST(other_version)</a>
+                <a href="" onclick="form.submit();">$lk.UPDATE_INSTALL_START</a>
             </p>
-        $else:
-            <p>
-                <a href="//valibox./autonta/update_install?dst=$dst">$lk.UPDATE_INSTALL_CURRENT</a>
-            </p>
-            <p>
-                <a href="//valibox./autonta/update_install_beta?dst=$dst">$lk.UPDATE_INSTALL_LATEST_BETA(other_version)</a>
-            </p>
+        </div>
     $else:
-        <p>
-            $lk.UPDATE_CHECK_NO_UPDATE(current_version)
-        </p>
-        <p>
-            <a href="//valibox./autonta/update_check">$lk.UPDATE_TRY_AGAIN</a>
-        </p>
-        $if currently_beta:
+        <div class="inlay">
             <p>
-                <a href="//valibox./autonta/update_install_beta?dst=$dst">$lk.UPDATE_INSTALL_REINSTALL</a>
+                $lk.UPDATE_CHECK_NO_UPDATE(current_version)
             </p>
             <p>
-                <a href="//valibox./autonta/update_install?dst=$dst">$lk.UPDATE_INSTALL_LATEST(other_version)</a>
+                <a href="//valibox./autonta/update_check">$lk.UPDATE_TRY_AGAIN</a>
             </p>
-        $else:
+        </div>
+        </div>
+        <div>
             <p>
-                <a href="//valibox./autonta/update_install?dst=$dst">$lk.UPDATE_INSTALL_REINSTALL</a>
+                <b>$lk.UPDATE_INSTALL_AGAIN</b>
             </p>
+        <div class="inlay lined">
+            <form method="GET" target="http://valibox./autonta/update_install" />
+            <input type="hidden" name="dst" value="$dst" />
+            <input type="checkbox" name="keepsettings" checked="checked">$lk.UPDATE_KEEP_SETTINGS</input>
+            $if currently_beta:
+                <p>
+                    <input type="radio" name="version" value="beta" checked="checked">$lk.UPDATE_INSTALL_REINSTALL</input>
+                </p>
+                <p>
+                    <input type="radio" name="version" value="release">$lk.UPDATE_INSTALL_LATEST(other_version)</option>
+                </p>
+            $else:
+                <p>
+                    <input type="radio" name="version" value="release" checked="checked">$lk.UPDATE_INSTALL_REINSTALL</input>
+                </p>
+                <p>
+                    <input type="radio" name="version" value="beta">$lk.UPDATE_INSTALL_LATEST_BETA(other_version)</option>
+                </p>
             <p>
-                <a href="//valibox./autonta/update_install_beta?dst=$dst">$lk.UPDATE_INSTALL_LATEST_BETA(other_version)</a>
+                <a href="" onclick="form.submit();">$lk.UPDATE_INSTALL_START</a>
             </p>
-    </div>
+        </div>
+        </div>
+    </form>
     </div>

@@ -28,6 +28,10 @@ UPDATE_CHECK_CURRENT_VERSION: Current version: %s
 UPDATE_CHECK_AVAILABLE: Version %s available! (current version: %s)
 UPDATE_CHECK_NO_UPDATE: No update available (current version: %s)
 
+UPDATE_KEEP_SETTINGS: Remember current configuration settings
+UPDATE_INSTALL_START: Start the installation
+UPDATE_INSTALL_AGAIN: Install thee ValiBox software again
+
 UPDATE_INSTALL_CURRENT: Click here to install the update
 UPDATE_INSTALL_LATEST: Click here to install the latest release version (%s)
 UPDATE_INSTALL_LATEST_BETA: Click here to install the latest beta version (%s)

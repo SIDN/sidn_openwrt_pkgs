@@ -76,6 +76,7 @@ def remove_pidfile():
 
 def on_exit(signum, frame):
     remove_pidfile()
+    os._exit(0)
 
 #
 # general utility

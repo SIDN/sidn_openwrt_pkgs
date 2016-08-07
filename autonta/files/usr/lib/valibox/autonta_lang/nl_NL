@@ -23,6 +23,10 @@ UPDATE_CLOSE: U kunt dit scherm sluiten.
 UPDATE_ERROR: Er is een fout opgetreden bij het downloaden van versie %s. Probeer het later opnieuw. Als deze fout blijft optreden, neem contact op met de ValiBox servicedesk.
 UPDATE_TRY_AGAIN: Probeer opnieuw
 
+UPDATE_KEEP_SETTINGS: Onthoud de huidige instellingen
+UPDATE_INSTALL_START: Start de installatie
+UPDATE_INSTALL_AGAIN: Installeer de ValiBox software opnieuw
+
 UPDATE_CHECK_FAILED: Er kon niet gecontroleerd worden of er updates beschikbaar zijn. Heeft de ValiBox toegang tot het Internet?
 UPDATE_CHECK_CURRENT_VERSION: Huidige versie: %s
 UPDATE_CHECK_AVAILABLE: Versie %s beschikbaar! (huidige versie: %s)
