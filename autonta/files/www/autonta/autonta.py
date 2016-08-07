@@ -48,8 +48,7 @@ urls = [
  '/autonta', 'NTA',
  '/', 'NTA',
  '/autonta/update_check', 'UpdateCheck',
- '/autonta/update_install', 'UpdateInstall',
- '/autonta/update_install_beta', 'UpdateInstallBeta'
+ '/autonta/update_install', 'UpdateInstall'
 ]
 render = web.template.render('templates/', base='base')
 
@@ -324,14 +323,13 @@ def remove_nta(host):
 def get_ntas():
     return run_cmd([UNBOUND_CONTROL, "list_insecure"])
 
-def check_validity(host, dst_cookie_val):
+def check_validity(host_regex, dst_cookie_val):
     # the referer must be the ask_nta page
     referer = web.ctx.env.get("HTTP_REFERER")
     if referer is None:
         logger.debug("Invalid request: no referer")
         return False
-    regex = "https?://(valibox\.)|(192\.168\.53\.1)/autonta/ask_nta/%s" % host
-    referer_match = re.match(regex, referer)
+    referer_match = re.match(host_regex, referer)
     if referer_match is None:
         logger.debug("Invalid request: bad referer: %s does not match %s" % (referer, regex))
         return False
@@ -351,7 +349,9 @@ class SetNTA:
             nocache()
             logger.debug("SetNTA called")
             # TODO: full URI.
-            if check_validity(host, web.cookies(valibox_nta="<null>").valibox_nta):
+            host_regex = "https?://(valibox\.)|(192\.168\.53\.1)/autonta/ask_nta/%s" % host
+            dst_cookie_val = web.cookies(valibox_nta="<null>").valibox_nta
+            if check_validity(host_regex, dst_cookie_val):
                 add_nta(host)
                 # remove the dst cookie
                 web.setcookie('valibox_nta', '', -1)
@@ -582,10 +582,13 @@ class UpdateCheck:
             logger.debug(traceback.format_exc())
             return render.error(langkeys, str(exc))
 
-def install_update():
+def install_update(keep_settings):
     # sleep a little while so the page can still render
     time.sleep(2)
-    run_cmd(["/sbin/sysupgrade", "-n", "/tmp/firmware_update.bin"])
+    if keep_settings:
+        run_cmd(["/sbin/sysupgrade", "/tmp/firmware_update.bin"])
+    else:
+        run_cmd(["/sbin/sysupgrade", "-n", "/tmp/firmware_update.bin"])
 
 def check_sha256sum(filename, expected_sum):
     output = run_cmd(["/usr/bin/sha256sum", filename])
@@ -605,15 +608,20 @@ class UpdateInstall:
             nocache()
             logger.debug("UpdateInstall called")
 
-            if not check_validity(host, web.cookies(valibox_update="<null>").valibox_update):
+            host_regex = "https?://(valibox\.)|(192\.168\.53\.1)/autonta/update_check"
+            dst_cookie_val = web.cookies(valibox_update="<null>").valibox_update
+            if not check_validity(host_regex, dst_cookie_val):
                 raise web.seeother("http://valibox./autonta/update_check")
             # remove the dst cookie
             web.setcookie('valibox_update', '', -1)
 
+            beta = web.input().version == "beta"
+            keep_settings = web.input().keepsettings == 'on'
+
             current_version = get_current_version()
             board_name = get_board_name()
             # Note, we download it again (just in case it was an old link)
-            fvi = FirmwareVersionInfo()
+            fvi = FirmwareVersionInfo(beta)
 
             if not fvi.fetch_version_info():
                 raise web.seeother("//valibox./update_check")
@@ -625,45 +633,10 @@ class UpdateInstall:
                 # Fetch info
                 success = fetch_file(fvi.get_firmware_url(board_name), "/tmp/firmware_update.bin", False)
                 if success and check_sha256sum("/tmp/firmware_update.bin", fvi.get_sha256sum(board_name)):
-                    threading.Thread(target=install_update).start()
+                    threading.Thread(target=install_update, args=(keep_settings,)).start()
                     return render.update_install(langkeys, True, update_version)
                 else:
                     return render.update_install(langkeys, False, update_version)
-            return render.nta_set(langkeys, langkeys, host)
-        except Exception as exc:
-            logger.debug(traceback.format_exc())
-            return render.error(langkeys, str(exc))
-
-class UpdateInstallBeta:
-    def GET(self):
-        try:
-            reload_config()
-            nocache()
-            logger.debug("UpdateInstall called")
-
-            # remove the dst cookie
-            web.setcookie('valibox_update', '', -1)
-
-            current_version = get_current_version()
-            board_name = get_board_name()
-            # Note, we download it again (just in case it was an old link)
-            fvi = FirmwareVersionInfo(beta=True)
-
-            if not fvi.fetch_version_info():
-                raise web.seeother("//valibox./update_check")
-            update_version = fvi.get_version(board_name)
-            if update_version is None:# or update_version == current_version:
-                raise web.seeother("//valibox./update_check")
-            else:
-                # there is a new version
-                # Fetch info
-                success = fetch_file(fvi.get_firmware_url(board_name), "/tmp/firmware_update.bin", False)
-                if success and check_sha256sum("/tmp/firmware_update.bin", fvi.get_sha256sum(board_name)):
-                    threading.Thread(target=install_update).start()
-                    return render.update_install(langkeys, True, update_version)
-                else:
-                    return render.update_install(langkeys, False, update_version)
-            return render.nta_set(langkeys, host)
         except Exception as exc:
             logger.debug(traceback.format_exc())
             return render.error(langkeys, str(exc))

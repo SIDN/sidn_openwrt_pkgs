@@ -25,7 +25,7 @@ $else:
                 $:update_info
             </pre>
 
-            <form method="GET" target="http://valibox./autonta/update_install" />
+            <form method="GET" action="http://valibox./autonta/update_install" />
             <input type="hidden" name="dst" value="$dst" />
             <input type="checkbox" name="keepsettings" checked="checked">$lk.UPDATE_KEEP_SETTINGS</input>
             $if currently_beta:
@@ -43,8 +43,9 @@ $else:
                     <input type="radio" name="version" value="beta">$lk.UPDATE_INSTALL_LATEST_BETA(other_version)</option>
                 </p>
             <p>
-                <a href="" onclick="form.submit();">$lk.UPDATE_INSTALL_START</a>
+                <input type="submit" value="$lk.UPDATE_INSTALL_START" />
             </p>
+            </form>
         </div>
     $else:
         <div class="inlay">
@@ -61,7 +62,7 @@ $else:
                 <b>$lk.UPDATE_INSTALL_AGAIN</b>
             </p>
         <div class="inlay lined">
-            <form method="GET" target="http://valibox./autonta/update_install" />
+            <form method="GET" action="http://valibox./autonta/update_install" />
             <input type="hidden" name="dst" value="$dst" />
             <input type="checkbox" name="keepsettings" checked="checked">$lk.UPDATE_KEEP_SETTINGS</input>
             $if currently_beta:
@@ -79,9 +80,9 @@ $else:
                     <input type="radio" name="version" value="beta">$lk.UPDATE_INSTALL_LATEST_BETA(other_version)</option>
                 </p>
             <p>
-                <a href="" onclick="form.submit();">$lk.UPDATE_INSTALL_START</a>
+                <input type="submit" value="$lk.UPDATE_INSTALL_START" />
             </p>
+            </form>
         </div>
         </div>
-    </form>
     </div>
