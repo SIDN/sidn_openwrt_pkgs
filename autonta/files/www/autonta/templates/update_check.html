@@ -1,4 +1,4 @@
-$def with (lk, update_check_failed, update_available, current_version, currently_beta, other_version, update_version, update_info)
+$def with (lk, dst, update_check_failed, update_available, current_version, currently_beta, other_version, update_version, update_info)
 $var lk = lk
 
     <div>
@@ -18,24 +18,24 @@ $if update_check_failed:
 $else:
     $if update_available:
         <p>
-            $lk.UPDATE_CHECK_AVAILABLE(update_version, current_version)
+            $lk.UPDATE_CHECK_AVAILABLE((update_version, current_version))
         </p>
         <pre>
-            $update_info
+            $:update_info
         </pre>
         $if currently_beta:
             <p>
-                <a href="//valibox./autonta/update_install_beta">$lk.UPDATE_INSTALL_CURRENT</a>
+                <a href="//valibox./autonta/update_install_beta?dst=$dst">$lk.UPDATE_INSTALL_CURRENT</a>
             </p>
             <p>
-                <a href="//valibox./autonta/update_install">$lk.UPDATE_INSTALL_LATEST(other_version)</a>
+                <a href="//valibox./autonta/update_install?dst=$dst">$lk.UPDATE_INSTALL_LATEST(other_version)</a>
             </p>
         $else:
             <p>
-                <a href="//valibox./autonta/update_install">$lk.UPDATE_INSTALL_CURRENT</a>
+                <a href="//valibox./autonta/update_install?dst=$dst">$lk.UPDATE_INSTALL_CURRENT</a>
             </p>
             <p>
-                <a href="//valibox./autonta/update_install_beta">$UPDATE_INSTALL_LATEST_BETA(other_version)</a>
+                <a href="//valibox./autonta/update_install_beta?dst=$dst">$lk.UPDATE_INSTALL_LATEST_BETA(other_version)</a>
             </p>
     $else:
         <p>
@@ -46,17 +46,17 @@ $else:
         </p>
         $if currently_beta:
             <p>
-                <a href="//valibox./autonta/update_install_beta">$lk.UPDATE_INSTALL_REINSTALL</a>
+                <a href="//valibox./autonta/update_install_beta?dst=$dst">$lk.UPDATE_INSTALL_REINSTALL</a>
             </p>
             <p>
-                <a href="//valibox./autonta/update_install">$lk.UPDATE_INSTALL_LATEST(other_version)</a>
+                <a href="//valibox./autonta/update_install?dst=$dst">$lk.UPDATE_INSTALL_LATEST(other_version)</a>
             </p>
         $else:
             <p>
-                <a href="//valibox./autonta/update_install">$lk.UPDATE_INSTALL_REINSTALL</a>
+                <a href="//valibox./autonta/update_install?dst=$dst">$lk.UPDATE_INSTALL_REINSTALL</a>
             </p>
             <p>
-                <a href="//valibox./autonta/update_install_beta">$lk.UPDATE_INSTALL_LATEST_BETA(other_version)</a>
+                <a href="//valibox./autonta/update_install_beta?dst=$dst">$lk.UPDATE_INSTALL_LATEST_BETA(other_version)</a>
             </p>
     </div>
     </div>

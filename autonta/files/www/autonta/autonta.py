@@ -26,6 +26,7 @@ import socket
 import subprocess
 import threading
 import time
+import traceback
 import web
 
 DEFAULT_REDIRECT_SUFFIX = "/"
@@ -322,7 +323,7 @@ def remove_nta(host):
 def get_ntas():
     return run_cmd([UNBOUND_CONTROL, "list_insecure"])
 
-def check_validity(host):
+def check_validity(host, dst_cookie_val):
     # the referer must be the ask_nta page
     referer = web.ctx.env.get("HTTP_REFERER")
     if referer is None:
@@ -336,7 +337,7 @@ def check_validity(host):
 
     # Check the DST
     dst1 = web.input().dst
-    dst2 = web.cookies(valibox_nta="<null>").valibox_nta
+    dst2 = dst_cookie_val
     if dst1 != dst2:
         logger.debug("DST mismatch: %s != %s" % (dst1, dst2))
         return False
@@ -349,7 +350,7 @@ class SetNTA:
             nocache()
             logger.debug("SetNTA called")
             # TODO: full URI.
-            if check_validity(host):
+            if check_validity(host, web.cookies(valibox_nta="<null>").valibox_nta):
                 add_nta(host)
                 # remove the dst cookie
                 web.setcookie('valibox_nta', '', -1)
@@ -357,6 +358,7 @@ class SetNTA:
             else:
                 raise web.seeother("http://valibox./autonta/ask_nta/%s" % host)
         except Exception as exc:
+            logger.debug(traceback.format_exc())
             return render.error(langkeys, str(exc))
 
 class RemoveNTA:
@@ -368,6 +370,7 @@ class RemoveNTA:
             remove_nta(host)
             raise web.seeother("http://valibox./autonta")
         except Exception as exc:
+            logger.debug(traceback.format_exc())
             return render.error(langkeys, str(exc))
 
 def create_dst():
@@ -402,6 +405,7 @@ class AskNTA:
 
             return render.ask_nta(langkeys, host, domains, err, dst)
         except Exception as exc:
+            logger.debug(traceback.format_exc())
             return render.error(langkeys, str(exc))
 
 class NTA:
@@ -429,6 +433,7 @@ class NTA:
                 logger.debug("Redirecting to %s" % redirect)
                 raise web.seeother(redirect)
         except Exception as exc:
+            logger.debug(traceback.format_exc())
             return render.error(langkeys, str(exc))
 
 #
@@ -541,6 +546,11 @@ class UpdateCheck:
             reload_config()
             nocache()
             logger.debug("UpdateCheck called")
+
+            # create a double-submit token
+            dst = create_dst()
+            web.setcookie('valibox_update', dst, expires=300)
+
             current_version = get_current_version()
             currently_beta = "beta" in current_version
             board_name = get_board_name()
@@ -548,7 +558,7 @@ class UpdateCheck:
             fvi_beta = FirmwareVersionInfo(True)
 
             if not fvi_release.fetch_version_info() or not fvi_beta.fetch_version_info():
-                return render.update_check(langkeys, True, False, current_version, currently_beta, "", None, None)
+                return render.update_check(langkeys, dst, True, False, current_version, currently_beta, "", None, None)
             if not currently_beta:
                 update_version = fvi_release.get_version(board_name)
                 other_version = fvi_beta.get_version(board_name)
@@ -556,7 +566,7 @@ class UpdateCheck:
                 update_version = fvi_beta.get_version(board_name)
                 other_version = fvi_release.get_version(board_name)
             if update_version is None or update_version == current_version:
-                return render.update_check(langkeys, False, False, current_version, currently_beta, other_version, None, None)
+                return render.update_check(langkeys, dst, False, False, current_version, currently_beta, other_version, None, None)
             else:
                 # there is a new version
                 # Fetch info
@@ -566,9 +576,9 @@ class UpdateCheck:
                     fvi = fvi_release
                 lines = fetch_file(fvi.get_info_url(board_name), "/tmp/update_info.txt")
                 info = "\n".join(lines)
-                return render.update_check(langkeys, False, True, current_version, currently_beta, other_version, update_version, info)
-            return render.nta_set(langkeys, host)
+                return render.update_check(langkeys, dst, False, True, current_version, currently_beta, other_version, update_version, info)
         except Exception as exc:
+            logger.debug(traceback.format_exc())
             return render.error(langkeys, str(exc))
 
 def install_update():
@@ -593,6 +603,12 @@ class UpdateInstall:
             reload_config()
             nocache()
             logger.debug("UpdateInstall called")
+
+            if not check_validity(host, web.cookies(valibox_update="<null>").valibox_update):
+                raise web.seeother("http://valibox./autonta/update_check")
+            # remove the dst cookie
+            web.setcookie('valibox_update', '', -1)
+
             current_version = get_current_version()
             board_name = get_board_name()
             # Note, we download it again (just in case it was an old link)
@@ -614,6 +630,7 @@ class UpdateInstall:
                     return render.update_install(langkeys, False, update_version)
             return render.nta_set(langkeys, langkeys, host)
         except Exception as exc:
+            logger.debug(traceback.format_exc())
             return render.error(langkeys, str(exc))
 
 class UpdateInstallBeta:
@@ -622,6 +639,10 @@ class UpdateInstallBeta:
             reload_config()
             nocache()
             logger.debug("UpdateInstall called")
+
+            # remove the dst cookie
+            web.setcookie('valibox_update', '', -1)
+
             current_version = get_current_version()
             board_name = get_board_name()
             # Note, we download it again (just in case it was an old link)
@@ -643,12 +664,12 @@ class UpdateInstallBeta:
                     return render.update_install(langkeys, False, update_version)
             return render.nta_set(langkeys, host)
         except Exception as exc:
+            logger.debug(traceback.format_exc())
             return render.error(langkeys, str(exc))
 
 if __name__ == "__main__":
     store_pid()
     atexit.register(remove_pidfile)
-    signal.signal(signal.SIGINT, on_exit)
     signal.signal(signal.SIGTERM, on_exit)
     reload_config()
     app = web.application(urls, globals())
