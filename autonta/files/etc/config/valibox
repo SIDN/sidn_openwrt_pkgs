@@ -4,4 +4,6 @@ config language
 
 config options
 	option disable_nta '1'
+	option loglevel 'INFO'
+
 

@@ -49,3 +49,14 @@ DNSSEC_ERROR_SET_NTA_DESCRIPTION: Als je denkt dat het om een configuratiefout v
 DNSSEC_ERROR_NOT_IF_NOT_TRUSTED: Doe dit NIET als je het niet vertrouwt.
 
 DNSSEC_ERROR_SET_NTA: Zet een Negative Trust Anchor voor %s
+
+INDEX_WELCOME: Welkom op de SIDN Labs ValiBox
+INDEX_NTA_MGMT: Negative Trust Anchor management
+INDEX_NTA_DESCRIPTION1: Hier kun je de huidige Negative Trust Anchors bekijken en eventueel weer uitschakelen.
+INDEX_NTA_DESCRIPTION2: Als er een Negative Trust Anchor voor een domein gezet is, betekent dat dat de DNSSEC-validatie voor dit domein uitgeschakeld staat. Daarmee kun je websites toch bereiken als er door een fout van de beheerders de DNSSEC-validatie mis gaat. Gebruik deze *niet* als je een foutmelding krijgt en het niet vertrouwt.
+INDEX_NTA_DESCRIPTION3: Op het moment dat je via je browser naar een website probeert te gaan waarvan de domeinnaam niet valideert, zal de ValiBox je automatisch vragen of er een Negative Trust Anchor voor dit domein gezet moet worden.
+
+INDEX_CONFIGURE: Configure the ValiBox
+
+INDEX_FIRMWARE_UPDATE: Firmware update
+INDEX_FIRMWARE_UPDATE_DESCRIPTION: Hier kun je kijken of er een nieuwe versie van de firmware voor de ValiBox is, en deze installeren. Huidige versie: %s

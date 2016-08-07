@@ -1,17 +1,16 @@
 $def with (lk, name)
 $var lk = lk
-
 <div class="inlay lined">
-<p>
-    $lk.TRUST_ANCHOR_SET($name)
-</p>
-<p>
-    $lk.TRUST_ANCHOR_MINUTES
-</p>
-<p>
-    $lk.TRUST_ANCHOR_WAIT
-</p>
-<p>
-    <a href="http://$name">$lk.TRY_NOW</a>
-</p>
+    <p>
+        $lk.TRUST_ANCHOR_SET(name)
+    </p>
+    <p>
+        $lk.TRUST_ANCHOR_MINUTES
+    </p>
+    <p>
+        $lk.TRUST_ANCHOR_WAIT
+    </p>
+    <p>
+        <a href="http://$name">$lk.TRY_NOW</a>
+    </p>
 </div>

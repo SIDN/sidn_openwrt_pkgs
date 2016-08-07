@@ -1,0 +1,64 @@
+$def with (lk, current_version)
+
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>$lk.SIDNLABS $lk.VALIBOX</title>
+    <link rel='stylesheet' href='http://valibox./resources/default.css' type='text/css' />
+</head>
+
+<body>
+    <div class="main" id="main">
+        <div class="header">
+            <h2 class="main_header_title">$lk.SIDNLABS $lk.VALIBOX</h2>
+        </div>
+        <div class="main">
+            <div>
+                <p>$lk.INDEX_WELCOME</p>
+            </div>
+            <div>
+                <p>
+                <a href="/autonta/nta_list">$lk.INDEX_NTA_MGMT</a>
+                </p>
+                <div class="inlay lined">
+                    <p>
+                    $lk.INDEX_NTA_DESCRIPTION1
+                    </p>
+                    <p>
+                    $lk.INDEX_NTA_DESCRIPTION2
+                    </p>
+                    <p>
+                    $lk.INDEX_NTA_DESCRIPTION3
+                    </p>
+                </div>
+            </div>
+            <div>
+                <p>
+                    <a href="/cgi-bin/luci">$lk.INDEX_CONFIGURE</a>
+                </p>
+                <div class="inlay lined">
+                    <p>
+                        $lk.SETTINGS_DESCRIPTION
+                    </p>
+                </div>
+                <p></p>
+            </div>
+            <div>
+                <p>
+                    <a href="/autonta/update_check">$lk.INDEX_FIRMWARE_UPDATE</a>
+                </p>
+                <div class="inlay">
+                    <p>
+                        $lk.INDEX_FIRMWARE_UPDATE_DESCRIPTION(current_version)
+                    </p>
+                </div>
+                <p></p>
+            </div>
+        </div>
+    </div>
+    <div class="logo" id="logo">
+        <img src="resources/valibox-logo-300x225.png" alt="valibox-logo" />
+    </div>
+</body>
+</html>

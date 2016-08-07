@@ -42,21 +42,17 @@ KNOWN_HOSTS = [
 ]
 
 urls = [
+ '/autonta/nta_list', 'NTAList',
  '/autonta/set_nta/([a-zA-Z0-9.-]+)', 'SetNTA',
  '/autonta/remove_nta/([a-zA-Z0-9.-]+)', 'RemoveNTA',
  '/autonta/ask_nta/([a-zA-Z0-9.-]+)', 'AskNTA',
- '/autonta', 'NTA',
+ '/autonta', 'Index',
  '/', 'NTA',
  '/autonta/update_check', 'UpdateCheck',
  '/autonta/update_install', 'UpdateInstall'
 ]
 render = web.template.render('templates/', base='base')
-
-logging.basicConfig()
-logger = logging.getLogger('autonta')
-logger.setLevel(logging.DEBUG)
-handler = logging.handlers.SysLogHandler()
-logger.addHandler(handler)
+index_render = web.template.render('templates/')
 
 PIDFILE="/var/autonta.pid"
 def store_pid():
@@ -199,7 +195,7 @@ class LanguageKeys:
         if key in self.keys:
             return self.keys[key]
         else:
-            logger.debug("Error: missing language key: %s" % key)
+            logger.error("Error: missing language key: %s" % key)
             return LanguageKey("<MISSING_LANGUAGE_KEY: %s>" % key)
 
 
@@ -231,7 +227,7 @@ class AutoNTAConfig:
         return False
 
     def read_config(self):
-        logger.debug("Reading configuration from %s" % self.filename)
+        logger.info("Reading configuration from %s" % self.filename)
         self.config_values = {}
         with open(self.filename) as inputfile:
             for line in inputfile.readlines():
@@ -254,12 +250,19 @@ class AutoNTAConfig:
 
 config = AutoNTAConfig("/etc/config/valibox")
 langkeys = None
+logger = logging.getLogger('autonta')
+if not logger.handlers:
+    handler = logging.handlers.SysLogHandler(address='/dev/log')
+    formatter = logging.Formatter('%(name): %(levelname)-8s %(message)s')
+    logger.addHandler(handler)
 
 def reload_config():
     global config
     global langkeys
+    global logging
     if config.check_reload():
         langkeys = LanguageKeys(config.get('language', 'en_US'))
+        logger.setLevel(config.get("loglevel", "INFO"))
 
 #
 # Code for NTA management
@@ -327,28 +330,39 @@ def check_validity(host_regex, dst_cookie_val):
     # the referer must be the ask_nta page
     referer = web.ctx.env.get("HTTP_REFERER")
     if referer is None:
-        logger.debug("Invalid request: no referer")
+        logger.info("Invalid request: no referer")
         return False
     referer_match = re.match(host_regex, referer)
     if referer_match is None:
-        logger.debug("Invalid request: bad referer: %s does not match %s" % (referer, regex))
+        logger.info("Invalid request: bad referer: %s does not match %s" % (referer, regex))
         return False
 
     # Check the DST
     dst1 = web.input().dst
     dst2 = dst_cookie_val
     if dst1 != dst2:
-        logger.debug("DST mismatch: %s != %s" % (dst1, dst2))
+        logger.info("DST mismatch: %s != %s" % (dst1, dst2))
         return False
     return True
+
+def page_exc(exc):
+    if type(exc) is web.seeother:
+        raise exc
+    else:
+        logger.error(traceback.format_exc())
+        return render.error(langkeys, str(exc))
+
 
 class SetNTA:
     def GET(self, host):
         try:
             reload_config()
             nocache()
-            logger.debug("SetNTA called")
-            # TODO: full URI.
+            logger.info("SetNTA called")
+            if config.get('disable_nta'):
+                logger.info("Configuration set to not ask for NTA")
+                raise web.seeother("http://valibox./autonta/ask_nta/%s" % host)
+
             host_regex = "https?://(valibox\.)|(192\.168\.53\.1)/autonta/ask_nta/%s" % host
             dst_cookie_val = web.cookies(valibox_nta="<null>").valibox_nta
             if check_validity(host_regex, dst_cookie_val):
@@ -359,20 +373,18 @@ class SetNTA:
             else:
                 raise web.seeother("http://valibox./autonta/ask_nta/%s" % host)
         except Exception as exc:
-            logger.debug(traceback.format_exc())
-            return render.error(langkeys, str(exc))
+            return page_exc(exc)
 
 class RemoveNTA:
     def GET(self, host):
         try:
             reload_config()
             nocache()
-            logger.debug("RemoveNTA called")
+            logger.info("RemoveNTA called")
             remove_nta(host)
             raise web.seeother("http://valibox./autonta")
         except Exception as exc:
-            logger.debug(traceback.format_exc())
-            return render.error(langkeys, str(exc))
+            return page_exc(exc)
 
 def create_dst():
     return ''.join(random.SystemRandom().choice(string.ascii_lowercase + string.digits) for _ in range(12))
@@ -382,7 +394,7 @@ class AskNTA:
         try:
             reload_config()
             nocache()
-            logger.debug("AskNTA called")
+            logger.info("AskNTA called")
 
             # create a double-submit token
             dst = create_dst()
@@ -395,6 +407,9 @@ class AskNTA:
             else:
                 err_html = "Unknown error! Not DNSSEC?"
 
+            # ask_nta
+            nta_disabled = config.get('disable_nta')
+
             # make a list of domains to possibly set an NTA for
             if host.endswith('.'):
                 host = host[:-1]
@@ -404,26 +419,34 @@ class AskNTA:
             for i in range(lc-1):
                 domains.append(".".join(labels[i:lc]))
 
-            return render.ask_nta(langkeys, host, domains, err, dst)
+            return render.ask_nta(langkeys, dst, host, domains, err,  nta_disabled)
         except Exception as exc:
-            logger.debug(traceback.format_exc())
-            return render.error(langkeys, str(exc))
+            return page_exc(exc)
+
+class NTAList:
+    def GET(self):
+        try:
+            reload_config()
+            nocache()
+            logger.info("NTA List called")
+            ntas = get_ntas()
+            return render.nta_list(langkeys, ntas)
+        except Exception as exc:
+            return page_exc(exc)
 
 class NTA:
     def GET(self):
         try:
             reload_config()
             nocache()
-            logger.debug("Base NTA called")
+            logger.info("Base NTA called")
             host = web.ctx.env.get('HTTP_HOST')
             (host, port) = split_host(host)
-            logger.debug("Host: %s" % (host))
+            logger.info("Host: %s" % (host))
             if port is not None:
                 logger.debug("Port: %d" % (port))
             if is_valid_ip_address(host) or is_known_host(host):
-                # show NTA list?
-                ntas = get_ntas()
-                return render.nta_list(langkeys, ntas)
+                raise web.seeother("http://valibox./autonta")
             else:
                 if host + "." in get_ntas():
                     return render.nta_set(langkeys, host)
@@ -434,8 +457,7 @@ class NTA:
                 logger.debug("Redirecting to %s" % redirect)
                 raise web.seeother(redirect)
         except Exception as exc:
-            logger.debug(traceback.format_exc())
-            return render.error(langkeys, str(exc))
+            return page_exc(exc)
 
 #
 # Code for update checks
@@ -481,7 +503,7 @@ class FirmwareVersionInfo:
                 self.versions[parts[0]] = parts[1:]
             return True
         except Exception as exc:
-            logger.debug("Error in fetch: " + str(exc))
+            logger.warning("Error in fetch: " + str(exc))
             #raise exc
             return False
 
@@ -514,7 +536,7 @@ def fetch_file(url, output_file, return_data=True):
         else:
             return True
     else:
-        logger.debug("Failure. file not downloaded")
+        logger.warning("Failure. file not downloaded")
         # perhaps none?
         if return_data:
             return []
@@ -546,7 +568,7 @@ class UpdateCheck:
         try:
             reload_config()
             nocache()
-            logger.debug("UpdateCheck called")
+            logger.info("UpdateCheck called")
 
             # create a double-submit token
             dst = create_dst()
@@ -579,8 +601,7 @@ class UpdateCheck:
                 info = "\n".join(lines)
                 return render.update_check(langkeys, dst, False, True, current_version, currently_beta, other_version, update_version, info)
         except Exception as exc:
-            logger.debug(traceback.format_exc())
-            return render.error(langkeys, str(exc))
+            return page_exc(exc)
 
 def install_update(keep_settings):
     # sleep a little while so the page can still render
@@ -598,7 +619,7 @@ def check_sha256sum(filename, expected_sum):
         logger.debug("sha256sum of file: " + filesum)
         logger.debug("Expected: " + expected_sum)
         return filesum == expected_sum
-    logger.debug("sha256sum command failed")
+    logger.error("sha256sum command failed")
     return False
 
 class UpdateInstall:
@@ -606,7 +627,7 @@ class UpdateInstall:
         try:
             reload_config()
             nocache()
-            logger.debug("UpdateInstall called")
+            logger.info("UpdateInstall called")
 
             host_regex = "https?://(valibox\.)|(192\.168\.53\.1)/autonta/update_check"
             dst_cookie_val = web.cookies(valibox_update="<null>").valibox_update
@@ -616,7 +637,7 @@ class UpdateInstall:
             web.setcookie('valibox_update', '', -1)
 
             beta = web.input().version == "beta"
-            keep_settings = web.input().keepsettings == 'on'
+            keep_settings = web.input(keepsettings='off').keepsettings == 'on'
 
             current_version = get_current_version()
             board_name = get_board_name()
@@ -638,8 +659,17 @@ class UpdateInstall:
                 else:
                     return render.update_install(langkeys, False, update_version)
         except Exception as exc:
-            logger.debug(traceback.format_exc())
-            return render.error(langkeys, str(exc))
+            return page_exc(exc)
+
+class Index:
+    def GET(self):
+        try:
+            reload_config()
+            nocache()
+            logger.info("Index called")
+            return index_render.index(langkeys, get_current_version())
+        except Exception as exc:
+            return page_exc(exc)
 
 if __name__ == "__main__":
     store_pid()

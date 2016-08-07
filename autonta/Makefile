@@ -26,7 +26,7 @@ define Package/autonta
   TITLE:=Negative Trust Anchor Management system
   #DESCRIPTION:=This variable is obsolete. use the Package/name/description define instead!
   URL:=http://www.sidnlabs.nl
-  DEPENDS:=+nginx +python-webpy
+  DEPENDS:=+PACKAGE_nginx +PACKAGE_python-webpy +NGINX_SSL +NGINX_HTTP_UWSGI +PACKAGE_luci-ssl +BUSYBOX_CONFIG_FEATURE_WGET_OPENSSL +BUSYBOX_CONFIG_SHA256SUM
 endef
 
 define Package/autonta/description

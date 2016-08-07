@@ -18,7 +18,7 @@ PKG_MAINTAINER:=Jelte Jansen <jelte.jansen@sidn.nl>
 PKG_BUILD_DIR:=$(BUILD_DIR)/unbound-$(PKG_VERSION)
 PKG_SOURCE:=unbound-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://www.unbound.net/downloads
-PKG_SHA1SUM:=ff93df847187120c9ee98e7eebe4bb1bc859a8f2 
+PKG_SHA1SUM:=ff93df847187120c9ee98e7eebe4bb1bc859a8f2
 
 PKG_BUILD_DEPENDS:=libexpat
 PKG_BUILD_PARALLEL:=1
@@ -145,6 +145,8 @@ define Package/sidn-unbound/install
 	$(INSTALL_CONF) ./files/named.cache $(1)/etc/unbound/
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/unbound.init $(1)/etc/init.d/unbound
+	$(INSTALL_DIR) $(1)/lib/upgrade/keep.d
+	$(INSTALL_CONF) ./files/lib/upgrade/keep.d/unbound $(1)/lib/upgrade/keep.d
 endef
 
 define Package/sidn-unbound-anchor/install

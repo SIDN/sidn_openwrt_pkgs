@@ -21,4 +21,17 @@ o.description = "Do not let users set Negative trust anchors; only show DNSSEC e
 o.default = o.disabled
 o.rmempty = false
 
+o = s:option(ListValue, "loglevel", translate("AutoNTA Log level"))
+o.description = translate("The level of messages that are logged from AutoNTA.")
+o.default = "INFO"
+o.optional = false
+o.rmempty = false
+o.widget = "select"
+
+o:value("DEBUG")
+o:value("INFO")
+o:value("WARNING")
+o:value("ERROR")
+o:value("CRITICAL")
+
 return m -- Returns the map
