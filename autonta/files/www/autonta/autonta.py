@@ -208,10 +208,31 @@ class LanguageKeys:
 class AutoNTAConfig:
     def __init__(self, filename):
         self.config_values = {}
-        self.read_file(filename)
+        self.filename = filename
+        self.loadtime = 0.0
 
-    def read_file(self, filename):
-        with open(filename) as inputfile:
+    def check_modified_time(self):
+        try:
+            s = os.stat(self.filename)
+            return s.st_mtime
+        except OSError as ose:
+            return -1
+
+    def check_reload(self):
+        modified = self.check_modified_time()
+        logger.debug("mtime of %s: %f" % (self.filename, modified))
+        if modified > self.loadtime:
+            logger.debug("file was updated")
+            self.read_config()
+            self.loadtime = modified
+            return True
+        logger.debug("file was not updated")
+        return False
+
+    def read_config(self):
+        logger.debug("Reading configuration from %s" % self.filename)
+        self.config_values = {}
+        with open(self.filename) as inputfile:
             for line in inputfile.readlines():
                 parts = line.strip().split()
                 if len(parts) > 2 and parts[0] == 'option':
@@ -231,7 +252,13 @@ class AutoNTAConfig:
             return default
 
 config = AutoNTAConfig("/etc/config/valibox")
-langkeys = LanguageKeys(config.get('language'))
+langkeys = None
+
+def reload_config():
+    global config
+    global langkeys
+    if config.check_reload():
+        langkeys = LanguageKeys(config.get('language', 'en_US'))
 
 #
 # Code for NTA management
@@ -318,6 +345,7 @@ def check_validity(host):
 class SetNTA:
     def GET(self, host):
         try:
+            reload_config()
             nocache()
             logger.debug("SetNTA called")
             # TODO: full URI.
@@ -334,6 +362,7 @@ class SetNTA:
 class RemoveNTA:
     def GET(self, host):
         try:
+            reload_config()
             nocache()
             logger.debug("RemoveNTA called")
             remove_nta(host)
@@ -347,6 +376,7 @@ def create_dst():
 class AskNTA:
     def GET(self, host):
         try:
+            reload_config()
             nocache()
             logger.debug("AskNTA called")
 
@@ -377,6 +407,7 @@ class AskNTA:
 class NTA:
     def GET(self):
         try:
+            reload_config()
             nocache()
             logger.debug("Base NTA called")
             host = web.ctx.env.get('HTTP_HOST')
@@ -507,6 +538,7 @@ def get_current_version():
 class UpdateCheck:
     def GET(self):
         try:
+            reload_config()
             nocache()
             logger.debug("UpdateCheck called")
             current_version = get_current_version()
@@ -558,6 +590,7 @@ def check_sha256sum(filename, expected_sum):
 class UpdateInstall:
     def GET(self):
         try:
+            reload_config()
             nocache()
             logger.debug("UpdateInstall called")
             current_version = get_current_version()
@@ -586,6 +619,7 @@ class UpdateInstall:
 class UpdateInstallBeta:
     def GET(self):
         try:
+            reload_config()
             nocache()
             logger.debug("UpdateInstall called")
             current_version = get_current_version()
@@ -616,5 +650,6 @@ if __name__ == "__main__":
     atexit.register(remove_pidfile)
     signal.signal(signal.SIGINT, on_exit)
     signal.signal(signal.SIGTERM, on_exit)
+    reload_config()
     app = web.application(urls, globals())
     app.run()
