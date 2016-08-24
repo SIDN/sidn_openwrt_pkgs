@@ -21,21 +21,21 @@
                 </p>
                 <div class="inlay lined">
                     <p>
-                    Hier kun je de huidige Negative Trust Anchors bekijken 
+                    Hier kun je de huidige Negative Trust Anchors bekijken
                     en eventueel weer uitschakelen.
                     </p>
                     <p>
-                    Als er een Negative Trust Anchor voor een domein gezet 
-                    is, betekent dat dat de DNSSEC-validatie voor dit 
-                    domein uitgeschakeld staat. Daarmee kun je websites 
-                    toch bereiken als er door een fout van de beheerders de 
-                    DNSSEC-validatie mis gaat. Gebruik deze *niet* als je 
+                    Als er een Negative Trust Anchor voor een domein gezet
+                    is, betekent dat dat de DNSSEC-validatie voor dit
+                    domein uitgeschakeld staat. Daarmee kun je websites
+                    toch bereiken als er door een fout van de beheerders de
+                    DNSSEC-validatie mis gaat. Gebruik deze *niet* als je
                     een foutmelding krijgt en het niet vertrouwt.
                     </p>
                     <p>
-                    Op het moment dat je via je browser naar een website 
-                    probeert te gaan waarvan de domeinnaam niet valideert, 
-                    zal de ValiBox je automatisch vragen of er een Negative 
+                    Op het moment dat je via je browser naar een website
+                    probeert te gaan waarvan de domeinnaam niet valideert,
+                    zal de ValiBox je automatisch vragen of er een Negative
                     Trust Anchor voor dit domein gezet moet worden.
                     </p>
                 </div>
@@ -46,8 +46,8 @@
                 </p>
                 <div class="inlay lined">
                     <p>
-                    Hier kun je de instellingen van de ValiBox wijzigen, de 
-                    wachtwoorden veranderen, de logs bekijken, de software 
+                    Hier kun je de instellingen van de ValiBox wijzigen, de
+                    wachtwoorden veranderen, de logs bekijken, de software
                     updaten, en backups maken.
                     </p>
                 </div>
@@ -68,7 +68,7 @@
         </div>
     </div>
     <div class="logo" id="logo">
-        <img src="resources/valibox-logo-300x225.png" alt="valibox-logo" />
+        <img src="resources/valibox_logo.png" alt="valibox-logo" />
     </div>
 </body>
 </html>
