@@ -11,7 +11,5 @@ config wifi-device 'radio0'
 config wifi-iface
 	option device 'radio0'
 	option mode 'ap'
-	option encryption 'psk2'
-	option key 'sidnwifi'
 	option ssid 'SIDN-ValiBox-XHWADDRX'
     option network 'lan'

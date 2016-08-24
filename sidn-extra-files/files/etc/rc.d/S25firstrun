@@ -17,11 +17,11 @@ else
     # space anyway
     #IP4ADDR=`/sbin/get_ip4addr.sh`
     #IP6ADDR=`/sbin/get_ip6addr.sh`
-    
+
     # Replace addresses in unbound.conf file
     #cat /etc/unbound/unbound.conf.in | sed "s/XIP4ADDRX/${IP4ADDR}/" | sed "s/XIP6ADDRX/${IP6ADDR}/" > /etc/unbound/unbound.conf
     cp /etc/unbound/unbound.conf.in /etc/unbound/unbound.conf
-    
+
     cat /etc/config/wireless.in | sed "s/XHWADDRX/${HWADDR}/" > /etc/config/wireless
 
     # Replace dnsmasq conf
@@ -33,12 +33,13 @@ else
     #echo "LAN IPv6: ${IP6ADDR}" >> "$CHECK_FILE"
     echo "SSID:     SIDN-GL-Inet-${HWADDR}" >> "$CHECK_FILE"
     /etc/init.d/network restart
-    
+
     # Show the current version in the main html menu
     VERSION=`cat /etc/valibox.version`
     cat /www/index.html.in | sed "s/XVERSIONX/${VERSION}/" > /www/index.html
-    
+
     # sleep some more
     sleep 5
     # we run before dnsmasq and unbound so restarting those is not necessare
 fi
+

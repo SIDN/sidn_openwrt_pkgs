@@ -49,7 +49,8 @@ urls = [
  '/autonta', 'Index',
  '/', 'NTA',
  '/autonta/update_check', 'UpdateCheck',
- '/autonta/update_install', 'UpdateInstall'
+ '/autonta/update_install', 'UpdateInstall',
+ '/autonta/set_passwords', 'SetPasswords'
 ]
 render = web.template.render('templates/', base='base')
 index_render = web.template.render('templates/')
@@ -394,6 +395,8 @@ class AskNTA:
         try:
             reload_config()
             nocache()
+            if is_first_run():
+                raise web.seeother("http://valibox./autonta/set_passwords")
             logger.info("AskNTA called")
 
             # create a double-submit token
@@ -428,6 +431,8 @@ class NTAList:
         try:
             reload_config()
             nocache()
+            if is_first_run():
+                raise web.seeother("http://valibox./autonta/set_passwords")
             logger.info("NTA List called")
             ntas = get_ntas()
             return render.nta_list(langkeys, ntas)
@@ -439,6 +444,8 @@ class NTA:
         try:
             reload_config()
             nocache()
+            if is_first_run():
+                raise web.seeother("http://valibox./autonta/set_passwords")
             logger.info("Base NTA called")
             host = web.ctx.env.get('HTTP_HOST')
             (host, port) = split_host(host)
@@ -661,15 +668,114 @@ class UpdateInstall:
         except Exception as exc:
             return page_exc(exc)
 
+
+def getwifioption(name):
+    matcher = re.compile("\s+option %s\s+'(.*)'" % name)
+    with open("/etc/config/wireless") as inputfile:
+        for line in inputfile.readlines():
+            m = matcher.match(line)
+            if m is not None:
+                return m.group(1)
+    return ""
+
+def getwifiname():
+    return getwifioption("ssid")
+
+def getwifipass():
+    return getwifioption("key")
+
+def updatewifi(wifiname, wifipass):
+    if wifiname is None:
+        wifiname = getwifiname()
+    if wifipass is None:
+        wifipass = getwifipass()
+
+    with open("/etc/config/wireless", "w") as outputfile:
+        with open("/etc/config/wireless.in") as inputfile:
+            for line in inputfile.readlines():
+                if line.find("XHWADDRX") > 0:
+                    outputfile.write("\toption encryption 'psk2'\n")
+                    outputfile.write("\toption key '%s'\n" % wifipass)
+                    outputfile.write("\toption ssid '%s'\n" % wifiname)
+                else:
+                    outputfile.write(line)
+
+    cmd = "/etc/init.d/network restart"
+    run_cmd(shlex.split(cmd))
+
+def update_admin_pass(new):
+    proc = subprocess.Popen(['/usr/bin/passwd'],
+                            stdin = subprocess.PIPE)
+    proc.stdin.write(new + "\n")
+    proc.stdin.write(new + "\n")
+    stdout, _ = proc.communicate()
+
+def is_first_run():
+    return not os.path.isfile("/etc/valibox_name_set")
+
+def first_run_done():
+    with open("/etc/valibox_name_set", "w") as outputfile:
+        outputfile.write("1\n")
+
+class SetPasswords:
+    def GET(self):
+        try:
+            reload_config()
+            nocache()
+            logger.info("SetPasswords (GET) called")
+            # this is only allowed the first time, later people can use the admin interface
+            if not is_first_run():
+                raise web.seeother("http://valibox.")
+            dst = create_dst()
+            web.setcookie('valibox_setpass', dst, expires=300)
+            wifiname = getwifiname()
+            return render.askpasswords(langkeys, dst, wifiname)
+        except Exception as exc:
+            return page_exc(exc)
+
+    def POST(self):
+        try:
+        # check DST
+            logger.info("SetPasswords (POST) called")
+            host_regex = "https?://(valibox\.)|(192\.168\.53\.1)/autonta/set_passwords"
+            dst_cookie_val = web.cookies(valibox_setpass="<null>").valibox_setpass
+            if not check_validity(host_regex, dst_cookie_val):
+                raise web.seeother("http://valibox./autonta/set_passwords")
+            if not is_first_run():
+                raise web.seeother("http://valibox.")
+
+            new_wifiname = web.input().wifi_name
+            new_wifipass = web.input().wifi_password
+            new_adminpass = web.input().admin_password
+
+            if new_wifiname != getwifiname() or new_wifipass != "":
+                updatewifi(new_wifiname, new_wifipass)
+            if new_adminpass != "":
+                update_admin_pass(new_adminpass)
+
+            cmd = "/usr/sbin/unbound-control local_zone_remove ."
+            run_cmd(shlex.split(cmd))
+            cmd = "/etc/init.d/unbound restart"
+            run_cmd(shlex.split(cmd))
+
+            first_run_done()
+            return render.passwordsset(langkeys)
+        except Exception as exc:
+            return page_exc(exc)
+
+
 class Index:
     def GET(self):
         try:
             reload_config()
             nocache()
+            if is_first_run():
+                raise web.seeother("http://valibox./autonta/set_passwords")
             logger.info("Index called")
             return index_render.index(langkeys, get_current_version())
         except Exception as exc:
             return page_exc(exc)
+
 
 if __name__ == "__main__":
     store_pid()
