@@ -717,6 +717,22 @@ def first_run_done():
     with open("/etc/valibox_name_set", "w") as outputfile:
         outputfile.write("1\n")
 
+def change_wifi(new_wifiname, new_wifipass, new_adminpass):
+    # Wait a bit so the result page can render first
+    time.sleep(2)
+
+    if new_adminpass != "":
+        update_admin_pass(new_adminpass)
+
+    cmd = "/usr/sbin/unbound-control local_zone_remove ."
+    run_cmd(shlex.split(cmd))
+    cmd = "/etc/init.d/unbound restart"
+    run_cmd(shlex.split(cmd))
+
+    if new_wifiname != getwifiname() or new_wifipass != "":
+        updatewifi(new_wifiname, new_wifipass)
+    first_run_done()
+
 class SetPasswords:
     def GET(self):
         try:
@@ -747,18 +763,8 @@ class SetPasswords:
             new_wifiname = web.input().wifi_name
             new_wifipass = web.input().wifi_password
             new_adminpass = web.input().admin_password
+            threading.Thread(target=change_wifi, args=(new_wifiname, new_wifipass, new_adminpass)).start()
 
-            if new_wifiname != getwifiname() or new_wifipass != "":
-                updatewifi(new_wifiname, new_wifipass)
-            if new_adminpass != "":
-                update_admin_pass(new_adminpass)
-
-            cmd = "/usr/sbin/unbound-control local_zone_remove ."
-            run_cmd(shlex.split(cmd))
-            cmd = "/etc/init.d/unbound restart"
-            run_cmd(shlex.split(cmd))
-
-            first_run_done()
             return render.passwordsset(langkeys)
         except Exception as exc:
             return page_exc(exc)
