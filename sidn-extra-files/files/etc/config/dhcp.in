@@ -20,8 +20,9 @@ config dhcp 'lan'
 	option start '100'
 	option limit '150'
 	option leasetime '12h'
-	option dhcpv6 'server'
-	option ra 'server'
+	option dhcpv6 'hybrid'
+	option ra 'hybrid'
+	option ra_default '1'
 	option ra_management '1'
 	option nameserver 192.168.53.1
 	option nameserver fd48:430c:f4bc::1
