@@ -24,6 +24,7 @@ config dhcp 'lan'
 	option ra 'server'
 	option ra_management '1'
 	option nameserver 192.168.53.1
+	option nameserver fd48:430c:f4bc::1
 
 config dhcp 'wan'
 	option interface 'wan'
