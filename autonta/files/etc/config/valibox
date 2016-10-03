@@ -3,7 +3,7 @@ config language
 	option language 'nl_NL'
 
 config options
-	option disable_nta '1'
+	option disable_nta '0'
 	option loglevel 'INFO'
 
 
