@@ -1,19 +1,16 @@
 #!/bin/sh
 
-# To create the environment for this script, use the following commands:
 #
-# ./scripts/env new gl-inet
-# make menuconfig
-# select GL.inet as profile (and any other necessary changes)
-# ./scripts/env save
-# ./scripts/env new gl_ar150
-# make menuconfig
-# ./scripts/env save
-# select GL_ar150 as profile (and any other necessary changes)
-#
-# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-# NOTE: IF WE MAKE MENUCONFIG CHANGES THESE NEED TO BE APPLIED TWICE
-# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# Rather than using the environment setup, we simply
+# use copies of .config files (the only difference should
+# be the target platform)
+# 
+# Currently, this script builds OpenWRT from the files
+# * dotconfig-gl-inet
+# * dotconfig-gl_ar150
+# 
+# Note that changes through make oldconfig or make menuconfig
+# are overwritten unless it is first copied to the files above
 
 # to rebuild all package feeds, uncomment next 2 lines
 #./scripts/feeds update -a

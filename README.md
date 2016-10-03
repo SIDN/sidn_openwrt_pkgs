@@ -122,4 +122,3 @@ Update the automatic update system
 
 We have a centralized update system in place; if we release a new version the ValiBox users can upgrade their systems with 2 clicks; they do not need to download specific images for their devices or muck around in administration systems.
 
-It is, as of yet, rather primitive; when the users click a ‘check for updates’ 
