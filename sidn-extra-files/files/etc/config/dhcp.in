@@ -24,7 +24,7 @@ config dhcp 'lan'
 	option ra 'hybrid'
 	option ra_default '1'
 	option ra_management '1'
-	option nameserver 192.168.53.1
+	option nameserver 192.168.8.1
 	option nameserver fd48:430c:f4bc::1
 
 config dhcp 'wan'

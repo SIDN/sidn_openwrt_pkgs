@@ -40,7 +40,7 @@ server:
 	# interface: 2001:DB8::5
     interface: 127.0.0.1
     interface: ::1
-	interface: 192.168.53.1
+	interface: 192.168.8.1
 	interface: fd48:430c:f4bc::1
 
 	# enable this feature to copy the source address of queries to reply.
@@ -572,7 +572,7 @@ server:
 	# you need to do the reverse notation yourself.
 	# local-data-ptr: "192.0.2.3 www.example.com"
     local-zone: "valibox." static
-    local-data: "valibox. IN A 192.168.53.1"
+    local-data: "valibox. IN A 192.168.8.1"
     local-data: "valibox. IN AAAA fd48:430c:f4bc::1"
 
 	# service clients over SSL (on the TCP sockets), with plain DNS inside
@@ -614,7 +614,7 @@ server:
 	# Instead of responding to A queries with SERVFAIL, respond
 	# with NOERROR and the address specified here
 	# The TTL of the response will be 5 seconds
-	redirect-bogus-ipv4: 192.168.53.1
+	redirect-bogus-ipv4: 192.168.8.1
 
 	# Set a fixed address for DNSSEC failures that are cached
 	# Instead of responding to AAAA queries with SERVFAIL, respond
