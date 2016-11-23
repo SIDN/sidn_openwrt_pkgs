@@ -24,15 +24,16 @@ config dhcp 'lan'
 	option ra 'hybrid'
 	option ra_default '1'
 	option ra_management '1'
-	option nameserver 192.168.8.1
-	option nameserver fd48:430c:f4bc::1
+	option dns 192.168.8.1
+	option dns fd48:430c:f4bc::1
+
 
 config dhcp 'wan'
 	option interface 'wan'
 	option ignore '1'
 
 config odhcpd 'odhcpd'
-	option maindhcp '0'
+	option maindhcp '1'
 	option leasefile '/tmp/hosts/odhcpd'
 	option leasetrigger '/usr/sbin/odhcpd-update'
 
