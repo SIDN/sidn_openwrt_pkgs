@@ -52,7 +52,7 @@ define Package/sidn-unbound-anchor
   CATEGORY:=Network
   SUBMENU:=SIDN
   TITLE+= (anchor utility)
-  DEPENDS+= +sidn-unbound +libexpat
+  DEPENDS+= +libexpat
 endef
 
 define Package/sidn-unbound-anchor/description
