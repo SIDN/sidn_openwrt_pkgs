@@ -39,7 +39,7 @@ define Package/sidn-unbound
   CATEGORY:=Network
   SUBMENU:=SIDN
   TITLE+= (daemon)
-  DEPENDS+= +sidn-libunbound +sidn-unbound-anchor
+  DEPENDS+= +sidn-libunbound
 endef
 
 define Package/sidn-unbound/description
@@ -52,7 +52,7 @@ define Package/sidn-unbound-anchor
   CATEGORY:=Network
   SUBMENU:=SIDN
   TITLE+= (anchor utility)
-  DEPENDS+= +libexpat
+  DEPENDS+= +libexpat +sidn-unbound
 endef
 
 define Package/sidn-unbound-anchor/description
