@@ -745,7 +745,7 @@ class SetPasswords:
             dst = create_dst()
             web.setcookie('valibox_setpass', dst, expires=300)
             wifiname = getwifiname()
-            return render.askpasswords(langkeys, dst, wifiname)
+            return render.askpasswords(langkeys, dst, wifiname, None)
         except Exception as exc:
             return page_exc(exc)
 
@@ -762,7 +762,11 @@ class SetPasswords:
 
             new_wifiname = web.input().wifi_name
             new_wifipass = web.input().wifi_password
+            if new_wifipass != web.input().wifi_password_repeat:
+                return render.askpasswords(langkeys, dst, wifiname, langkeys.PASS_MISMATCH)
+            new_wifipass_repeat = web.input().wifi_password_repeat
             new_adminpass = web.input().admin_password
+            new_adminpass_repeat = web.input().admin_password_repeat
             threading.Thread(target=change_wifi, args=(new_wifiname, new_wifipass, new_adminpass)).start()
 
             return render.passwordsset(langkeys)

@@ -63,7 +63,10 @@ INDEX_FIRMWARE_UPDATE_DESCRIPTION: Hier kun je kijken of er een nieuwe versie va
 
 PASS_INTRO: Welkom bij de SIDN Labs ValiBox. Voordat U kunt beginnen met het gebruik van de ValiBox, gelieve eerst een naam voor het draadloze netwerk, en wachtwoorden voor het netwerk en de beheersinterface van de ValiBox in te stellen.
 WIFI_NAME: Naam van het draadloze netwerk
-WIFI_PASS: Password voor het draadloze netwerk (bij leeg veld blijft deze ongewijzigd)
-PASS_ADMIN: Password voor beheer van de ValiBox (bij leeg veld blijft deze ongewijzigd)
+WIFI_PASS: Wachtwoord voor het draadloze netwerk (bij leeg veld blijft deze ongewijzigd)
+WIFI_PASS_REPEAT: Bevestig wachtwoord voor het draadloze netwerk
+PASS_ADMIN: Wachtwoord voor beheer van de ValiBox (bij leeg veld blijft deze ongewijzigd)
+PASS_ADMIN_REPEAT: Bevestig wachtwoord voor beheer van de ValiBox 
+PASS_MISMATCH: Wachtwoordbevestiging kwam niet overeen
 PASS_UPDATE: Sla op
 SETTINGS_UPDATED: De wijzigingen zijn opgeslagen. Als de naam of het wachtwoord van het draadloze netwerk is veranderd, verbind dan alstublieft opnieuw met het netwerk.
