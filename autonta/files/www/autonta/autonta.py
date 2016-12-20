@@ -364,7 +364,7 @@ class SetNTA:
                 logger.info("Configuration set to not ask for NTA")
                 raise web.seeother("http://valibox./autonta/ask_nta/%s" % host)
 
-            host_regex = "https?://(valibox\.)|(192\.168\.53\.1)/autonta/ask_nta/%s" % host
+            host_regex = "https?://(valibox\.)|(192\.168\.8\.1)/autonta/ask_nta/%s" % host
             dst_cookie_val = web.cookies(valibox_nta="<null>").valibox_nta
             if check_validity(host_regex, dst_cookie_val):
                 add_nta(host)
@@ -636,7 +636,7 @@ class UpdateInstall:
             nocache()
             logger.info("UpdateInstall called")
 
-            host_regex = "https?://(valibox\.)|(192\.168\.53\.1)/autonta/update_check"
+            host_regex = "https?://(valibox\.)|(192\.168\.8\.1)/autonta/update_check"
             dst_cookie_val = web.cookies(valibox_update="<null>").valibox_update
             if not check_validity(host_regex, dst_cookie_val):
                 raise web.seeother("http://valibox./autonta/update_check")
@@ -753,7 +753,7 @@ class SetPasswords:
         try:
         # check DST
             logger.info("SetPasswords (POST) called")
-            host_regex = "https?://(valibox\.)|(192\.168\.53\.1)/autonta/set_passwords"
+            host_regex = "https?://(valibox\.)|(192\.168\.8\.1)/autonta/set_passwords"
             dst_cookie_val = web.cookies(valibox_setpass="<null>").valibox_setpass
             if not check_validity(host_regex, dst_cookie_val):
                 raise web.seeother("http://valibox./autonta/set_passwords")
