@@ -613,7 +613,7 @@ class UpdateCheck:
 class UpdateCheckError(Exception):
     pass
 
-def check_update(beta, keep_settings):
+def check_update(beta, keep_settings, install):
     current_version = get_current_version()
     board_name = get_board_name()
     # Note, we download it again (just in case it was an old link)
@@ -629,7 +629,8 @@ def check_update(beta, keep_settings):
         # Fetch info
         success = fetch_file(fvi.get_firmware_url(board_name), "/tmp/firmware_update.bin", False)
         if success and check_sha256sum("/tmp/firmware_update.bin", fvi.get_sha256sum(board_name)):
-            #threading.Thread(target=install_update, args=(keep_settings,)).start()
+            if install:
+                install_update(keep_settings)
             return True
         else:
             return False

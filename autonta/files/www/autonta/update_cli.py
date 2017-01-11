@@ -34,6 +34,7 @@ if __name__=='__main__':
     parser.add_argument('-o', '--override-host', help='use fixed ip address (94.198.159.35)', action="store_true")
     parser.add_argument('-k', '--keep-settings', help='keep settings', action="store_true")
     parser.add_argument('-d', '--debug', help='print debug info', action="store_true")
+    parser.add_argument('-i', '--install', help='proceed with installation after checks', action="store_true")
     args = parser.parse_args()
 
     if args.debug:
@@ -48,12 +49,12 @@ if __name__=='__main__':
 
     if args.override_host:
         with HostOverrider("94.198.159.35", "valibox.sidnlabs.nl"):
-            if check_update(args.beta, args.keep_settings):
+            if check_update(args.beta, args.keep_settings, args.install):
                 print("Install can go")
             else:
                 print("Install no go")
     else:
-        if check_update(args.beta, args.keep_settings):
+        if check_update(args.beta, args.keep_settings, args.install):
             print("Install can go")
         else:
             print("Install no go")
