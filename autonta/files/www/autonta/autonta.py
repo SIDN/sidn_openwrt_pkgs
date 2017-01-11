@@ -473,7 +473,7 @@ class NTA:
 #
 UPDATE_CHECK_BASE='https://valibox.sidnlabs.nl/downloads/valibox/'
 UPDATE_CHECK_BASE_BETA='https://valibox.sidnlabs.nl/downloads/valibox/beta/'
-WGET='/usr/bin/wget'
+WGET='/bin/wget'
 
 # The information file about updates should be at
 # UPDATE_CHECK_BASE/versions.txt
@@ -610,6 +610,9 @@ class UpdateCheck:
         except Exception as exc:
             return page_exc(exc)
 
+class UpdateCheckError(Exception):
+    pass
+
 def check_update(beta, keep_settings):
     current_version = get_current_version()
     board_name = get_board_name()
@@ -617,19 +620,19 @@ def check_update(beta, keep_settings):
     fvi = FirmwareVersionInfo(beta)
 
     if not fvi.fetch_version_info():
-        raise web.seeother("//valibox./update_check")
+        raise UpdateCheckError("Unable to fetch version information")
     update_version = fvi.get_version(board_name)
     if update_version is None:# or update_version == current_version:
-        raise web.seeother("//valibox./update_check")
+        raise UpdateCheckError("Unable to parse version information")
     else:
         # there is a new version
         # Fetch info
         success = fetch_file(fvi.get_firmware_url(board_name), "/tmp/firmware_update.bin", False)
         if success and check_sha256sum("/tmp/firmware_update.bin", fvi.get_sha256sum(board_name)):
             #threading.Thread(target=install_update, args=(keep_settings,)).start()
-            return render.update_install(langkeys, True, update_version)
+            return True
         else:
-            return render.update_install(langkeys, False, update_version)
+            return False
 
     pass
 
