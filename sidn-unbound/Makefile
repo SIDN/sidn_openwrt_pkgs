@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=sidn-unbound
-PKG_VERSION:=1.5.5
+PKG_VERSION:=1.6.0
 PKG_RELEASE:=1
 
 PKG_LICENSE:=BSD-3-Clause

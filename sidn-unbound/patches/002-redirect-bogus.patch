@@ -1,18 +1,13 @@
 Index: daemon/worker.c
 ===================================================================
-diff --git a/daemon/worker.c b/trunk/daemon/worker.c
---- a/daemon/worker.c	(revision 3509)
-+++ b/daemon/worker.c	(working copy)
-@@ -580,13 +580,21 @@
- 	}
- 	/* check security status of the cached answer */
- 	if( rep->security == sec_status_bogus && must_validate) {
--		/* BAD cached */
--		edns->edns_version = EDNS_ADVERTISED_VERSION;
--		edns->udp_size = EDNS_ADVERTISED_SIZE;
--		edns->ext_rcode = 0;
--		edns->bits &= EDNS_DO;
+--- daemon/worker.c	(revision 3973)
++++ daemon/worker.c	(working copy)
+@@ -567,8 +567,21 @@
+ 		if(!inplace_cb_reply_servfail_call(&worker->env, qinfo, NULL, rep,
+ 			LDNS_RCODE_SERVFAIL, edns, worker->scratchpad))
+ 				return 0;
 -		error_encode(repinfo->c->buffer, LDNS_RCODE_SERVFAIL, 
+-			qinfo, id, flags, edns);
 +		if (qinfo->qtype == LDNS_RR_TYPE_A &&
 +		    worker->env.cfg->redirect_bogus_ipv4) {
 +			/* BAD cached */
@@ -26,17 +21,16 @@ diff --git a/daemon/worker.c b/trunk/daemon/worker.c
 +				worker->env.cfg->redirect_bogus_ipv6);
 +		} else {
 +			error_encode(repinfo->c->buffer, LDNS_RCODE_SERVFAIL, 
- 			qinfo, id, flags, edns);
++ 			qinfo, id, flags, edns);
 +		}
  		rrset_array_unlock_touch(worker->env.rrset_cache, 
  			worker->scratchpad, rep->ref, rep->rrset_count);
- 		regional_free_all(worker->scratchpad);
+ 		if(worker->stats.extended) {
 Index: doc/unbound.conf.5.in
 ===================================================================
-diff --git a/doc/unbound.conf.5.in b/trunk/doc/unbound.conf.5.in
---- a/doc/unbound.conf.5.in	(revision 3509)
-+++ b/doc/unbound.conf.5.in	(working copy)
-@@ -1048,6 +1048,18 @@
+--- doc/unbound.conf.5.in	(revision 3973)
++++ doc/unbound.conf.5.in	(working copy)
+@@ -1193,6 +1193,18 @@
  to determine the qps limit.  The rate for the exact matching domain name
  is not changed, use ratelimit\-for\-domain to set that, you might want
  to use different settings for a top\-level\-domain and subdomains.
@@ -55,53 +49,85 @@ diff --git a/doc/unbound.conf.5.in b/trunk/doc/unbound.conf.5.in
  .SS "Remote Control Options"
  In the
  .B remote\-control:
-Index: iterator/iterator.c
+Index: services/mesh.c
 ===================================================================
-diff --git a/iterator/iterator.c b/trunk/iterator/iterator.c
---- a/iterator/iterator.c	(revision 3509)
-+++ b/iterator/iterator.c	(working copy)
-@@ -2201,11 +2201,13 @@
- 		 * point to the referral. */
- 		iq->deleg_msg = iq->response;
- 		iq->dp = delegpt_from_message(iq->response, qstate->region);
--		if(!iq->dp)
-+		if(!iq->dp) {
- 			return error_response(qstate, id, LDNS_RCODE_SERVFAIL);
-+		}
- 		if(!cache_fill_missing(qstate->env, iq->qchase.qclass, 
--			qstate->region, iq->dp))
-+			qstate->region, iq->dp)) {
- 			return error_response(qstate, id, LDNS_RCODE_SERVFAIL);
-+		}
- 		if(iq->store_parent_NS && query_dname_compare(iq->dp->name,
- 			iq->store_parent_NS->name) == 0)
- 			iter_merge_retry_counts(iq->dp, iq->store_parent_NS);
-@@ -2267,8 +2269,9 @@
+--- services/mesh.c	(revision 3973)
++++ services/mesh.c	(working copy)
+@@ -923,6 +923,7 @@
+ 	struct timeval end_time;
+ 	struct timeval duration;
+ 	int secure;
++	int bogus_override = 0;
+ 	/* Copy the client's EDNS for later restore, to make sure the edns
+ 	 * compare is with the correct edns options. */
+ 	struct edns_data edns_bak = r->edns;
+@@ -933,6 +934,7 @@
+ 		rcode = LDNS_RCODE_SERVFAIL;
+ 		if(m->s.env->cfg->stat_extended) 
+ 			m->s.env->mesh->ans_bogus++;
++		bogus_override = 1;
+ 	}
+ 	if(rep && rep->security == sec_status_secure)
+ 		secure = 1;
+@@ -964,17 +966,34 @@
+ 	} else if(rcode) {
+ 		m->s.qinfo.qname = r->qname;
+ 		m->s.qinfo.local_alias = r->local_alias;
+-		if(rcode == LDNS_RCODE_SERVFAIL) {
+-			if(!inplace_cb_reply_servfail_call(m->s.env, &m->s.qinfo, &m->s,
+-				rep, rcode, &r->edns, m->s.region))
+-					r->edns.opt_list = NULL;
+-		} else { 
+-			if(!inplace_cb_reply_call(m->s.env, &m->s.qinfo, &m->s, rep, rcode,
+-				&r->edns, m->s.region))
+-					r->edns.opt_list = NULL;
++		if(bogus_override && m->s.qinfo.qtype == LDNS_RR_TYPE_A &&
++			m->s.env->cfg->redirect_bogus_ipv4) {
++			fixed_address_encode(r->query_reply.c->buffer,
++				LDNS_RCODE_NOERROR, &m->s.qinfo, r->qid,
++				r->qflags, &r->edns,
++				m->s.env->cfg->redirect_bogus_ipv4);
++		} else if(bogus_override &&
++			m->s.qinfo.qtype == LDNS_RR_TYPE_AAAA &&
++			m->s.env->cfg->redirect_bogus_ipv6) {
++			fixed_address_encode(r->query_reply.c->buffer,
++				LDNS_RCODE_NOERROR, &m->s.qinfo, r->qid,
++				r->qflags, &r->edns,
++				m->s.env->cfg->redirect_bogus_ipv6);
++		} else {
++			if(rcode == LDNS_RCODE_SERVFAIL) {
++				if(!inplace_cb_reply_servfail_call(m->s.env,
++					&m->s.qinfo, &m->s,
++					rep, rcode, &r->edns, m->s.region))
++						r->edns.opt_list = NULL;
++			} else { 
++				if(!inplace_cb_reply_call(m->s.env, &m->s.qinfo,
++					&m->s, rep, rcode, &r->edns,
++					m->s.region))
++						r->edns.opt_list = NULL;
++			}
++			error_encode(r->query_reply.c->buffer, rcode,
++				&m->s.qinfo, r->qid, r->qflags, &r->edns);
  		}
- 		/* Process the CNAME response. */
- 		if(!handle_cname_response(qstate, iq, iq->response, 
--			&sname, &snamelen))
-+			&sname, &snamelen)) {
- 			return error_response(qstate, id, LDNS_RCODE_SERVFAIL);
-+		}
- 		/* cache the CNAME response under the current query */
- 		/* NOTE : set referral=1, so that rrsets get stored but not 
- 		 * the partial query answer (CNAME only). */
+-		error_encode(r->query_reply.c->buffer, rcode, &m->s.qinfo,
+-			r->qid, r->qflags, &r->edns);
+ 		comm_point_send_reply(&r->query_reply);
+ 	} else {
+ 		size_t udp_size = r->edns.udp_size;
 Index: util/config_file.c
 ===================================================================
-diff --git a/util/config_file.c b/trunk/util/config_file.c
---- a/util/config_file.c	(revision 3509)
-+++ b/util/config_file.c	(working copy)
-@@ -240,6 +240,8 @@
- 	cfg->ratelimit_for_domain = NULL;
- 	cfg->ratelimit_below_domain = NULL;
+--- util/config_file.c	(revision 3973)
++++ util/config_file.c	(working copy)
+@@ -251,6 +251,8 @@
  	cfg->ratelimit_factor = 10;
+ 	cfg->qname_minimisation = 0;
+ 	cfg->qname_minimisation_strict = 0;
 +	cfg->redirect_bogus_ipv4 = NULL;
 +	cfg->redirect_bogus_ipv6 = NULL;
  	return cfg;
  error_exit:
  	config_delete(cfg); 
-@@ -490,6 +492,10 @@
+@@ -512,6 +514,10 @@
  		}
  		oi[cfg->num_out_ifs++] = d;
  		cfg->out_ifs = oi;
@@ -112,7 +138,7 @@ diff --git a/util/config_file.c b/trunk/util/config_file.c
  	} else {
  		/* unknown or unsupported (from the set_option interface):
  		 * interface, outgoing-interface, access-control, 
-@@ -958,6 +964,12 @@
+@@ -1098,6 +1104,12 @@
  	free(cfg->dnstap_version);
  	config_deldblstrlist(cfg->ratelimit_for_domain);
  	config_deldblstrlist(cfg->ratelimit_below_domain);
@@ -127,13 +153,12 @@ diff --git a/util/config_file.c b/trunk/util/config_file.c
  
 Index: util/config_file.h
 ===================================================================
-diff --git a/util/config_file.h b/trunk/util/config_file.h
---- a/util/config_file.h	(revision 3509)
-+++ b/util/config_file.h	(working copy)
-@@ -364,6 +364,10 @@
- 	struct config_str2list* ratelimit_below_domain;
- 	/** ratelimit factor, 0 blocks all, 10 allows 1/10 of traffic */
- 	int ratelimit_factor;
+--- util/config_file.h	(revision 3973)
++++ util/config_file.h	(working copy)
+@@ -408,6 +408,10 @@
+ 	/** minimise QNAME in strict mode, minimise according to RFC.
+ 	 *  Do not apply fallback */
+ 	int qname_minimisation_strict;
 +
 +	/** construct fake responses for DNSSEC failures */
 +	char *redirect_bogus_ipv4;
@@ -143,10 +168,9 @@ diff --git a/util/config_file.h b/trunk/util/config_file.h
  /** from cfg username, after daemonise setup performed */
 Index: util/configlexer.lex
 ===================================================================
-diff --git a/util/configlexer.lex b/trunk/util/configlexer.lex
---- a/util/configlexer.lex	(revision 3509)
-+++ b/util/configlexer.lex	(working copy)
-@@ -363,6 +363,8 @@
+--- util/configlexer.lex	(revision 3973)
++++ util/configlexer.lex	(working copy)
+@@ -391,6 +391,8 @@
  ratelimit-for-domain{COLON}	{ YDVAR(2, VAR_RATELIMIT_FOR_DOMAIN) }
  ratelimit-below-domain{COLON}	{ YDVAR(2, VAR_RATELIMIT_BELOW_DOMAIN) }
  ratelimit-factor{COLON}		{ YDVAR(1, VAR_RATELIMIT_FACTOR) }
@@ -157,9 +181,8 @@ diff --git a/util/configlexer.lex b/trunk/util/configlexer.lex
  	/* Quoted strings. Strip leading and ending quotes */
 Index: util/configparser.y
 ===================================================================
-diff --git a/util/configparser.y b/trunk/util/configparser.y
---- a/util/configparser.y	(revision 3509)
-+++ b/util/configparser.y	(working copy)
+--- util/configparser.y	(revision 3973)
++++ util/configparser.y	(working copy)
 @@ -44,6 +44,7 @@
  #include <stdlib.h>
  #include <assert.h>
@@ -168,25 +191,25 @@ diff --git a/util/configparser.y b/trunk/util/configparser.y
  #include "util/configyyrename.h"
  #include "util/config_file.h"
  #include "util/net_help.h"
-@@ -122,6 +123,7 @@
- %token VAR_RATELIMIT VAR_RATELIMIT_SLABS VAR_RATELIMIT_SIZE
- %token VAR_RATELIMIT_FOR_DOMAIN VAR_RATELIMIT_BELOW_DOMAIN VAR_RATELIMIT_FACTOR
- %token VAR_CAPS_WHITELIST VAR_CACHE_MAX_NEGATIVE_TTL VAR_PERMIT_SMALL_HOLDDOWN
+@@ -132,6 +133,7 @@
+ %token VAR_ACCESS_CONTROL_TAG_DATA VAR_VIEW VAR_ACCESS_CONTROL_VIEW
+ %token VAR_VIEW_FIRST VAR_SERVE_EXPIRED VAR_FAKE_DSA
+ %token VAR_LOG_IDENTITY
 +%token VAR_REDIRECT_BOGUS_IPV4 VAR_REDIRECT_BOGUS_IPV6
  
  %%
  toplevelvars: /* empty */ | toplevelvars toplevelvar ;
-@@ -186,7 +188,8 @@
- 	server_ratelimit_size | server_ratelimit_for_domain |
- 	server_ratelimit_below_domain | server_ratelimit_factor |
- 	server_caps_whitelist | server_cache_max_negative_ttl |
--	server_permit_small_holddown
-+	server_permit_small_holddown |
+@@ -206,7 +208,8 @@
+ 	server_local_zone_override | server_access_control_tag_action |
+ 	server_access_control_tag_data | server_access_control_view |
+ 	server_qname_minimisation_strict | server_serve_expired |
+-	server_fake_dsa | server_log_identity
++	server_fake_dsa | server_log_identity |
 +	server_redirect_bogus_ipv4 | server_redirect_bogus_ipv6
  	;
  stubstart: VAR_STUB_ZONE
  	{
-@@ -1318,6 +1321,34 @@
+@@ -1567,6 +1570,34 @@
  		free($2);
  	}
  	;
@@ -223,18 +246,17 @@ diff --git a/util/configparser.y b/trunk/util/configparser.y
  		OUTYY(("P(name:%s)\n", $2));
 Index: util/data/msgencode.c
 ===================================================================
-diff --git a/util/data/msgencode.c b/trunk/util/data/msgencode.c
---- a/util/data/msgencode.c	(revision 3509)
-+++ b/util/data/msgencode.c	(working copy)
+--- util/data/msgencode.c	(revision 3973)
++++ util/data/msgencode.c	(working copy)
 @@ -48,6 +48,7 @@
  #include "util/regional.h"
  #include "util/net_help.h"
  #include "sldns/sbuffer.h"
 +#include "sldns/str2wire.h"
+ #include "services/localzone.h"
  
  /** return code that means the function ran out of memory. negative so it does
-  * not conflict with DNS rcodes. */
-@@ -839,3 +840,63 @@
+@@ -910,3 +911,63 @@
  		attach_edns_record(buf, &es);
  	}
  }
@@ -300,9 +322,8 @@ diff --git a/util/data/msgencode.c b/trunk/util/data/msgencode.c
 +}
 Index: util/data/msgencode.h
 ===================================================================
-diff --git a/util/data/msgencode.h b/trunk/util/data/msgencode.h
---- a/util/data/msgencode.h	(revision 3509)
-+++ b/util/data/msgencode.h	(working copy)
+--- util/data/msgencode.h	(revision 3973)
++++ util/data/msgencode.h	(working copy)
 @@ -128,4 +128,20 @@
  void error_encode(struct sldns_buffer* pkt, int r, struct query_info* qinfo,
  	uint16_t qid, uint16_t qflags, struct edns_data* edns);
@@ -324,19 +345,3 @@ diff --git a/util/data/msgencode.h b/trunk/util/data/msgencode.h
 +void fixed_address_encode(struct sldns_buffer* pkt, int r, struct query_info* qinfo,
 +	uint16_t qid, uint16_t qflags, struct edns_data* edns, char* address);
  #endif /* UTIL_DATA_MSGENCODE_H */
-Index: validator/validator.c
-===================================================================
-diff --git a/validator/validator.c b/trunk/validator/validator.c
---- a/validator/validator.c	(revision 3509)
-+++ b/validator/validator.c	(working copy)
-@@ -1680,8 +1680,9 @@
- 			LDNS_RR_TYPE_DNSKEY, vq->key_entry->key_class);
- 		vq->chase_reply->security = sec_status_bogus;
- 		errinf(qstate, "while building chain of trust");
--		if(vq->restart_count >= VAL_MAX_RESTART_COUNT)
-+		if(vq->restart_count >= VAL_MAX_RESTART_COUNT) {
- 			key_cache_insert(ve->kcache, vq->key_entry, qstate);
-+		}
- 		return 1;
- 	}
- 
