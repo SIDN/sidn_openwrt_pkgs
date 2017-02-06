@@ -781,7 +781,7 @@ class SetPasswords:
 
     def POST(self):
         try:
-        # check DST
+            # check DST
             logger.info("SetPasswords (POST) called")
             host_regex = "https?://(valibox\.)|(192\.168\.8\.1)/autonta/set_passwords"
             dst_cookie_val = web.cookies(valibox_setpass="<null>").valibox_setpass
@@ -793,10 +793,17 @@ class SetPasswords:
             new_wifiname = web.input().wifi_name
             new_wifipass = web.input().wifi_password
             if new_wifipass != web.input().wifi_password_repeat:
+                dst = create_dst()
+                web.setcookie('valibox_setpass', dst, expires=300)
                 return render.askpasswords(langkeys, dst, wifiname, langkeys.PASS_MISMATCH)
             new_wifipass_repeat = web.input().wifi_password_repeat
             new_adminpass = web.input().admin_password
             new_adminpass_repeat = web.input().admin_password_repeat
+            if new_adminpass != new_adminpass_repeat:
+                dst = create_dst()
+                web.setcookie('valibox_setpass', dst, expires=300)
+                return render.askpasswords(langkeys, dst, wifiname, langkeys.PASS_MISMATCH)
+ 
             threading.Thread(target=change_wifi, args=(new_wifiname, new_wifipass, new_adminpass)).start()
 
             return render.passwordsset(langkeys)
