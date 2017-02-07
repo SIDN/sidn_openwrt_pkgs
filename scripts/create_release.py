@@ -9,8 +9,9 @@ import sys
 # Structure:
 # (board_name, binfile_name)
 IMAGES = [
-    ("gl-inet", "openwrt-ar71xx-generic-gl-inet-6416A-v1-squashfs-sysupgrade.bin"),
-    ("gl-ar150", "openwrt-ar71xx-generic-gl-ar150-squashfs-sysupgrade.bin")
+    ("gl-inet", "ar71xx/openwrt-ar71xx-generic-gl-inet-6416A-v1-squashfs-sysupgrade.bin"),
+    ("gl-ar150", "ar71xx/openwrt-ar71xx-generic-gl-ar150-squashfs-sysupgrade.bin"),
+    ("gl-mt300a", "ramips/openwrt-ramips-mt7620-gl-mt300a-squashfs-sysupgrade.bin")
 ]
 
 class ReleaseEnvironmentError(Exception):
@@ -28,7 +29,7 @@ class ReleaseCreator:
             raise ReleaseEnvironmentError("Changelog file does not exist: %s" % self.changelog_filename)
         
         for image in IMAGES:
-            image_file_path = "bin/ar71xx/%s" % image[1]
+            image_file_path = "bin/%s" % image[1]
             if not os.path.exists(image_file_path):
                 raise ReleaseEnvironmentError("Image file for %s does not exist (%s), please build it" % (image[0], image_file_path))
 
@@ -42,14 +43,22 @@ class ReleaseCreator:
     
     def copy_files(self):
         for image in IMAGES:
-            shutil.copyfile("bin/ar71xx/%s" % image[1], "%s/%s/sidn_valibox_%s_%s.bin" % (self.target_dir, image[0], image[0], self.version))
+            shutil.copyfile("bin/%s" % image[1], "%s/%s/sidn_valibox_%s_%s.bin" % (self.target_dir, image[0], image[0], self.version))
             shutil.copyfile(self.changelog_filename, "%s/%s/%s.info.txt" % (self.target_dir, image[0], self.version))
     
     def read_sha256sums(self):
         with open("bin/ar71xx/sha256sums", "r") as sumsfile:
             for line in sumsfile.readlines():
                 for image in IMAGES:
-                    if image[1] in line:
+                    imname = image[1].rpartition('/')[2]
+                    if imname in line:
+                        parts = line.split(" ")
+                        self.sums[image[0]] = parts[1]
+        with open("bin/ramips/sha256sums", "r") as sumsfile:
+            for line in sumsfile.readlines():
+                for image in IMAGES:
+                    imname = image[1].rpartition('/')[2]
+                    if imname in line:
                         parts = line.split(" ")
                         self.sums[image[0]] = parts[1]
 

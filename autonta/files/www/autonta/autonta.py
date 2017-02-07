@@ -795,14 +795,14 @@ class SetPasswords:
             if new_wifipass != web.input().wifi_password_repeat:
                 dst = create_dst()
                 web.setcookie('valibox_setpass', dst, expires=300)
-                return render.askpasswords(langkeys, dst, wifiname, langkeys.PASS_MISMATCH)
+                return render.askpasswords(langkeys, dst, new_wifiname, langkeys.PASS_MISMATCH)
             new_wifipass_repeat = web.input().wifi_password_repeat
             new_adminpass = web.input().admin_password
             new_adminpass_repeat = web.input().admin_password_repeat
             if new_adminpass != new_adminpass_repeat:
                 dst = create_dst()
                 web.setcookie('valibox_setpass', dst, expires=300)
-                return render.askpasswords(langkeys, dst, wifiname, langkeys.PASS_MISMATCH)
+                return render.askpasswords(langkeys, dst, new_wifiname, langkeys.PASS_MISMATCH)
  
             threading.Thread(target=change_wifi, args=(new_wifiname, new_wifipass, new_adminpass)).start()
 

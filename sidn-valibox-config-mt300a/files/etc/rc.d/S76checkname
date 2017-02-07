@@ -1,0 +1,12 @@
+#!/bin/sh
+
+CHECK_FILE_NAME="/etc/valibox_name_set"
+
+
+if [ -f "$CHECK_FILE_NAME" ]; then
+    echo "wireless name set, delete $CHECK_FILE_NAME to run initial password and wifi name setup"
+else
+    /usr/sbin/unbound-control local_zone . redirect
+    /usr/sbin/unbound-control local_data ". 10 IN A 192.168.8.1"
+    /usr/sbin/unbound-control local_data ". 10 IN AAAA fd48:430c:f4bc::1"
+fi

@@ -1,0 +1,27 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2009-2012 OpenWrt.org
+
+START=50
+
+start() {
+    (cd /www/autonta; /www/autonta/autonta.py 127.0.0.1:8001 >& /tmp/an.log&)
+}
+
+stop() {
+    kill `cat /var/autonta.pid`
+}
+
+reload() {
+    kill `cat /var/autonta.pid`
+    (cd /www/autonta; /www/autonta/autonta.py 127.0.0.1:8001 >& /tmp/an.log&)
+}
+
+restart() {
+    kill `cat /var/autonta.pid`
+    (cd /www/autonta; /www/autonta/autonta.py 127.0.0.1:8001 >& /tmp/an.log&)
+}
+
+shutdown() {
+    kill `cat /var/autonta.pid`
+}
+
