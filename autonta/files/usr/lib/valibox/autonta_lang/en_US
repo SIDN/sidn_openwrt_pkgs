@@ -61,6 +61,10 @@ INDEX_CONFIGURE: Configureer de ValiBox
 INDEX_FIRMWARE_UPDATE: Firmware update
 INDEX_FIRMWARE_UPDATE_DESCRIPTION: Here you can check if there is a newer version of the ValiBox firmware, and install it if so. Current version: %s
 
+INDEX_SPIN_GRAPH: SPIN Live network traffic (experimental)
+INDEX_SPIN_GRAPH_DESCRIPTION: Here you can see a live overview of the data traffic in your network
+
+
 PASS_INTRO: Welcome to the SIDN Labs ValiBox. Before you can start using the ValiBox, please set a name for your wireless network and passwords for the network and the ValiBox administrative interface.
 WIFI_NAME: Name of the wireless network
 WIFI_PASS: Password of the wireless network (if left empty password is unchanged)
