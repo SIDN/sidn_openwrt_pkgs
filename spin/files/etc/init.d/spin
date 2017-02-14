@@ -1,0 +1,17 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2009-2012 OpenWrt.org
+
+START=50
+PIPENAME=/tmp/spin_pipe
+# TODO: pid etc.
+
+start() {
+    # create a pipe
+    if [ ! -e ${PIPENAME} ]; then
+        mkfifo ${PIPENAME}
+    fi
+    /usr/sbin/run_conntrack.sh ${PIPENAME}&
+    (cd /usr/lib/spin; lua ./server.lua&)
+}
+
+

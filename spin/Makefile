@@ -7,7 +7,7 @@ PKG_RELEASE:=1
 PKG_BUILD_DIR:=$(BUILD_DIR)/spin-$(PKG_VERSION)
 PKG_SOURCE:=spin-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://tjeb.nl
-PKG_MD5SUM:=1f8c6352502ef93b1689c53490a2de27
+PKG_MD5SUM:=fc8ef61c1e2269645a99fd61029f813d
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -29,12 +29,12 @@ endef
 #endef
 
 define Package/spin/install
+	$(INSTALL_DIR) $(1)/etc/init.d
+	cp -r ./files/* $(1)/
 	$(INSTALL_DIR) $(1)/www/spin
 	cat ${PKG_BUILD_DIR}/html/graph.html | sed s/localhost/192.168.8.1/g > $(1)/www/spin/graph.html
 	cat ${PKG_BUILD_DIR}/html/print.html | sed s/localhost/192.168.8.1/g > $(1)/www/spin/print.html
 	cp -r ${PKG_BUILD_DIR}/html/vis-4.18.0 $(1)/www/spin/
-	$(INSTALL_DIR) $(1)/usr/sbin
-	$(INSTALL_BIN) ./files/spin_server.sh $(1)/usr/sbin/
 	$(INSTALL_DIR) $(1)/usr/lib/spin
 	$(INSTALL_BIN) ${PKG_BUILD_DIR}/lua/* $(1)/usr/lib/spin/
 endef
