@@ -1,2 +1,4 @@
 #!/bin/sh
-conntrack -E -o timestamp > $1
+while true; do
+    conntrack -E -o timestamp > $1
+done
