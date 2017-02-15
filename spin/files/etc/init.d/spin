@@ -2,16 +2,50 @@
 # Copyright (C) 2009-2012 OpenWrt.org
 
 START=50
-PIPENAME=/tmp/spin_pipe
+PIPENAME=/var/spin_pipe
 # TODO: pid etc.
+
+CONNTRACK_PID="/var/run/conntrack.pid"
+SPIN_SERVER_PID="/var/run/spin_server.pid"
+
+run_conntrack() {
+    /usr/sbin/run_conntrack.sh ${PIPENAME}&
+    echo $! > ${CONNTRACK_PID}
+}
+
+run_spin_server() {
+    cd /usr/lib/spin
+    lua ./server.lua&
+    echo $! > ${SPIN_SERVER_PID}
+}
 
 start() {
     # create a pipe
     if [ ! -e ${PIPENAME} ]; then
         mkfifo ${PIPENAME}
     fi
-    /usr/sbin/run_conntrack.sh ${PIPENAME}&
-    (cd /usr/lib/spin; lua ./server.lua&)
+    run_conntrack
+    run_spin_server
 }
 
+stop() {
+    if [ -e ${CONNTRACK_PID} ]; then
+        kill `cat ${CONNTRACK_PID}`
+        rm ${CONNTRACK_PID}
+    fi
+    if [ -e ${SPIN_SERVER_PID} ]; then
+        kill `cat ${SPIN_SERVER_PID}`
+        rm ${SPIN_SERVER_PID}
+    fi
+}
+
+restart() {
+    stop
+    start
+}
+
+reload() {
+    stop
+    start
+}
 
