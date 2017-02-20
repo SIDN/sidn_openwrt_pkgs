@@ -7,7 +7,7 @@ PKG_RELEASE:=1
 PKG_BUILD_DIR:=$(BUILD_DIR)/spin-$(PKG_VERSION)
 PKG_SOURCE:=spin-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://tjeb.nl
-PKG_MD5SUM:=1098b036193bb716c142bf540b5c1272
+PKG_MD5SUM:=d717ddc91a1e0032641e8aafcfb3df45
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -18,7 +18,7 @@ define Package/spin
   TITLE:=Experimental tools for SPIN
   #DESCRIPTION:=This variable is obsolete. use the Package/name/description define instead!
   URL:=http://www.sidnlabs.nl
-  DEPENDS:=+conntrack +luaposix +luasec +luabitop +luasocket +lua-coxpcall +lua-copas
+  DEPENDS:=+ip +conntrack +luaposix +luasec +luabitop +luasocket +lua-coxpcall +lua-copas
 endef
 
 define Package/spin/description
