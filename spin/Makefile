@@ -7,7 +7,7 @@ PKG_RELEASE:=1
 PKG_BUILD_DIR:=$(BUILD_DIR)/spin-$(PKG_VERSION)
 PKG_SOURCE:=spin-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://tjeb.nl
-PKG_MD5SUM:=d717ddc91a1e0032641e8aafcfb3df45
+PKG_MD5SUM:=363b7124fcf72c58f610a8e8ad395e75
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -18,7 +18,7 @@ define Package/spin
   TITLE:=Experimental tools for SPIN
   #DESCRIPTION:=This variable is obsolete. use the Package/name/description define instead!
   URL:=http://www.sidnlabs.nl
-  DEPENDS:=+ip +conntrack +luaposix +luasec +luabitop +luasocket +lua-coxpcall +lua-copas
+  DEPENDS:=+ip +luaposix +luasec +luabitop +luasocket +lua-coxpcall +lua-copas
 endef
 
 define Package/spin/description
@@ -34,7 +34,7 @@ define Package/spin/install
 	$(INSTALL_DIR) $(1)/www/spin
 	cat ${PKG_BUILD_DIR}/html/graph.html | sed s/localhost/192.168.8.1/g > $(1)/www/spin/graph.html
 	cat ${PKG_BUILD_DIR}/html/print.html | sed s/localhost/192.168.8.1/g > $(1)/www/spin/print.html
-	cp -r ${PKG_BUILD_DIR}/html/vis-4.18.0 $(1)/www/spin/
+	cp -r ${PKG_BUILD_DIR}/html/* $(1)/www/spin/
 	$(INSTALL_DIR) $(1)/usr/lib/spin
 	$(INSTALL_BIN) ${PKG_BUILD_DIR}/lua/* $(1)/usr/lib/spin/
 endef
