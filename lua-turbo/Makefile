@@ -36,4 +36,4 @@ define Package/lua-turbo/install
 	cp -r $(PKG_BUILD_DIR)/turbo $(1)/usr/lib/lua
 endef
 
-$(eval $(call BuildPackage,lua-turbo))
+$(eval $(call BuildPackage,lua-turbo,+libcrypto))
