@@ -31,6 +31,8 @@ endef
 define Package/lua-turbo/install
 	$(INSTALL_DIR) $(1)/usr/lib/lua
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/turbo.lua $(1)/usr/lib/lua
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/turbovisor.lua $(1)/usr/lib/lua
+	cp -r $(PKG_BUILD_DIR)/turbo $(1)/usr/lib/lua
 endef
 
 $(eval $(call BuildPackage,lua-turbo))
