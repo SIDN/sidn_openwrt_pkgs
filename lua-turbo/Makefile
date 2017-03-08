@@ -18,7 +18,7 @@ define Package/lua-turbo
   TITLE:=Lua Turbo web framework
   #DESCRIPTION:=This variable is obsolete. use the Package/name/description define instead!
   URL:=https://github.com/kernelsauce/turbo
-  DEPENDS:=+luajit +libcrypto +libopenssl
+  DEPENDS:=+luajit +libopenssl
 endef
 
 define Package/lua-turbo/description
