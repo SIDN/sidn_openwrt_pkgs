@@ -39,4 +39,4 @@ endef
 #	$(INSTALL_BIN) ${PKG_BUILD_DIR}/lua/* $(1)/usr/lib/spin/
 #endef
 
-$(eval $(call BuildPackage,spin))
+$(eval $(call BuildPackage,lua-turbo))
