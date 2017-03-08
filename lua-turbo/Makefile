@@ -30,7 +30,9 @@ endef
 
 define Package/lua-turbo/install
 	$(INSTALL_DIR) $(1)/usr/lib/lua
-	cp -r $(PKG_BUILD_DIR)/* /usr/lib/lua
+	cp $(PKG_BUILD_DIR)/turbo.lua /usr/lib/lua/
+	cp -r $(PKG_BUILD_DIR)/turbo /usr/lib/lua/
+
 #	$(INSTALL_DIR) $(1)/etc/init.d
 #	cp -r ./files/* $(1)/
 #	$(INSTALL_DIR) $(1)/www/spin
