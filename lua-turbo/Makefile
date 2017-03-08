@@ -28,7 +28,9 @@ endef
 #define Build/Configure
 #endef
 
-#define Package/lua-turbo/install
+define Package/lua-turbo/install
+	$(INSTALL_DIR) $(1)/usr/lib/lua
+	cp -r $(PKG_BUILD_DIR)/* /usr/lib/lua
 #	$(INSTALL_DIR) $(1)/etc/init.d
 #	cp -r ./files/* $(1)/
 #	$(INSTALL_DIR) $(1)/www/spin
@@ -37,6 +39,6 @@ endef
 #	cp -r ${PKG_BUILD_DIR}/html/* $(1)/www/spin/
 #	$(INSTALL_DIR) $(1)/usr/lib/spin
 #	$(INSTALL_BIN) ${PKG_BUILD_DIR}/lua/* $(1)/usr/lib/spin/
-#endef
+endef
 
 $(eval $(call BuildPackage,lua-turbo))
