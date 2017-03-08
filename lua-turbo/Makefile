@@ -25,22 +25,12 @@ define Package/lua-turbo/description
   Lua Turbo web framework
 endef
 
-#define Build/Configure
-#endef
+define Build/Configure
+endef
 
 define Package/lua-turbo/install
 	$(INSTALL_DIR) $(1)/usr/lib/lua
-        $(INSTALL_BIN) $(PKG_BUILD_DIR)/turbo.lua $(1)/usr/lib/lua
-#	cp $(PKG_BUILD_DIR)/turbo.lua /usr/lib/lua/
-#	cp -r $(PKG_BUILD_DIR)/turbo /usr/lib/lua/
-#	$(INSTALL_DIR) $(1)/etc/init.d
-#	cp -r ./files/* $(1)/
-#	$(INSTALL_DIR) $(1)/www/spin
-#	cat ${PKG_BUILD_DIR}/html/graph.html | sed s/localhost/192.168.8.1/g > $(1)/www/spin/graph.html
-#	cat ${PKG_BUILD_DIR}/html/print.html | sed s/localhost/192.168.8.1/g > $(1)/www/spin/print.html
-#	cp -r ${PKG_BUILD_DIR}/html/* $(1)/www/spin/
-#	$(INSTALL_DIR) $(1)/usr/lib/spin
-#	$(INSTALL_BIN) ${PKG_BUILD_DIR}/lua/* $(1)/usr/lib/spin/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/turbo.lua $(1)/usr/lib/lua
 endef
 
 $(eval $(call BuildPackage,lua-turbo))
