@@ -21,14 +21,14 @@ define Package/lua-turbo
   DEPENDS:=+luajit
 endef
 
-define Package/spin/description
+define Package/lua-turbo/description
   Lua Turbo web framework
 endef
 
 #define Build/Configure
 #endef
 
-#define Package/spin/install
+#define Package/lua-turbo/install
 #	$(INSTALL_DIR) $(1)/etc/init.d
 #	cp -r ./files/* $(1)/
 #	$(INSTALL_DIR) $(1)/www/spin
