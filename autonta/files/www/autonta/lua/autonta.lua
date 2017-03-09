@@ -6,6 +6,10 @@ autonta = {}
 autonta.base_template_name = "base.html"
 autonta.templates = {}
 
+--mapping = {
+-- '/': 
+--}
+
 -- initial setup, load templates, etc.
 function autonta.init()
     autonta.load_templates()
