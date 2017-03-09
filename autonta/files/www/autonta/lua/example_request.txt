@@ -1,0 +1,40 @@
+
+HTTP_ACCEPT: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+SCRIPT_NAME: 
+QUERY_STRING: 
+HTTP_ACCEPT_ENCODING: gzip, deflate
+headers: <table>
+  host: 192.168.8.1:8008
+  connection: keep-alive
+  accept-encoding: gzip, deflate
+  URL: /asdf
+  user-agent: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0
+  dnt: 1
+  accept-language: en-US,en;q=0.5
+  accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+SERVER_ADDR: 192.168.8.1
+GATEWAY_INTERFACE: CGI/1.1
+HTTP_AUTHORIZATION: 
+CONTENT_TYPE: 
+SERVER_PORT: 8008
+HTTP_VERSION: 1.1
+SCRIPT_FILENAME: ./autonta_uhttpd_wrapper.lua
+REQUEST_URI: /asdf
+SERVER_PROTOCOL: HTTP/1.1
+HTTP_ACCEPT_CHARSET: 
+REMOTE_HOST: 192.168.8.230
+REMOTE_PORT: 60550
+REMOTE_ADDR: 192.168.8.230
+SERVER_NAME: 192.168.8.1
+REDIRECT_STATUS: 200
+HTTP_REFERER: 
+HTTP_ACCEPT_LANGUAGE: en-US,en;q=0.5
+SERVER_SOFTWARE: uhttpd
+HTTP_COOKIE: 
+HTTP_HOST: 192.168.8.1:8008
+CONTENT_LENGTH: 
+HTTP_CONNECTION: keep-alive
+PATH_INFO: /asdf
+HTTP_USER_AGENT: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0
+HTTP_X_HTTP_METHOD_OVERRIDE: 
+REQUEST_METHOD: GET

@@ -1,0 +1,5 @@
+run with:
+uhttpd -f -p 8008 -L ./autonta_uhttpd_wrapper.lua  -l /
+
+(port will change)
+
