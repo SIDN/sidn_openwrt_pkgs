@@ -9,7 +9,12 @@ autonta.templates = {}
 -- initial setup, load templates, etc.
 function autonta.init()
     autonta.load_templates()
-    language_keys.load()
+    language_keys.load("/usr/lib/valibox/autonta_lang/en_US")
+end
+
+function autonta.load_templates()
+    autonta.templates['base.html'] = liluat.compile_file("templates/base.html")
+    autonta.templates['index.html'] = liluat.compile_file("templates/index.html")
 end
 
 
@@ -19,7 +24,7 @@ end
 -- The outer template is called BASE
 function autonta.render(template_name, args)
     if not autonta.templates[template_name] then
-        return "<Error: could not find template " .. template_name .. ">"
+        return "[Error: could not find template " .. template_name .. "]"
     end
     args['langkeys'] = language_keys
     args['main_html'] = liluat.render(autonta.templates[template_name], args)
