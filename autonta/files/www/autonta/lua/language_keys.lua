@@ -16,6 +16,7 @@ function lk.get(key, ...)
     end
 end
 
+-- load language keys from the given file
 function lk.load(filename)
     local f = io.open(filename, "r")
     -- todo: report error

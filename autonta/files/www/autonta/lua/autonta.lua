@@ -16,6 +16,8 @@ function autonta.init()
     language_keys.load("/usr/lib/valibox/autonta_lang/en_US")
 end
 
+-- load the templates
+-- TODO: simply load every file in a (given?) directory
 function autonta.load_templates()
     autonta.templates['base.html'] = liluat.compile_file("templates/base.html")
     autonta.templates['index.html'] = liluat.compile_file("templates/index.html")
@@ -35,12 +37,18 @@ function autonta.render(template_name, args)
     return liluat.render(autonta.templates['base.html'], args)
 end
 
+-- render just the page itself (no base.html supertemplate)
 function autonta.render_raw(template_name, args)
     args['langkeys'] = language_keys
     return liluat.render(autonta.templates[template_name], args)
 end
 
 -- main rendering function called by the wrapper
+-- todo: should be add header utility functions? perhaps a response class
+--       with reasonable defaults
+-- todo: mapping from path to handler (separate classes? just functions?
+--       differ between GET and POST or let the callee handle that distinction?)
+
 function autonta.handle_request(env)
     headers = {}
     headers['Status'] = "200 OK"
