@@ -1,0 +1,16 @@
+{{= $def with (lk, name) }}
+
+<div class="inlay lined">
+    <p>
+        {{= langkeys.get('TRUST_ANCHOR_SET', name) }}
+    </p>
+    <p>
+        {{= langkeys.get('TRUST_ANCHOR_MINUTES') }}
+    </p>
+    <p>
+        {{= langkeys.get('TRUST_ANCHOR_WAIT') }}
+    </p>
+    <p>
+        <a href="http://{{= name }}">{{= langkeys.get('TRY_NOW') }}</a>
+    </p>
+</div>
