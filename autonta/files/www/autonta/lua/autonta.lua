@@ -1,4 +1,4 @@
-liluat = require'liluat'     
+liluat = require'liluat'
 language_keys = require 'language_keys'
 
 autonta = {}
@@ -7,7 +7,7 @@ autonta.base_template_name = "base.html"
 autonta.templates = {}
 
 --mapping = {
--- '/': 
+-- '/':
 --}
 
 -- initial setup, load templates, etc.
@@ -16,13 +16,23 @@ function autonta.init()
     language_keys.load("/usr/lib/valibox/autonta_lang/en_US")
 end
 
+function string_endswith(str, e)
+    return e == '' or string.sub(str, -string.len(e)) == e
+end
+
 -- load the templates
 -- TODO: simply load every file in a (given?) directory
 function autonta.load_templates()
-    autonta.templates['base.html'] = liluat.compile_file("templates/base.html")
-    autonta.templates['index.html'] = liluat.compile_file("templates/index.html")
+    -- should we add a dependency on lfs? do we need reading files more often?
+    -- note: relative directory. Make this config or hardcoded?
+    dirname = 'templates/'
+    f = io.popen('ls ' .. dirname)
+    for name in f:lines() do
+        if string_endswith(name, '.html') then
+            autonta.templates[name] = liluat.compile_file("templates/" .. name)
+        end
+    end
 end
-
 
 -- we have a two-layer template system; rather than adding headers
 -- and footers to each template, we have a base template, which gets
@@ -56,7 +66,7 @@ function autonta.handle_request(env)
 
     args = {
             current_version = "1.2.3"
-            }
+    }
     html = autonta.render_raw('index.html', args)
 
     return headers, html
