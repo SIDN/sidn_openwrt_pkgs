@@ -26,7 +26,7 @@
         </p>
         {{ for _,name in ipairs(names) do }}
             <p>
-                <a href="/autonta/set_nta/$name?dst=$dst">{{= langkeys.get('DNSSEC_ERROR_SET_NTA', name) }}</a>
+                <a href="/autonta/set_nta/{{= name }}?dst={{= dst }}">{{= langkeys.get('DNSSEC_ERROR_SET_NTA', name) }}</a>
             </p>
         {{ end }}
     {{ end }}

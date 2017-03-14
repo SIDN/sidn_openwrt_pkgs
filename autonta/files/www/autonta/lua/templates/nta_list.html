@@ -10,13 +10,13 @@
                 <tr>
                     <td class="nta_domain">{{= nta }}</td>
                     <td>&nbsp;</td>
-                    <td><a href="/autonta/remove_nta/$nta">{{= langkeys.get('TRUST_ANCHOR_REMOVE') }}</a></td>
+                    <td><a href="/autonta/remove_nta/{{= nta }}">{{= langkeys.get('TRUST_ANCHOR_REMOVE') }}</a></td>
                 </tr>
             {{ end }}
             </table>
             </p>
         {{ else }}
-            <p>$lk.TRUST_ANCHOR_NO_ANCHORS</p>
+            <p>{{= langkeys.get('TRUST_ANCHOR_NO_ANCHORS') }}</p>
         {{ end }}
         </div>
     </div>

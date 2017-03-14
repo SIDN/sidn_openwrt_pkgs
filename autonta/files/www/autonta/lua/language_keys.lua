@@ -18,6 +18,7 @@ end
 
 -- load language keys from the given file
 function lk.load(filename)
+    lk.keys = {}
     local f = io.open(filename, "r")
     -- todo: report error
     if not f then return nil end
