@@ -1,9 +1,8 @@
 liluat = require'liluat'
 language_keys = require 'language_keys'
+au = require 'autonta_util'
 
 autonta = {}
-
-
 
 -- initial setup, load templates, etc.
 function autonta.init()
@@ -26,6 +25,7 @@ function autonta.init()
   table.insert(autonta.mapping, { pattern = '^/autonta/set_nta/([a-zA-Z0-9.-]+)', handler = autonta.handle_set_nta })
   table.insert(autonta.mapping, { pattern = '^/autonta/remove_nta/([a-zA-Z0-9.-]+)$', handler = autonta.handle_remove_nta })
   table.insert(autonta.mapping, { pattern = '^/autonta/ask_nta/([a-zA-Z0-9.-]+)$', handler = autonta.handle_ask_nta })
+  --table.insert(autonta.mapping, { pattern = '^/autonta/update_check/
 end
 
 --
@@ -66,6 +66,7 @@ end
 -- the output from the 'inner' template as an argument ('main_html')
 -- The outer template is called BASE
 function autonta.render(template_name, args)
+  if not args then args = {} end
   if not autonta.templates[template_name] then
     return "[Error: could not find template " .. template_name .. "]"
   end
@@ -81,54 +82,52 @@ function autonta.render_raw(template_name, args)
 end
 
 --
--- a few (temporary) helper functions
---
-function print_indent(indent)
-  local result = ""
-  for i=1,indent do
-    result = result .. " "
-  end
-  return result
-end
-
-function print_object(obj, indent)
-  local t = type(obj)
-  local result = ""
-  if not indent then indent = 0 end
-  if t == "string" or t == "number" then
-    result = result .. obj
-    result = result .. "\n"
-  elseif t == "table" then
-  result = result .. "<table>\n"
-  for k,v in pairs(obj) do
-    result = result .. print_indent(indent)
-    result = result .. k .. ": "
-    result = result .. print_object(v, indent + 2)
-  end
-  else
-  result = result .. "<unprintable type: " .. t .. ">\n"
-  end
-  return result
-end
-
---
 -- Backend logic functions; TODO: move this to a utility-class
 --
 function is_first_run()
   return false
 end
 
+-- Calls unbound-host to get dnssec failure information
+-- returns a dict containing:
+-- target_dname: the domain name that failed validation
+-- err_msg: the error message
+-- auth_server: the authoritative server that sent the bad reply
+-- fail_type: the type of dnssec failure
+-- fail_dname: the specific domain name where validation failed
+function get_unbound_host_faildata(domain)
+    local result = {}
+    local cmd = 'unbound-host -C /etc/unbound/unbound.conf ' .. domain
+    local pattern = "validation failure <([a-zA-Z.-]+) [A-Z]+ [A-Z]+>: (.*) from (.*) for (.*) (.*) while building chain of trust"
+    for line in io.popen(cmd):lines() do
+        result.target_dname, result.err_msg, result.auth_server, result.fail_type, result.fail_dname = line:match(pattern)
+        if result.target_dname then
+            return result
+        end
+    end
+    au.debug("Error, no suitable output read from " .. cmd)
+    return nil
+end
+
 function get_nta_list()
   local f = io.popen('unbound-control list_insecure')
-  result = {}
+  local result = {}
   for nta in f:lines() do
     table.insert(result, nta)
   end
   return result
 end
 
+function add_nta(domain)
+  local f = io.popen('unbound-control insecure_add ' .. domain)
+end
+
+function remove_nta(domain)
+  local f = io.popen('unbound-control insecure_remove ' .. domain)
+end
+
 function set_cookie(headers, cookie, value)
-  headers['Set-Cookie'] = cookie .. "=" .. value
+  headers['Set-Cookie'] = cookie .. "=" .. value .. ";Path=/"
 end
 
 function remove_cookie(headers, cookie)
@@ -136,8 +135,31 @@ function remove_cookie(headers, cookie)
 end
 
 function get_cookie_value(env, cookie)
+  au.debug("Find cookie: " .. cookie)
+  local cookie_part = cookie .. "="
   local headers = env.headers
-  return ""
+  for k,v in pairs(env) do
+    au.debug("Try header '" .. k .. "'")
+    if k == "HTTP_COOKIE" then
+      au.debug("Try cookie '" .. v .. "'")
+      if string_startswith(v, cookie_part) then
+        local cookie_data = string.sub(v, string.len(cookie_part) + 1)
+        au.debug("Cookie found! value: '" .. cookie_data .. "'")
+        return cookie_data
+      end
+    end
+  end
+  au.debug("Cookie not found")
+  return "<cookie not found>"
+end
+
+function get_referer_match_line(env, path)
+  --local host_match = "https?://(valibox\.)|(192\.168\.8\.1)/autonta/ask_nta/" .. domain
+  local host_match = "https?://" .. env.SERVER_ADDR
+  if env.SERVER_PORT ~= 80 and env.SERVER_PORT ~= 443 then
+    host_match = host_match .. ":" .. env.SERVER_PORT
+  end
+  return host_match .. path
 end
 
 
@@ -161,7 +183,7 @@ function autonta.handle_ntalist(env, arg1, arg2, arg3, arg4)
   local headers = create_default_headers()
   -- todo: reload config?
   if is_first_run() then
-    return redirect_to("http://valibox./autonta/set_passwords")
+    return redirect_to("/autonta/set_passwords")
   end
 
   args = { ntas = get_nta_list() }
@@ -171,14 +193,19 @@ end
 
 function check_validity(env, host_match, dst_cookie_val)
   if not env.HTTP_REFERER:match(host_match) then
-    io.stderr:write("Referer match failure\n")
+    au.debug("Referer match failure")
+    au.debug("http referer: '" .. env.HTTP_REFERER .. "'")
+    au.debug("does not match: '" .. host_match .. "'")
+    au.debug("\n")
     return false
   else
     local query_string = env.QUERY_STRING
     -- todo: generalize query string match
-    local q_dst_val = string.sub(query_string, 4)
+    local q_dst_val = string.sub(query_string, 5)
+    au.debug("Query string: " .. query_string)
+    au.debug("q_dst_val: " .. q_dst_val)
     if q_dst_val ~= dst_cookie_val then
-      io.stderr:write("DST cookie mismatch: " .. dst_cookie_val .. " != " .. q_dst_val .. "\n")
+      au.debug("DST cookie mismatch: " .. dst_cookie_val .. " != " .. q_dst_val)
       return false
     else
       return true
@@ -191,21 +218,26 @@ function autonta.handle_set_nta(env, args)
   local domain = args[1]
   -- todo: reload config, and check config
 
-  local host_match = "https?://(valibox\.)|(192\.168\.8\.1)/autonta/ask_nta/" .. domain
+  local host_match = get_referer_match_line(env, "/autonta/ask_nta/" .. domain)
   local dst_cookie_val = get_cookie_value(env, "valibox_nta")
   if check_validity(env, host_match, dst_cookie_val) then
     add_nta(domain)
     remove_cookie(headers, "valibox_nta")
-    html = autonta.render('nta_set.html', domain)
+    html = autonta.render('nta_set.html', { domain=domain })
     return headers, html
   else
     return redirect_to("/autonta/ask_nta/" .. domain)
   end
 end
 
-function autonta.handle_remove_nta(env, domain)
+function autonta.handle_remove_nta(env, args)
   local headers = create_default_headers()
-  return headers, "TODO"
+  local domain = args[1]
+
+  -- no DST needed here. Should we check referer?
+  -- is it bad if a user is tricked into *removing* an NTA?
+  remove_nta(domain)
+  return redirect_to("/autonta/nta_list")
 end
 
 local charset = {}
@@ -229,12 +261,14 @@ function create_dst()
   return string.random(12)
 end
 
+
+
 function autonta.handle_ask_nta(env, args)
   local headers = create_default_headers()
   local domain = args[1]
   -- todo: reload config, and check config
   if is_first_run() then
-    return redirect_to("http://valibox./autonta/set_passwords")
+    return redirect_to("autonta/set_passwords")
   end
 
   -- create a double-submit token
@@ -242,19 +276,22 @@ function autonta.handle_ask_nta(env, args)
   set_cookie(headers, "valibox_nta", dst)
 
   -- TODO: unbound-host
-  local err = {}
-  err.auth_server = "ns.nl.nl"
-  err.err_msg = "some error, hmkay"
-  err.fail_type = "failtype"
-  err.fail_dname = "subdomain.with.error"
 
-  -- TODO: check config
+  local err = get_unbound_host_faildata(domain)
+
+  -- TODO: check config to see if nta has not been disabled
   local nta_disabled = false
-  -- TODO: split on .
+
+  -- add all superdomains
+  if string_endswith(domain, ".") then domain = string.sub(domain, 1, string.len(domain)-1) end
   local hosts = {}
   table.insert(hosts, domain)
-  table.insert(hosts, "foo.bar")
-  table.insert(hosts, "baz")
+  while domain:find("%.") do
+    domain = domain:sub(domain:find("%.")+1, domain:len())
+    au.debug("add " .. domain)
+    table.insert(hosts, domain)
+  end
+
   local targs = { dst = dst, name = domain, names = hosts, err = err, nta_disabled = nta_disabled }
   html = autonta.render('ask_nta.html', targs)
   return headers, html
@@ -290,12 +327,13 @@ end
 --     with reasonable defaults
 function autonta.handle_request(env)
   request_uri = env.REQUEST_URI
-  io.stderr:write(print_object(env))
+  au.debug(au.obj2str(env))
+  au.debug("\n")
   for _,v in pairs(autonta.mapping) do
     --a1, a2, a3, a4 = request_uri:match(v.pattern)
     match_elements = pack(request_uri:match(v.pattern))
     if #match_elements > 0 then
-      --return create_default_headers(), print_object(v)
+      --return create_default_headers(), au.obj2str(v)
       return v.handler(env, match_elements)
     end
   end
