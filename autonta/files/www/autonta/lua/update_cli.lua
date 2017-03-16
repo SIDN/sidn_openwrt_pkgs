@@ -39,6 +39,8 @@ end
 local update_version = vu.update_available(board_firmware_info)
 if update_version then
   print("Update available: " .. update_version)
+else
+  print("Already at latest version")
 end
 
 if args.changelog then

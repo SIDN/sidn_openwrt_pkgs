@@ -94,6 +94,8 @@ function vu.install_image(filename, keep_settings)
   end
   cmd = cmd .. filename
   au.debug("Calling sysupgrade command: " .. cmd)
+  --os.execute(cmd)
+  -- use io.popen instead of os.execute so we can return
   return io.popen(cmd)
 end
 
@@ -109,8 +111,7 @@ function vu.fetch_file(url, output_file, return_data, fetch_options)
   cmd = "curl -s -o " .. output_file .. " " .. url
   if fetch_options then cmd = cmd .. " " .. fetch_options end
   au.debug("Command: " .. cmd)
-  local f = io.popen(cmd)
-  local rcode = f:close()
+  local rcode = os.execute(cmd)
   if rcode and return_data then
     return io.open(output_file):lines()
   else
@@ -156,6 +157,13 @@ function vu.get_firmware_info(beta, fetch_options, debug_msgs)
   return vu.fetch_firmware_info(base_url)
 end
 
+function vu.get_firmware_board_info(beta, fetch_options, debug_msgs, board_name)
+  local all_firmware_info = vu.get_firmware_info(beta, fetch_options, debug_msgs)
+  if all_firmware_info[board_name] then return all_firmware_info[board_name] end
+  au.debug("Unable to download firmware info, or board type not found")
+  return nil
+end
+
 -- Downloads, checks and installs a new version
 -- Does NOT check if the version is actually different; you can
 -- reinstall the same version with this, if necessary
@@ -164,9 +172,10 @@ function vu.install_update(board_firmware_info, keep_settings, fetch_options)
   local image_file = vu.download_image(board_firmware_info, fetch_options)
   if image_file then
     au.debug("Checks passed, installing update")
-    vu.install_image(image_file, keep_settings)
+    return vu.install_image(image_file, keep_settings)
   else
     au.debug("Checks failed. Update aborted.")
+    return nil
   end
 end
 

@@ -16,7 +16,7 @@ function lk.get(key, ...)
       result = lk.keys[key]
       -- todo: verify argument counts
       for i,v in ipairs(arg) do
-        result = result:gsub("%%s", v)
+        result = result:gsub("%%s", v, 1)
       end
       au.debug("Result: '" .. result .. "'")
       return result

@@ -9,7 +9,7 @@
             {{= langkeys.get('UPDATE_CHECK_FAILED') }}
         </p>
         <p>
-            {{= langkeys.get('UPDATE_CHECK_CURRENT_VERSION, current_version) }}
+            {{= langkeys.get('UPDATE_CHECK_CURRENT_VERSION', current_version) }}
         </p>
         <p>
             <a href="//valibox./autonta/update_check">{{= langkeys.get('UPDATE_TRY_AGAIN') }}</a>
@@ -18,13 +18,13 @@
     {{ if update_available then }}
         <div class="inlay">
             <p>
-                {{= langkeys.get('UPDATE_CHECK_AVAILABLE, update_version, current_version) }}
+                {{= langkeys.get('UPDATE_CHECK_AVAILABLE', update_version, current_version) }}
             </p>
             <pre>
                 {{= update_info }}
             </pre>
 
-            <form method="GET" action="http://valibox./autonta/update_install">
+            <form method="GET" action="/autonta/update_install">
             <input type="hidden" name="dst" value="{{= dst }}" />
             <input type="checkbox" name="keepsettings" checked="checked">{{= langkeys.get('UPDATE_KEEP_SETTINGS') }}</input>
             {{ if currently_beta then }}
@@ -32,7 +32,7 @@
                     <input type="radio" name="version" value="beta" checked="checked">{{= langkeys.get('UPDATE_INSTALL_CURRENT') }}</input>
                 </p>
                 <p>
-                    <input type="radio" name="version" value="release">{{= langkeys.get('UPDATE_INSTALL_LATEST, other_version) }}</option>
+                    <input type="radio" name="version" value="release">{{= langkeys.get('UPDATE_INSTALL_LATEST', other_version) }}</option>
                 </p>
             {{ else }}
                 <p>
@@ -50,7 +50,7 @@
     {{ else }}
         <div class="inlay">
             <p>
-                {{= langkeys.get('UPDATE_CHECK_NO_UPDATE, current_version) }}
+                {{= langkeys.get('UPDATE_CHECK_NO_UPDATE', current_version) }}
             </p>
             <p>
                 <a href="//valibox./autonta/update_check">{{= langkeys.get('UPDATE_TRY_AGAIN') }}</a>
@@ -77,7 +77,7 @@
                     <input type="radio" name="version" value="release" checked="checked">{{= langkeys.get('UPDATE_INSTALL_REINSTALL') }}</input>
                 </p>
                 <p>
-                    <input type="radio" name="version" value="beta">{{= langkeys.get('UPDATE_INSTALL_LATEST_BETA, other_version) }}</option>
+                    <input type="radio" name="version" value="beta">{{= langkeys.get('UPDATE_INSTALL_LATEST_BETA', other_version) }}</option>
                 </p>
             {{ end }}
             <p>
