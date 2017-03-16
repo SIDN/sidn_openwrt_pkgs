@@ -1,6 +1,7 @@
 liluat = require'liluat'
 language_keys = require 'language_keys'
 au = require 'autonta_util'
+vu = require 'valibox_update'
 
 autonta = {}
 
@@ -25,7 +26,8 @@ function autonta.init()
   table.insert(autonta.mapping, { pattern = '^/autonta/set_nta/([a-zA-Z0-9.-]+)', handler = autonta.handle_set_nta })
   table.insert(autonta.mapping, { pattern = '^/autonta/remove_nta/([a-zA-Z0-9.-]+)$', handler = autonta.handle_remove_nta })
   table.insert(autonta.mapping, { pattern = '^/autonta/ask_nta/([a-zA-Z0-9.-]+)$', handler = autonta.handle_ask_nta })
-  --table.insert(autonta.mapping, { pattern = '^/autonta/update_check/
+  table.insert(autonta.mapping, { pattern = '^/autonta/update_check$', handler = autonta.handle_update_check })
+  table.insert(autonta.mapping, { pattern = '^/autonta/update_install', handler = autonta.handle_update_install })
 end
 
 --
@@ -172,7 +174,7 @@ function autonta.handle_autonta_main(env)
   headers['Content-Type'] = "text/html"
 
   args = {
-      current_version = "1.2.3"
+      current_version = vu.get_current_version()
   }
   html = autonta.render_raw('index.html', args)
 
@@ -191,6 +193,21 @@ function autonta.handle_ntalist(env, arg1, arg2, arg3, arg4)
   return headers, html
 end
 
+function get_http_query_value(env, field_name)
+  au.debug("Retrieving '" .. field_name .. "' from query string '" .. env.QUERY_STRING .."'")
+  local hfield_name = field_name .. "="
+  for field in env.QUERY_STRING:gmatch("([^&]+)") do
+    au.debug("Try " .. field)
+    if string_startswith(field, hfield_name) then
+      local result = field.sub(field, string.len(hfield_name) + 1)
+      au.debug("Found! value: '"..result.."'")
+      return result
+    end
+  end
+  au.debug("query field not found: " .. field_name)
+  return "<query field not found: " .. field_name .. ">"
+end
+
 function check_validity(env, host_match, dst_cookie_val)
   if not env.HTTP_REFERER:match(host_match) then
     au.debug("Referer match failure")
@@ -200,8 +217,8 @@ function check_validity(env, host_match, dst_cookie_val)
     return false
   else
     local query_string = env.QUERY_STRING
-    -- todo: generalize query string match
-    local q_dst_val = string.sub(query_string, 5)
+    -- todo: generalize query string match (see above now)
+    local q_dst_val = get_http_query_value(env, "dst")
     au.debug("Query string: " .. query_string)
     au.debug("q_dst_val: " .. q_dst_val)
     if q_dst_val ~= dst_cookie_val then
@@ -240,6 +257,85 @@ function autonta.handle_remove_nta(env, args)
   return redirect_to("/autonta/nta_list")
 end
 
+function autonta.handle_update_check(env)
+  local headers = create_default_headers()
+
+  -- todo: read config
+
+  local current_version = vu.get_current_version()
+  local currently_beta = false
+  if current_version:find("beta") then
+    currently_beta = true
+  end
+
+  local board_name = vu.get_board_name()
+
+  -- fetch info for both the current line and the 'other' line,
+  -- depending on whether this is a beta or release version
+  local firmware_info = vu.get_firmware_board_info(currently_beta, "", true, board_name)
+  au.debug("[XX] THIS VERSION INFO:")
+  au.debug(au.obj2str(firmware_info))
+  au.debug("[XX] OTHER VERSION INFO:")
+  local other_firmware_info = vu.get_firmware_board_info(not currently_beta, "", true, board_name)
+  au.debug(au.obj2str(other_firmware_info))
+  au.debug("[XX] end of PSA")
+
+  -- create a double-submit token
+  local dst = create_dst()
+  set_cookie(headers, "valibox_update", dst)
+
+  local targs = {}
+  targs.dst = dst
+  targs.update_check_failed = false
+  targs.update_available = false
+  targs.current_version = current_version
+  targs.currently_beta = currently_beta
+  targs.other_version = ""
+  targs.update_version = ""
+  targs.update_info = ""
+
+  if not firmware_info or not other_firmware_info then
+    targs.update_check_failed = true
+  else
+
+    local update_version = vu.update_available(firmware_info)
+    if vu.update_available(firmware_info) then
+      targs.update_available = true
+      targs.update_version = update_version
+      targs.update_info = vu.fetch_update_info_txt(firmware_info, "")
+    end
+    targs.other_version = vu.update_available(other_firmware_info)
+  end
+  au.debug("[XX] passing arguments: ")
+  au.debug(au.obj2str(targs))
+  return headers, autonta.render('update_check.html', targs)
+end
+
+function autonta.handle_update_install(env)
+  local headers = create_default_headers()
+  local query_dst = get_http_query_value(env, "dst")
+  local keep_settings = get_http_query_value(env, "keepsettings") == "on"
+  local beta = get_http_query_value(env, "version") == "beta"
+
+  local host_match = get_referer_match_line(env, "/autonta/update_check")
+  local dst_cookie_val = get_cookie_value(env, "valibox_update")
+  if check_validity(env, host_match, dst_cookie_val) then
+
+    -- actual update call goes here
+    local board_name = vu.get_board_name()
+    local firmware_info = vu.get_firmware_board_info(beta, "", true, board_name)
+    if firmware_info then
+        local result = vu.install_update(firmware_info, keep_settings, "")
+        html = autonta.render('update_install.html', { update_version=firmware_info.version, update_download_success=result})
+        remove_cookie(headers, "valibox_update")
+        return headers, html
+    end
+  end
+  -- Invalid request or failure, send back to update page
+  return redirect_to("/autonta/update_check")
+end
+
+-- TODO: move to util
 local charset = {}
 
 -- qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM1234567890
