@@ -13,6 +13,7 @@ function autonta.init()
   autonta.base_template_name = "base.html"
 
   autonta.config = config.read_config("/etc/config/valibox")
+
   local language_file = "/usr/lib/valibox/autonta_lang/" .. autonta.config:get('language', 'language')
   language_keys.load(language_file)
   au.debug("Language file " .. language_file .. " loaded")
@@ -20,18 +21,20 @@ function autonta.init()
   -- When handling requests or posts, the specific handler
   -- is found here; in order the REQUEST_URI value is matched
   -- the first match is the handler that is called
-  autonta.mapping = {}
-  table.insert(autonta.mapping, { pattern = '^/$', handler = autonta.handle_autonta_main })
-  table.insert(autonta.mapping, { pattern = '^/autonta$', handler = autonta.handle_autonta_main })
+  if not autonta.mapping then
+    autonta.mapping = {}
+    table.insert(autonta.mapping, { pattern = '^/$', handler = autonta.handle_autonta_main })
+    table.insert(autonta.mapping, { pattern = '^/autonta$', handler = autonta.handle_autonta_main })
 
-  --table.insert(autonta.mapping, { pattern = '^/$', handler = autonta.handle_autonta_main })
-  table.insert(autonta.mapping, { pattern = '^/autonta/nta_list$', handler = autonta.handle_ntalist })
-  table.insert(autonta.mapping, { pattern = '^/autonta/set_nta/([a-zA-Z0-9.-]+)', handler = autonta.handle_set_nta })
-  table.insert(autonta.mapping, { pattern = '^/autonta/remove_nta/([a-zA-Z0-9.-]+)$', handler = autonta.handle_remove_nta })
-  table.insert(autonta.mapping, { pattern = '^/autonta/ask_nta/([a-zA-Z0-9.-]+)$', handler = autonta.handle_ask_nta })
-  table.insert(autonta.mapping, { pattern = '^/autonta/update_check$', handler = autonta.handle_update_check })
-  table.insert(autonta.mapping, { pattern = '^/autonta/update_install', handler = autonta.handle_update_install })
-  table.insert(autonta.mapping, { pattern = '^/autonta/set_passwords', handler = autonta.handle_set_passwords })
+    --table.insert(autonta.mapping, { pattern = '^/$', handler = autonta.handle_autonta_main })
+    table.insert(autonta.mapping, { pattern = '^/autonta/nta_list$', handler = autonta.handle_ntalist })
+    table.insert(autonta.mapping, { pattern = '^/autonta/set_nta/([a-zA-Z0-9.-]+)', handler = autonta.handle_set_nta })
+    table.insert(autonta.mapping, { pattern = '^/autonta/remove_nta/([a-zA-Z0-9.-]+)$', handler = autonta.handle_remove_nta })
+    table.insert(autonta.mapping, { pattern = '^/autonta/ask_nta/([a-zA-Z0-9.-]+)$', handler = autonta.handle_ask_nta })
+    table.insert(autonta.mapping, { pattern = '^/autonta/update_check$', handler = autonta.handle_update_check })
+    table.insert(autonta.mapping, { pattern = '^/autonta/update_install', handler = autonta.handle_update_install })
+    table.insert(autonta.mapping, { pattern = '^/autonta/set_passwords', handler = autonta.handle_set_passwords })
+  end
 end
 
 --
@@ -217,31 +220,31 @@ function remove_cookie(headers, cookie)
   headers['Set-Cookie'] = cookie .. "=;Max-Age=0"
 end
 
-function get_cookie_value(env, cookie)
-  au.debug("Find cookie: " .. cookie)
-  local cookie_part = cookie .. "="
-  local headers = env.headers
-  for k,v in pairs(env) do
-    au.debug("Try header '" .. k .. "'")
-    if k == "HTTP_COOKIE" then
-      au.debug("Try cookie '" .. v .. "'")
-      if string_startswith(v, cookie_part) then
-        local cookie_data = string.sub(v, string.len(cookie_part) + 1)
-        au.debug("Cookie found! value: '" .. cookie_data .. "'")
-        return cookie_data
-      end
+function get_cookie_value(env, cookie_name)
+  au.debug("Find cookie: " .. cookie_name)
+  local cookies = env.HTTP_COOKIE
+  if not cookies then au.debug("No cookies sent") return nil end
+
+  local hcookie_name = cookie_name .. "="
+  for cookie in cookies:gmatch("([^;]+)") do
+    cookie = cookie:match("%s*(%S+)%s*")
+    au.debug("Try " .. cookie)
+    if string_startswith(cookie, hcookie_name) then
+      local result = cookie.sub(cookie, string.len(hcookie_name) + 1)
+      au.debug("Found! value: '"..result.."'")
+      return result
     end
   end
-  au.debug("Cookie not found")
-  return "<cookie not found>"
+  au.debug("cookie not found: " .. cookie_name)
+  return "<cookie not found: " .. cookie_name .. ">"
 end
 
 function get_referer_match_line(env, path)
   --local host_match = "https?://(valibox\.)|(192\.168\.8\.1)/autonta/ask_nta/" .. domain
-  local host_match = "https?://" .. env.SERVER_ADDR
-  if env.SERVER_PORT ~= 80 and env.SERVER_PORT ~= 443 then
-    host_match = host_match .. ":" .. env.SERVER_PORT
-  end
+  local host_match = "https?://" .. env.HTTP_HOST .. "%.?"
+  --if env.SERVER_PORT ~= 80 and env.SERVER_PORT ~= 443 then
+  --  host_match = host_match .. ":" .. env.SERVER_PORT
+  --end
   return host_match .. path
 end
 
