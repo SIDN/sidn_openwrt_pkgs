@@ -1,4 +1,4 @@
-autonta=require'autonta'
+autonta = require'autonta'
 au = require 'autonta_util'
 
 -- essentially, this script does not do much by itself
@@ -7,7 +7,22 @@ au = require 'autonta_util'
 -- would take place.
 -- right now, we simple pass the env variable
 
+function store_pid()
+  local f = io.open("/proc/self/stat")
+  if f then
+    local pid = f:read("*line"):match("^([0-9]+)")
+    f:close()
+    au.debug("Running with PID " .. pid)
+    local f_out = io.open("/var/autonta.pid", "w")
+    if f_out then
+      f_out:write(pid)
+      f_out:close()
+    end
+  end
+end
+
 -- initial setup, load templates, etc.
+store_pid()
 autonta.init()
 
 -- main handler function.
