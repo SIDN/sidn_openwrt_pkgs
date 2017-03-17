@@ -73,7 +73,7 @@ function _m.read_config(filename)
 
   config.updated = function(self, reload)
     local result = config.last_modified ~= config.read_last_modified()
-    if reload then return self.load() else return false end
+    if reload then return self.load() else return result end
   end
 
   config.get = function(self, sname, option)
