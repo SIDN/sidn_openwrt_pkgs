@@ -2,6 +2,7 @@ liluat = require'liluat'
 language_keys = require 'language_keys'
 au = require 'autonta_util'
 vu = require 'valibox_update'
+config = require 'config'
 
 autonta = {}
 
@@ -11,8 +12,10 @@ function autonta.init()
   autonta.load_templates()
   autonta.base_template_name = "base.html"
 
-  language_keys.load("/usr/lib/valibox/autonta_lang/en_US")
-
+  autonta.config = config.read_config("/etc/config/valibox")
+  local language_file = "/usr/lib/valibox/autonta_lang/" .. autonta.config:get('language', 'language')
+  language_keys.load(language_file)
+  au.debug("Language file " .. language_file .. " loaded")
 
   -- When handling requests or posts, the specific handler
   -- is found here; in order the REQUEST_URI value is matched
@@ -261,7 +264,8 @@ end
 
 function autonta.handle_ntalist(env, arg1, arg2, arg3, arg4)
   local headers = create_default_headers()
-  -- todo: reload config?
+  if autonta.config:updated() then autonta.init() end
+
   if is_first_run() then
     return redirect_to("/autonta/set_passwords")
   end
@@ -306,7 +310,6 @@ function check_validity(env, host_match, dst_cookie_val)
     return false
   else
     local query_string = env.QUERY_STRING
-    -- todo: generalize query string match (see above now)
     local q_dst_val = get_http_query_value(env, "dst")
     au.debug("Query string: " .. query_string)
     au.debug("q_dst_val: " .. q_dst_val)
@@ -322,7 +325,8 @@ end
 function autonta.handle_set_nta(env, args)
   local headers = create_default_headers()
   local domain = args[1]
-  -- todo: reload config, and check config
+
+  if autonta.config:updated() then autonta.init() end
 
   local host_match = get_referer_match_line(env, "/autonta/ask_nta/" .. domain)
   local dst_cookie_val = get_cookie_value(env, "valibox_nta")
@@ -349,7 +353,7 @@ end
 function autonta.handle_update_check(env)
   local headers = create_default_headers()
 
-  -- todo: read config
+  if autonta.config:updated() then autonta.init() end
 
   local current_version = vu.get_current_version()
   local currently_beta = false
@@ -451,7 +455,7 @@ end
 function autonta.handle_ask_nta(env, args)
   local headers = create_default_headers()
   local domain = args[1]
-  -- todo: reload config, and check config
+  if autonta.config:updated() then autonta.init() end
   if is_first_run() then
     return redirect_to("autonta/set_passwords")
   end
@@ -470,11 +474,12 @@ function autonta.handle_ask_nta(env, args)
   -- add all superdomains
   if string_endswith(domain, ".") then domain = string.sub(domain, 1, string.len(domain)-1) end
   local hosts = {}
-  table.insert(hosts, domain)
-  while domain:find("%.") do
-    domain = domain:sub(domain:find("%.")+1, domain:len())
-    au.debug("add " .. domain)
-    table.insert(hosts, domain)
+  local domain_part = domain
+  table.insert(hosts, domain_part)
+  while domain_part:find("%.") do
+    domain_part = domain_part:sub(domain_part:find("%.")+1, domain_part:len())
+    au.debug("add " .. domain_part)
+    table.insert(hosts, domain_part)
   end
 
   local targs = { dst = dst, name = domain, names = hosts, err = err, nta_disabled = nta_disabled }
@@ -485,7 +490,7 @@ end
 function autonta.handle_set_passwords_get(env)
   local headers = create_default_headers()
 
-  -- todo config
+  if autonta.config:updated() then autonta.init() end
 
   au.debug("set passwords (GET) called")
 
@@ -542,9 +547,10 @@ function autonta.handle_set_passwords(env)
   end
 end
 
+function autonta.handle_domain(env, domain)
+  if autonta.config:updated() then autonta.init() end
 
-function autonta.handle_(env)
-  return create_default_headers(), html
+  return redirect_to("//valibox./autonta/ask_nta/" .. domain)
 end
 
 function create_default_headers()
@@ -561,21 +567,34 @@ function create_default_headers()
 end
 
 function redirect_to(url)
+  au.debug("Redirecting client to: " .. url)
   headers = {}
   headers['Status'] = "303 See Other"
   headers['Location'] = url
   return headers, ""
 end
 
+function split_host_port(host_str)
+  local domain, port = host_str:match("([^:]+):([0-9]+)")
+  if domain and port then return domain,port else return host_str end
+end
+
 -- main rendering function called by the wrapper
 -- todo: should be add header utility functions? perhaps a response class
 --     with reasonable defaults
 function autonta.handle_request(env)
-  request_uri = env.REQUEST_URI
+  -- if we are not directly called, do the NTA magic
+  local domain, port = split_host_port(env.HTTP_HOST)
+  au.debug("[XX] DOMAIN: '" .. domain .. "' PORT: " .. au.obj2str(port))
+  if domain ~= "valibox" and domain ~= "192.168.8.1" then
+    return autonta.handle_domain(env, domain)
+  end
+
+  -- called directly, find the correct mapping
+  local request_uri = env.REQUEST_URI
   au.debug(au.obj2str(env))
   au.debug("\n")
   for _,v in pairs(autonta.mapping) do
-    --a1, a2, a3, a4 = request_uri:match(v.pattern)
     match_elements = pack(request_uri:match(v.pattern))
     if #match_elements > 0 then
       --return create_default_headers(), au.obj2str(v)

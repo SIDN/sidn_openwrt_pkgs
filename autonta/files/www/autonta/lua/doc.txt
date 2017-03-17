@@ -8,3 +8,4 @@ Dependencies:
 - ca-certificates
 - lua
 - uhttpd-mod-lua
+- coreutils-stat
