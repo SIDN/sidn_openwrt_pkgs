@@ -18,8 +18,8 @@ function autonta.init()
   -- is found here; in order the REQUEST_URI value is matched
   -- the first match is the handler that is called
   autonta.mapping = {}
-  table.insert(autonta.mapping, { pattern = '^/test$', handler = autonta.test_handler })
   table.insert(autonta.mapping, { pattern = '^/$', handler = autonta.handle_autonta_main })
+  table.insert(autonta.mapping, { pattern = '^/autonta$', handler = autonta.handle_autonta_main })
 
   --table.insert(autonta.mapping, { pattern = '^/$', handler = autonta.handle_autonta_main })
   table.insert(autonta.mapping, { pattern = '^/autonta/nta_list$', handler = autonta.handle_ntalist })
@@ -28,6 +28,7 @@ function autonta.init()
   table.insert(autonta.mapping, { pattern = '^/autonta/ask_nta/([a-zA-Z0-9.-]+)$', handler = autonta.handle_ask_nta })
   table.insert(autonta.mapping, { pattern = '^/autonta/update_check$', handler = autonta.handle_update_check })
   table.insert(autonta.mapping, { pattern = '^/autonta/update_install', handler = autonta.handle_update_install })
+  table.insert(autonta.mapping, { pattern = '^/autonta/set_passwords', handler = autonta.handle_set_passwords })
 end
 
 --
@@ -87,7 +88,84 @@ end
 -- Backend logic functions; TODO: move this to a utility-class
 --
 function is_first_run()
+  -- TODO
   return false
+end
+
+function get_wifi_option(key)
+  local f = io.open("/etc/config/wireless", "r")
+  if not f then return "<no wireless config found>" end
+  local qpattern = "^%s+option%s+([a-z]+)%s+'?([^']+)"
+  local pattern = "^%s+option%s+([a-z]+)%s+(%S+)"
+
+  for line in f:lines() do
+    local ckey,cval = line:match(qpattern)
+    if ckey and cval and ckey == key then return cval end
+    ckey,cval = line:match(pattern)
+    if ckey and cval and ckey == key then return cval end
+  end
+  return "<no name found>"
+end
+
+function autonta.get_wifi_name()
+  return get_wifi_option("ssid")
+end
+
+function get_wifi_pass()
+  return get_wifi_option("key")
+end
+
+function update_wifi(wifi_name, wifi_pass)
+  if not wifi_name then wifi_name = autonta.get_wifi_name() end
+  if not wifi_pass then wifi_pass = get_wifi_pass() end
+
+  local f_in = io.open("/etc/config/wireless.in", "r")
+  if not f_in or not f_out then
+    au.debug("Error: could not read /etc/config/wireless.in")
+    return
+  end
+  local f_out = io.open("/etc/config/wireless", "w")
+  if not f_out or not f_out then
+    au.debug("Error: could not write to /etc/config/wireless")
+    return
+  end
+  for line in f_in:lines() do
+    if line:find("XHWADDRX") > 0 then
+      f_out:write("\toption encryption 'psk2'\n")
+      f_out:write("\toption key '" .. wifi_pass .. "'\n")
+      f_out:write("\toption ssid '" .. wifi_name .. "'\n")
+    else
+      f_out:write(line)
+    end
+  end
+  f_out:close()
+  f_in:close()
+  os.execute("/etc/init.d/network restart")
+end
+
+function update_admin_password(new_password)
+  local f = io.popen("/usr/bin/passwd", "w")
+  f:write(new_password .. "\n")
+  f:write(new_password .. "\n")
+  f:close()
+end
+
+function autonta.update_wifi_and_password(new_wifiname, new_wifi_password, new_admin_password)
+  -- sleep for a bit so the page can render
+
+  if new_admin_password and new_admin_password ~= "" then
+    au.debug("Updating administrator password")
+    update_admin_password(new_admin_password)
+    os.execute("/usr/sbin/unbound-control local_zone_remove .")
+    os.execute("/etc/init.d/unbound restart")
+  end
+
+  if (new_wifi_name and new_wifi_name ~= "") or
+     (new_wifi_password and new_wifi_password ~= "") then
+    au.debug("Updating wireless settings")
+    update_wifi(new_wifi_name, new_wifi_password)
+  end
+
 end
 
 -- Calls unbound-host to get dnssec failure information
@@ -193,10 +271,9 @@ function autonta.handle_ntalist(env, arg1, arg2, arg3, arg4)
   return headers, html
 end
 
-function get_http_query_value(env, field_name)
-  au.debug("Retrieving '" .. field_name .. "' from query string '" .. env.QUERY_STRING .."'")
+function get_http_value(data, field_name)
   local hfield_name = field_name .. "="
-  for field in env.QUERY_STRING:gmatch("([^&]+)") do
+  for field in data:gmatch("([^&]+)") do
     au.debug("Try " .. field)
     if string_startswith(field, hfield_name) then
       local result = field.sub(field, string.len(hfield_name) + 1)
@@ -204,8 +281,20 @@ function get_http_query_value(env, field_name)
       return result
     end
   end
-  au.debug("query field not found: " .. field_name)
-  return "<query field not found: " .. field_name .. ">"
+  au.debug("field not found: " .. field_name)
+  return "<field not found: " .. field_name .. ">"
+end
+
+function get_http_post_value(env, field_name)
+  if not env.POST_DATA then return "<no post data found for field: " .. field_name .. ">" end
+  au.debug("Retrieving '" .. field_name .. "' from post data '" .. env.POST_DATA .."'")
+  return get_http_value(env.POST_DATA, field_name)
+end
+
+function get_http_query_value(env, field_name)
+  if not env.QUERY_STRING then return "<no query string found for field: " .. field_name .. ">" end
+  au.debug("Retrieving '" .. field_name .. "' from query string '" .. env.QUERY_STRING .."'")
+  return get_http_value(env.QUERY_STRING, field_name)
 end
 
 function check_validity(env, host_match, dst_cookie_val)
@@ -391,6 +480,66 @@ function autonta.handle_ask_nta(env, args)
   local targs = { dst = dst, name = domain, names = hosts, err = err, nta_disabled = nta_disabled }
   html = autonta.render('ask_nta.html', targs)
   return headers, html
+end
+
+function autonta.handle_set_passwords_get(env)
+  local headers = create_default_headers()
+
+  -- todo config
+
+  au.debug("set passwords (GET) called")
+
+  -- todo: check first run? (wait, shouldnt we allow this page anyway?)
+
+  local dst = create_dst()
+  set_cookie(headers, "valibox_setpass", dst)
+
+  local old_wifi_name = autonta.get_wifi_name()
+
+  local html = autonta.render('askpasswords.html', { dst = dst, old_wifi_name = old_wifi_name })
+  return headers, html
+end
+
+function autonta.handle_set_passwords_post(env)
+  au.debug("set passwords (POST) called")
+  local headers = create_default_headers()
+  local html = ""
+
+  local dst = get_http_post_value(env, "dst")
+  local wifi_name = get_http_post_value(env, "wifi_name")
+  local wifi_password = get_http_post_value(env, "wifi_password")
+  local wifi_password_repeat = get_http_post_value(env, "wifi_password_repeat")
+  local admin_password = get_http_post_value(env, "admin_password")
+  local admin_password_repeat = get_http_post_value(env, "admin_password_repeat")
+
+  local host_match = get_referer_match_line(env, "/autonta/set_passwords")
+  local dst_cookie_val = get_cookie_value(env, "valibox_setpass")
+  if check_validity(env, host_match, dst_cookie_val) then
+    if wifi_password ~= wifi_password_repeat or admin_password ~= admin_password_repeat then
+      dst = create_dst()
+      set_cookie(headers, "valibox_setpass", dst)
+      html = autonta.render('askpasswords.html', { dst = dst, old_wifi_name = wifi_name, error = language_keys.get('PASS_MISMATCH') })
+      return headers, html
+    end
+
+    -- todo: do this delayed? or cli?
+    -- coroutine
+    autonta.update_wifi_and_password(wifi_name, wifi_password, admin_password)
+
+    remove_cookie(headers, "valibox_setpass")
+    html = autonta.render('passwordsset.html')
+    return headers, html
+  else
+    return redirect_to("/autonta/set_passwords")
+  end
+end
+
+function autonta.handle_set_passwords(env)
+  if env.REQUEST_METHOD == "POST" then
+    return autonta.handle_set_passwords_post(env)
+  else
+    return autonta.handle_set_passwords_get(env)
+  end
 end
 
 

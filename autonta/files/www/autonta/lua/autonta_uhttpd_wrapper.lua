@@ -12,7 +12,15 @@ autonta.init()
 
 -- main handler function.
 function handle_request(env)
-        au.debug("  -- Received HTTP request --")
+        if env.REQUEST_METHOD == "POST" then
+            au.debug("  -- Received HTTP POST --")
+            local content_length = env.CONTENT_LENGTH
+            -- check recv size? does function itself read it all?
+            _, env.POST_DATA = uhttpd.recv(env.CONTENT_LENGTH)
+        else
+            au.debug("  -- Received HTTP GET --")
+        end
+
         headers, html = autonta.handle_request(env)
         for k,v in pairs(headers) do
           uhttpd.send(k .. ": " .. v .. "\r\n")
