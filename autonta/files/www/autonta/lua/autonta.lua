@@ -61,13 +61,14 @@ end
 function autonta.load_templates()
   -- should we add a dependency on lfs? do we need reading files more often?
   -- note: relative directory. Make this config or hardcoded?
-  dirname = 'templates/'
-  f = io.popen('ls ' .. dirname)
+  local dirname = 'templates/'
+  local f = io.popen('ls ' .. dirname)
   for name in f:lines() do
     if string_endswith(name, '.html') then
       autonta.templates[name] = liluat.compile_file("templates/" .. name)
     end
   end
+  f:close()
 end
 
 -- we have a two-layer template system; rather than adding headers
@@ -185,12 +186,15 @@ function get_unbound_host_faildata(domain)
     local result = {}
     local cmd = 'unbound-host -C /etc/unbound/unbound.conf ' .. domain
     local pattern = "validation failure <([a-zA-Z.-]+) [A-Z]+ [A-Z]+>: (.*) from (.*) for (.*) (.*) while building chain of trust"
-    for line in io.popen(cmd):lines() do
+    local p = io.popen(cmd)
+    for line in p:lines() do
         result.target_dname, result.err_msg, result.auth_server, result.fail_type, result.fail_dname = line:match(pattern)
         if result.target_dname then
+            p:close()
             return result
         end
     end
+    p:close()
     au.debug("Error, no suitable output read from " .. cmd)
     return nil
 end
@@ -201,15 +205,18 @@ function get_nta_list()
   for nta in f:lines() do
     table.insert(result, nta)
   end
+  f:close()
   return result
 end
 
 function add_nta(domain)
   local f = io.popen('unbound-control insecure_add ' .. domain)
+  f:close()
 end
 
 function remove_nta(domain)
   local f = io.popen('unbound-control insecure_remove ' .. domain)
+  f:close()
 end
 
 function set_cookie(headers, cookie, value)
@@ -453,8 +460,6 @@ function create_dst()
   return string.random(12)
 end
 
-
-
 function autonta.handle_ask_nta(env, args)
   local headers = create_default_headers()
   local domain = args[1]
@@ -467,9 +472,16 @@ function autonta.handle_ask_nta(env, args)
   local dst = create_dst()
   set_cookie(headers, "valibox_nta", dst)
 
-  -- TODO: unbound-host
-
-  local err = get_unbound_host_faildata(domain)
+  -- this one fails regularly (interrupted system call,
+  -- seems an issue with lua 5.1 and perhaps nginx,
+  -- Just try a number of times
+  local psuc
+  local err
+  for i=1,50 do
+    psuc, err = pcall(get_unbound_host_faildata, domain)
+    if psuc then break end
+    au.debug("error calling unbound-host (attempt " .. i .. "): " .. err)
+  end
 
   -- TODO: check config to see if nta has not been disabled
   local nta_disabled = false
