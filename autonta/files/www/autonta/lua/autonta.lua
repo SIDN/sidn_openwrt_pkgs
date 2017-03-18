@@ -125,18 +125,18 @@ function update_wifi(wifi_name, wifi_pass)
   if not wifi_name then wifi_name = autonta.get_wifi_name() end
   if not wifi_pass then wifi_pass = get_wifi_pass() end
 
-  local f_in = io.open("/etc/config/wireless.in", "r")
-  if not f_in or not f_out then
-    au.debug("Error: could not read /etc/config/wireless.in")
+  local f_in, err = io.open("/etc/config/wireless.in", "r")
+  if not f_in then
+    au.debug("Error: could not read /etc/config/wireless.in: " .. err)
     return
   end
-  local f_out = io.open("/etc/config/wireless", "w")
+  local f_out, err = io.open("/etc/config/wireless", "w")
   if not f_out or not f_out then
-    au.debug("Error: could not write to /etc/config/wireless")
+    au.debug("Error: could not write to /etc/config/wireless" .. err)
     return
   end
   for line in f_in:lines() do
-    if line:find("XHWADDRX") > 0 then
+    if line:find("XHWADDRX") then
       f_out:write("\toption encryption 'psk2'\n")
       f_out:write("\toption key '" .. wifi_pass .. "'\n")
       f_out:write("\toption ssid '" .. wifi_name .. "'\n")

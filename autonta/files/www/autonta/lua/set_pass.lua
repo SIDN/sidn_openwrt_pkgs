@@ -6,7 +6,8 @@ local au = require 'autonta_util'
 function prompt(msg, allow_space)
   local line
   while true do
-    io.write(msg)
+    io.stdout:write(msg)
+    io.stdout:flush()
     line = io.read("*line"):gsub("[%s\n]+$", "")
     if not allow_space and line:find("%s") then
       print("Error: white space not allowed")
