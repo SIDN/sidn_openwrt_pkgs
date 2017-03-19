@@ -425,24 +425,15 @@ function autonta.handle_update_install(env)
   local dst_cookie_val = get_cookie_value(env, "valibox_update")
   local q_dst_val = get_http_query_value(env, "dst")
   if check_validity(env, host_match, dst_cookie_val, q_dst_val) then
+    -- actual update call goes here
+    local cmd = "./update_system.lua -w"
+    if beta then cmd = cmd .. " -b" end
+    if keep_settings then cmd = cmd .. " -k" end
 
-  -- actual update call goes here
-  local cmd = "./update_system.lua -w"
-  if beta then cmd = cmd .. " -b" end
-  if keep_settings then cmd = cmd .. " -k" end
-
-  io.popen(cmd)
-
-  --  local board_name = vu.get_board_name()
-  --  local firmware_info = vu.get_firmware_board_info(beta, "", true, board_name)
-  --  if firmware_info then
-  --    local call_install = function()
-  --      vu.install_update(firmware_info, keep_settings, "")
-  --    end
-  --    html = autonta.render('update_install.html', { update_version=firmware_info.version, update_download_success=true})
-  --    remove_cookie(headers, "valibox_update")
-  --    return headers, html, call_install
-  --  end
+    io.popen(cmd)
+    html = autonta.render('update_install.html', { update_version=firmware_info.version, update_download_success=true})
+    remove_cookie(headers, "valibox_update")
+    return headers, html
   end
   -- Invalid request or failure, send back to update page
   return redirect_to("/autonta/update_check")
