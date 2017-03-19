@@ -147,7 +147,7 @@ function update_wifi(wifi_name, wifi_pass)
   end
   f_out:close()
   f_in:close()
-  os.execute("/etc/init.d/network restart")
+  io.popen("./restart_network.sh")
 end
 
 function update_admin_password(new_password)
@@ -157,8 +157,9 @@ function update_admin_password(new_password)
   f:close()
 end
 
-function autonta.update_wifi_and_password(new_wifiname, new_wifi_password, new_admin_password)
-  -- sleep for a bit so the page can render
+function autonta.update_wifi_and_password(new_wifi_name, new_wifi_password, new_admin_password)
+  au.debug("Updating wifi and password settings")
+  au.debug("ssid: " .. au.obj2str(new_wifi_name))
 
   if new_admin_password and new_admin_password ~= "" then
     au.debug("Updating administrator password")
@@ -173,6 +174,7 @@ function autonta.update_wifi_and_password(new_wifiname, new_wifi_password, new_a
     update_wifi(new_wifi_name, new_wifi_password)
   end
 
+  au.debug("Done updating wifi and password settings")
 end
 
 -- Calls unbound-host to get dnssec failure information
@@ -235,7 +237,7 @@ function get_cookie_value(env, cookie_name)
   local hcookie_name = cookie_name .. "="
   for cookie in cookies:gmatch("([^;]+)") do
     cookie = cookie:match("%s*(%S+)%s*")
-    au.debug("Try " .. cookie)
+    --au.debug("Try " .. cookie)
     if string_startswith(cookie, hcookie_name) then
       local result = cookie.sub(cookie, string.len(hcookie_name) + 1)
       au.debug("Found! value: '"..result.."'")
@@ -288,7 +290,7 @@ end
 function get_http_value(data, field_name)
   local hfield_name = field_name .. "="
   for field in data:gmatch("([^&]+)") do
-    au.debug("Try " .. field)
+    --au.debug("Try " .. field)
     if string_startswith(field, hfield_name) then
       local result = field.sub(field, string.len(hfield_name) + 1)
       au.debug("Found! value: '"..result.."'")
@@ -311,7 +313,8 @@ function get_http_query_value(env, field_name)
   return get_http_value(env.QUERY_STRING, field_name)
 end
 
-function check_validity(env, host_match, dst_cookie_val)
+function check_validity(env, host_match, dst_cookie_val, dst_http_val)
+  if not dst_http_val then dst_http_val = "<not sent>" end
   if not env.HTTP_REFERER:match(host_match) then
     au.debug("Referer match failure")
     au.debug("http referer: '" .. env.HTTP_REFERER .. "'")
@@ -319,12 +322,8 @@ function check_validity(env, host_match, dst_cookie_val)
     au.debug("\n")
     return false
   else
-    local query_string = env.QUERY_STRING
-    local q_dst_val = get_http_query_value(env, "dst")
-    au.debug("Query string: " .. query_string)
-    au.debug("q_dst_val: " .. q_dst_val)
-    if q_dst_val ~= dst_cookie_val then
-      au.debug("DST cookie mismatch: " .. dst_cookie_val .. " != " .. q_dst_val)
+    if dst_http_val ~= dst_cookie_val then
+      au.debug("DST cookie mismatch: " .. dst_http_val .. " != " .. q_dst_val)
       return false
     else
       return true
@@ -340,7 +339,9 @@ function autonta.handle_set_nta(env, args)
 
   local host_match = get_referer_match_line(env, "/autonta/ask_nta/" .. domain)
   local dst_cookie_val = get_cookie_value(env, "valibox_nta")
-  if check_validity(env, host_match, dst_cookie_val) then
+  local q_dst_val = get_http_query_value(env, "dst")
+
+  if check_validity(env, host_match, dst_cookie_val, q_dst_val) then
     add_nta(domain)
     remove_cookie(headers, "valibox_nta")
     html = autonta.render('nta_set.html', { domain=domain })
@@ -422,17 +423,26 @@ function autonta.handle_update_install(env)
 
   local host_match = get_referer_match_line(env, "/autonta/update_check")
   local dst_cookie_val = get_cookie_value(env, "valibox_update")
-  if check_validity(env, host_match, dst_cookie_val) then
+  local q_dst_val = get_http_query_value(env, "dst")
+  if check_validity(env, host_match, dst_cookie_val, q_dst_val) then
 
-    -- actual update call goes here
-    local board_name = vu.get_board_name()
-    local firmware_info = vu.get_firmware_board_info(beta, "", true, board_name)
-    if firmware_info then
-        local result = vu.install_update(firmware_info, keep_settings, "")
-        html = autonta.render('update_install.html', { update_version=firmware_info.version, update_download_success=result})
-        remove_cookie(headers, "valibox_update")
-        return headers, html
-    end
+  -- actual update call goes here
+  local cmd = "./update_system.lua -w"
+  if beta then cmd = cmd .. " -b" end
+  if keep_settings then cmd = cmd .. " -k" end
+
+  io.popen(cmd)
+
+  --  local board_name = vu.get_board_name()
+  --  local firmware_info = vu.get_firmware_board_info(beta, "", true, board_name)
+  --  if firmware_info then
+  --    local call_install = function()
+  --      vu.install_update(firmware_info, keep_settings, "")
+  --    end
+  --    html = autonta.render('update_install.html', { update_version=firmware_info.version, update_download_success=true})
+  --    remove_cookie(headers, "valibox_update")
+  --    return headers, html, call_install
+  --  end
   end
   -- Invalid request or failure, send back to update page
   return redirect_to("/autonta/update_check")
@@ -534,7 +544,7 @@ function autonta.handle_set_passwords_post(env)
 
   local host_match = get_referer_match_line(env, "/autonta/set_passwords")
   local dst_cookie_val = get_cookie_value(env, "valibox_setpass")
-  if check_validity(env, host_match, dst_cookie_val) then
+  if check_validity(env, host_match, dst_cookie_val, dst) then
     if wifi_password ~= wifi_password_repeat or admin_password ~= admin_password_repeat then
       dst = create_dst()
       set_cookie(headers, "valibox_setpass", dst)
@@ -542,8 +552,6 @@ function autonta.handle_set_passwords_post(env)
       return headers, html
     end
 
-    -- todo: do this delayed? or cli?
-    -- coroutine
     autonta.update_wifi_and_password(wifi_name, wifi_password, admin_password)
 
     remove_cookie(headers, "valibox_setpass")
@@ -613,6 +621,10 @@ function autonta.handle_request(env)
     match_elements = pack(request_uri:match(v.pattern))
     if #match_elements > 0 then
       --return create_default_headers(), au.obj2str(v)
+      -- handlers should return 2 or 3 elements;
+      -- the HTTP headers, the HTML to send, and an optional
+      -- function that will be called after rendering, which
+      -- takes no arguments
       return v.handler(env, match_elements)
     end
   end

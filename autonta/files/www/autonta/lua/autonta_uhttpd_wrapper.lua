@@ -42,5 +42,7 @@ function handle_request(env)
         end
         uhttpd.send("\r\n")
         uhttpd.send(html)
+        uhttpd.send("\r\n")
+        uhttpd.send("\r\n")
         au.debug("  -- HTTP request handled --")
 end

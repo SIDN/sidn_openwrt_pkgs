@@ -3,19 +3,24 @@ au = require 'autonta_util'
 lk = {}
 lk.keys = {}
 
+lk.verbose = false
+function lk.debug(msg)
+  au.debug(msg)
+end
+
 -- todo: add args
 function lk.get(key, ...)
     if lk.keys[key] then
       result = lk.keys[key]
       -- todo: verify argument counts
       for i,v in ipairs(arg) do
-        au.debug("Replace key with '" .. v .. "'")
+        lk.debug("Replace key with '" .. v .. "'")
         result = result:gsub("%%s", v, 1)
       end
-      au.debug("Result: '" .. result .. "'")
+      lk.debug("Result: '" .. result .. "'")
       return result
     else
-      au.debug("Error: language key not found")
+      lk.debug("Error: language key not found")
       return "[LANGUAGE KEY " .. key .. " NOT FOUND]"
     end
 end

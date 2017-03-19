@@ -2,11 +2,12 @@
 
 local autonta = require 'autonta'
 local au = require 'autonta_util'
+local posix = require 'posix'
 
-function prompt(msg, allow_space)
+function prompt(msg, allow_space, quiet)
   local line
   while true do
-    io.stdout:write(msg)
+    if not quiet then io.stdout:write(msg) end
     io.stdout:flush()
     line = io.read("*line"):gsub("[%s\n]+$", "")
     if not allow_space and line:find("%s") then
@@ -18,9 +19,20 @@ function prompt(msg, allow_space)
   return line
 end
 
+local argparse = require 'argparse'
+
+local parser = argparse()
+
+parser:flag("-q --quiet", "Do not prompt for values")
+parser:flag("-w --wait", "Wait 2 seconds before activating change")
+
+local args = parser:parse()
+
 local old_wifi_name = autonta.get_wifi_name()
-local wifi_name = prompt("Wireless network name [" .. old_wifi_name .. "]: ", true)
-local wifi_pass = prompt("Wireless password [keep current]: ", false)
-local admin_pass = prompt("Administrator password [keep current]: ", false)
+local wifi_name = prompt("Wireless network name [" .. old_wifi_name .. "]: ", true, args.quiet)
+local wifi_pass = prompt("Wireless password [keep current]: ", false, args.quiet)
+local admin_pass = prompt("Administrator password [keep current]: ", false, args.quiet)
+
+if args.wait then posix.sleep(2) end
 
 autonta.update_wifi_and_password(wifi_name, wifi_pass, admin_pass)

@@ -2,6 +2,7 @@
 
 local vu = require 'valibox_update'
 local au = require 'autonta_util'
+local posix = require 'posix'
 
 local argparse = require 'argparse'
 
@@ -13,6 +14,7 @@ parser:flag("-k --keep-settings", "Keep current settings")
 parser:flag("-d --debug", "Print debug messages")
 parser:flag("-i --install", "Proceed with installation after checks")
 parser:flag("-c --changelog", "Print changelog")
+parser:flag("-w --wait", "wait 3 seconds before upgrading")
 
 local args = parser:parse()
 
@@ -45,6 +47,10 @@ end
 
 if args.changelog then
   print(vu.fetch_update_info_txt(board_firmware_info, fetch_options))
+end
+
+if args.wait then
+  posix.sleep(3)
 end
 
 if args.install then
