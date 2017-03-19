@@ -3,6 +3,7 @@ language_keys = require 'language_keys'
 au = require 'autonta_util'
 vu = require 'valibox_update'
 config = require 'config'
+posix = require 'posix'
 
 autonta = {}
 
@@ -96,7 +97,7 @@ end
 --
 function is_first_run()
   -- TODO
-  return false
+  return posix.stat("/etc/valibox_name_set") ~= nil
 end
 
 function get_wifi_option(key)
@@ -143,6 +144,9 @@ function update_wifi(wifi_name, wifi_pass)
       f_out:write("\toption ssid '" .. wifi_name .. "'\n")
     else
       f_out:write(line)
+      if not string_endswith(line, "\n") then
+        f_out:write("\n")
+      end
     end
   end
   f_out:close()
@@ -425,24 +429,18 @@ function autonta.handle_update_install(env)
   local dst_cookie_val = get_cookie_value(env, "valibox_update")
   local q_dst_val = get_http_query_value(env, "dst")
   if check_validity(env, host_match, dst_cookie_val, q_dst_val) then
+    -- actual update call goes here
+    local cmd = "./update_system.lua -i -w"
+    if beta then cmd = cmd .. " -b" end
+    if keep_settings then cmd = cmd .. " -k" end
 
-  -- actual update call goes here
-  local cmd = "./update_system.lua -w"
-  if beta then cmd = cmd .. " -b" end
-  if keep_settings then cmd = cmd .. " -k" end
-
-  io.popen(cmd)
-
-  --  local board_name = vu.get_board_name()
-  --  local firmware_info = vu.get_firmware_board_info(beta, "", true, board_name)
-  --  if firmware_info then
-  --    local call_install = function()
-  --      vu.install_update(firmware_info, keep_settings, "")
-  --    end
-  --    html = autonta.render('update_install.html', { update_version=firmware_info.version, update_download_success=true})
-  --    remove_cookie(headers, "valibox_update")
-  --    return headers, html, call_install
-  --  end
+    au.debug("Calling update command: " .. cmd)
+    io.popen(cmd)
+    local board_name = vu.get_board_name()
+    local firmware_info = vu.get_firmware_board_info(beta, "", true, board_name)
+    html = autonta.render('update_install.html', { update_version=firmware_info.version, update_download_success=true})
+    remove_cookie(headers, "valibox_update")
+    return headers, html
   end
   -- Invalid request or failure, send back to update page
   return redirect_to("/autonta/update_check")
@@ -571,6 +569,10 @@ function autonta.handle_set_passwords(env)
 end
 
 function autonta.handle_domain(env, domain)
+  if is_first_run() then
+    return redirect_to("/autonta/set_passwords")
+  end
+
   if autonta.config:updated() then autonta.init() end
 
   return redirect_to("//valibox./autonta/ask_nta/" .. domain)

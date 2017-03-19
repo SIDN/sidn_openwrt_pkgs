@@ -113,7 +113,8 @@ function vu.fetch_file(url, output_file, return_data, fetch_options)
   au.debug("Command: " .. cmd)
   local rcode = os.execute(cmd)
   if rcode and return_data then
-    return io.open(output_file):lines()
+    local of = io.open(output_file)
+    if of then return of:lines() else return "Failed to download firmware info file" end
   else
     return rcode
   end
