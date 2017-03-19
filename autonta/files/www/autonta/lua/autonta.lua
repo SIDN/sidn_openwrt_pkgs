@@ -96,7 +96,7 @@ end
 --
 function is_first_run()
   -- TODO
-  return false
+  return posix.stat("/etc/valibox_name_set") ~= nil
 end
 
 function get_wifi_option(key)
@@ -562,6 +562,10 @@ function autonta.handle_set_passwords(env)
 end
 
 function autonta.handle_domain(env, domain)
+  if is_first_run() then
+    return redirect_to("/autonta/set_passwords")
+  end
+
   if autonta.config:updated() then autonta.init() end
 
   return redirect_to("//valibox./autonta/ask_nta/" .. domain)
