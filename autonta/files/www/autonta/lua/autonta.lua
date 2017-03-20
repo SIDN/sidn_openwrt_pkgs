@@ -159,7 +159,7 @@ function update_admin_password(new_password)
   local orig_stdin = io.stdin
   local orig_stdout = io.stdout
   local orig_stderr = io.stderr
-  local f = io:popen("/usr/bin/passwd", "w")
+  local f = io.popen("/usr/bin/passwd", "w")
   f:write(new_password .. "\n")
   f:write(new_password .. "\n")
   f:close()
