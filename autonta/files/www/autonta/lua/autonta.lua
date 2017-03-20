@@ -97,7 +97,7 @@ end
 --
 function is_first_run()
   -- TODO
-  return posix.stat("/etc/valibox_name_set") ~= nil
+  return posix.stat("/etc/valibox_name_set") == nil
 end
 
 function get_wifi_option(key)
@@ -266,7 +266,12 @@ end
 -- Actual specific page handlers
 --
 function autonta.handle_autonta_main(env)
-  local headers = {}
+  if autonta.config:updated() then autonta.init() end
+  if is_first_run() then
+    return redirect_to("/autonta/set_passwords")
+  end
+
+   local headers = {}
   headers['Status'] = "200 OK"
   headers['Content-Type'] = "text/html"
 
@@ -279,13 +284,12 @@ function autonta.handle_autonta_main(env)
 end
 
 function autonta.handle_ntalist(env, arg1, arg2, arg3, arg4)
-  local headers = create_default_headers()
   if autonta.config:updated() then autonta.init() end
-
   if is_first_run() then
     return redirect_to("/autonta/set_passwords")
   end
 
+  local headers = create_default_headers()
   args = { ntas = get_nta_list() }
   html = autonta.render('nta_list.html', args)
   return headers, html
@@ -336,11 +340,10 @@ function check_validity(env, host_match, dst_cookie_val, dst_http_val)
 end
 
 function autonta.handle_set_nta(env, args)
-  local headers = create_default_headers()
-  local domain = args[1]
-
   if autonta.config:updated() then autonta.init() end
 
+  local headers = create_default_headers()
+  local domain = args[1]
   local host_match = get_referer_match_line(env, "/autonta/ask_nta/" .. domain)
   local dst_cookie_val = get_cookie_value(env, "valibox_nta")
   local q_dst_val = get_http_query_value(env, "dst")
@@ -366,10 +369,12 @@ function autonta.handle_remove_nta(env, args)
 end
 
 function autonta.handle_update_check(env)
-  local headers = create_default_headers()
-
   if autonta.config:updated() then autonta.init() end
+  if is_first_run() then
+    return redirect_to("/autonta/set_passwords")
+  end
 
+  local headers = create_default_headers()
   local current_version = vu.get_current_version()
   local currently_beta = false
   if current_version:find("beta") then
@@ -473,7 +478,7 @@ function autonta.handle_ask_nta(env, args)
   local domain = args[1]
   if autonta.config:updated() then autonta.init() end
   if is_first_run() then
-    return redirect_to("autonta/set_passwords")
+    return redirect_to("/autonta/set_passwords")
   end
 
   -- create a double-submit token
@@ -561,6 +566,7 @@ function autonta.handle_set_passwords_post(env)
 end
 
 function autonta.handle_set_passwords(env)
+  if autonta.config:updated() then autonta.init() end
   if env.REQUEST_METHOD == "POST" then
     return autonta.handle_set_passwords_post(env)
   else
@@ -569,11 +575,10 @@ function autonta.handle_set_passwords(env)
 end
 
 function autonta.handle_domain(env, domain)
+  if autonta.config:updated() then autonta.init() end
   if is_first_run() then
     return redirect_to("/autonta/set_passwords")
   end
-
-  if autonta.config:updated() then autonta.init() end
 
   return redirect_to("//valibox./autonta/ask_nta/" .. domain)
 end
