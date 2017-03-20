@@ -155,10 +155,17 @@ function update_wifi(wifi_name, wifi_pass)
 end
 
 function update_admin_password(new_password)
+  -- keep current streams, uhttpd will get confused otherwise
+  local orig_stdin = io.stdin
+  local orig_stdout = io.stdout
+  local orig_stderr = io.stderr
   local f = io.popen("/usr/bin/passwd", "w")
   f:write(new_password .. "\n")
   f:write(new_password .. "\n")
   f:close()
+  io.stdin = orig_stdin
+  io.stdout = orig_stdout
+  io.stderr = orig_stderr
 end
 
 function autonta.update_wifi_and_password(new_wifi_name, new_wifi_password, new_admin_password)
