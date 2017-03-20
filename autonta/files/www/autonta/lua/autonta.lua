@@ -3,6 +3,7 @@ language_keys = require 'language_keys'
 au = require 'autonta_util'
 vu = require 'valibox_update'
 config = require 'config'
+posix = require 'posix'
 
 autonta = {}
 
@@ -143,6 +144,9 @@ function update_wifi(wifi_name, wifi_pass)
       f_out:write("\toption ssid '" .. wifi_name .. "'\n")
     else
       f_out:write(line)
+      if not string_endswith(line, "\n") then
+        f_out:write("\n")
+      end
     end
   end
   f_out:close()
@@ -426,11 +430,14 @@ function autonta.handle_update_install(env)
   local q_dst_val = get_http_query_value(env, "dst")
   if check_validity(env, host_match, dst_cookie_val, q_dst_val) then
     -- actual update call goes here
-    local cmd = "./update_system.lua -w"
+    local cmd = "./update_system.lua -i -w"
     if beta then cmd = cmd .. " -b" end
     if keep_settings then cmd = cmd .. " -k" end
 
+    au.debug("Calling update command: " .. cmd)
     io.popen(cmd)
+    local board_name = vu.get_board_name()
+    local firmware_info = vu.get_firmware_board_info(beta, "", true, board_name)
     html = autonta.render('update_install.html', { update_version=firmware_info.version, update_download_success=true})
     remove_cookie(headers, "valibox_update")
     return headers, html
