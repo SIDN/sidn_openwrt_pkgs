@@ -202,7 +202,8 @@ function get_unbound_host_faildata(domain)
     local cmd = 'unbound-host -C /etc/unbound/unbound.conf ' .. domain
     local pattern = "validation failure <([a-zA-Z.-]+) [A-Z]+ [A-Z]+>: (.*) from (.*) for (.*) (.*) while building chain of trust"
     local p = mio.subprocess(mio.split_cmd(cmd))
-    for line in p:readlines(5000) do
+    for line in p:readlines(true, 10000) do
+        au.debug("[XX] Line: " .. line)
         result.target_dname, result.err_msg, result.auth_server, result.fail_type, result.fail_dname = line:match(pattern)
         if result.target_dname then
             p:close()
@@ -217,7 +218,9 @@ end
 function get_nta_list()
   local p = mio.subprocess(mio.split_cmd('unbound-control list_insecure'))
   local result = {}
-  for nta in p:readlines() do
+  -- todo better way to see if subp is actually running
+  posix.sleep(1)
+  for nta in p:readlines(true, 10000) do
     table.insert(result, nta)
   end
   p:close()

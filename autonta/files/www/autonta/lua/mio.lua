@@ -125,35 +125,46 @@ function mio.subprocess(path, args, delay)
   io.stderr:write("[XX] subp got PID " .. subp.pid .. "\n")
 
   subp.readline = function(self, strip_newline, timeout)
-    return mio.read_fd_line(subp.stdout, strip_newline, timeout)
+    io.stderr:write("[XX] READ LINE FROM PROCESS " .. self.pid)
+    if timeout ~= nil then
+      io.stderr:write(" WITH TIMEOUT " .. timeout)
+    end
+    io.stderr:write("\n")
+    local result = mio.read_fd_line(self.stdout, strip_newline, timeout)
+    if result ~= nil then
+      io.stderr:write("[XX] LINE: '" .. result .. "'\n")
+    else
+      io.stderr:write("[XX] LINE empty\n")
+    end
+    return result
   end
 
   subp.readlines = function(self, strip_newlines, timeout)
     local function next_line()
-      return subp:readline(strip_newlines, timeout)
+      return self:readline(strip_newlines, timeout)
     end
     return next_line
   end
 
   subp.readline_stderr = function(self, strip_newline)
-    return mio.read_fd_line(subp.stderr, strip_newline)
+    return mio.read_fd_line(self.stderr, strip_newline)
   end
 
   subp.writeline = function(self, line, add_newline)
-    return mio.write_fd_line(subp.stdin, line, add_newline)
+    return mio.write_fd_line(s.stdin, line, add_newline)
   end
 
   subp.close = function(self)
-    posix.close(subp.stdin)
-    posix.close(subp.stdout)
-    posix.close(subp.stderr)
-    local spid, state, rcode = posix.wait(subp.pid)
-    if spid == subp.pid then
-      subp.rcode = rcode
-      subp.pid = nil
-      subp.stdin = nil
-      subp.stdout = nil
-      subp.stderr = nil
+    posix.close(self.stdin)
+    posix.close(self.stdout)
+    posix.close(self.stderr)
+    local spid, state, rcode = posix.wait(self.pid)
+    if spid == self.pid then
+      self.rcode = rcode
+      self.pid = nil
+      self.stdin = nil
+      self.stdout = nil
+      self.stderr = nil
     end
     return rcode
   end

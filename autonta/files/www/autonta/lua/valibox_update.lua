@@ -59,11 +59,15 @@ end
 
 function vu.get_sha256_sum(filename)
   local p,err = mio.subprocess(mio.split_cmd("/usr/bin/sha256sum " .. filename))
-  if p == nil then return nil, err end
+  if p == nil then
+    au.debug("[XX] error in sha256sum...")
+    return nil, err
+  end
   local line,err = p:readline(true, 5000)
   if line == nil then return nil, err end
-  result = p:readline():match("^([0-9a-f]+)")
+  result = line:match("^([0-9a-f]+)")
   p:close()
+  au.debug("[XX] LINE FROM SHA256: " .. au.obj2str(result))
   return result
 end
 
@@ -78,7 +82,7 @@ function vu.download_image(board_firmware_info, fetch_options)
     if vu.fetch_file(image_url, image_filename, false, fetch_options) then
       -- check sha256
       local file_sha256_sum, err = vu.get_sha256_sum(image_filename)
-      if file_sha256sum == nil then
+      if file_sha256_sum == nil then
         au.debug("Error getting SHA256 of file: " .. err)
         return nil
       end
@@ -107,7 +111,7 @@ function vu.install_image(filename, keep_settings)
   au.debug("Calling sysupgrade command: " .. cmd)
   --os.execute(cmd)
   -- use io.popen instead of os.execute so we can return
-  return mio.subprocess(cmd, args, 2)
+  return mio.subprocess(cmd, args)
 end
 
 -- Fetch a file using wget
