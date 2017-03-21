@@ -63,13 +63,13 @@ function autonta.load_templates()
   -- should we add a dependency on lfs? do we need reading files more often?
   -- note: relative directory. Make this config or hardcoded?
   local dirname = 'templates/'
-  local f = io.popen('ls ' .. dirname)
-  for name in f:lines() do
+  local p = mio.subprocess(mio.split_cmd('ls ' .. dirname))
+  for name in p:readlines(true) do
     if string_endswith(name, '.html') then
       autonta.templates[name] = liluat.compile_file("templates/" .. name)
     end
   end
-  f:close()
+  p:close()
 end
 
 -- we have a two-layer template system; rather than adding headers
@@ -151,21 +151,21 @@ function update_wifi(wifi_name, wifi_pass)
   end
   f_out:close()
   f_in:close()
-  io.popen("./restart_network.sh")
+  mio.subprocess("./restart_network.sh", {}, 3)
 end
 
 function update_admin_password(new_password)
   -- keep current streams, uhttpd will get confused otherwise
-  local orig_stdin = io.stdin
-  local orig_stdout = io.stdout
-  local orig_stderr = io.stderr
-  local f = io.popen("/usr/bin/passwd", "w")
-  f:write(new_password .. "\n")
-  f:write(new_password .. "\n")
-  f:close()
-  io.stdin = orig_stdin
-  io.stdout = orig_stdout
-  io.stderr = orig_stderr
+  --local orig_stdin = io.stdin
+  --local orig_stdout = io.stdout
+  --local orig_stderr = io.stderr
+  local p = mio.subprocess("/usr/bin/passwd")
+  p:writeline(new_password, true)
+  p:writeline(new_password, true)
+  p:close()
+  --io.stdin = orig_stdin
+  --io.stdout = orig_stdout
+  --io.stderr = orig_stderr
 end
 
 function autonta.update_wifi_and_password(new_wifi_name, new_wifi_password, new_admin_password)
@@ -186,6 +186,8 @@ function autonta.update_wifi_and_password(new_wifi_name, new_wifi_password, new_
   end
 
   au.debug("Done updating wifi and password settings")
+  local f = mio.file_writer("/etc/valibox_name_set")
+  f:close()
 end
 
 -- Calls unbound-host to get dnssec failure information
@@ -199,8 +201,8 @@ function get_unbound_host_faildata(domain)
     local result = {}
     local cmd = 'unbound-host -C /etc/unbound/unbound.conf ' .. domain
     local pattern = "validation failure <([a-zA-Z.-]+) [A-Z]+ [A-Z]+>: (.*) from (.*) for (.*) (.*) while building chain of trust"
-    local p = io.popen(cmd)
-    for line in p:lines() do
+    local p = mio.subprocess(mio.split_cmd(cmd))
+    for line in p:readlines(5000) do
         result.target_dname, result.err_msg, result.auth_server, result.fail_type, result.fail_dname = line:match(pattern)
         if result.target_dname then
             p:close()
@@ -213,23 +215,23 @@ function get_unbound_host_faildata(domain)
 end
 
 function get_nta_list()
-  local f = io.popen('unbound-control list_insecure')
+  local p = mio.subprocess(mio.split_cmd('unbound-control list_insecure'))
   local result = {}
-  for nta in f:lines() do
+  for nta in p:readlines() do
     table.insert(result, nta)
   end
-  f:close()
+  p:close()
   return result
 end
 
 function add_nta(domain)
-  local f = io.popen('unbound-control insecure_add ' .. domain)
-  f:close()
+  local p = mio.subprocess(mio.split_cmd('unbound-control insecure_add ' .. domain))
+  p:close()
 end
 
 function remove_nta(domain)
-  local f = io.popen('unbound-control insecure_remove ' .. domain)
-  f:close()
+  local p = mio.subprocess(mio.split_cmd('unbound-control insecure_remove ' .. domain))
+  p:close()
 end
 
 function set_cookie(headers, cookie, value)
@@ -442,12 +444,16 @@ function autonta.handle_update_install(env)
   local q_dst_val = get_http_query_value(env, "dst")
   if check_validity(env, host_match, dst_cookie_val, q_dst_val) then
     -- actual update call goes here
-    local cmd = "./update_system.lua -i -w"
-    if beta then cmd = cmd .. " -b" end
-    if keep_settings then cmd = cmd .. " -k" end
+    local cmd = "./update_system.lua"
+    local args = {}
+    table.insert(args, "-i")
+    table.insert(args, "-w")
+    if beta then table.insert(args, "-b") end
+    if keep_settings then table.insert(args, "-k") end
 
     au.debug("Calling update command: " .. cmd)
-    io.popen(cmd)
+    mio.subprocess(cmd, args, 3)
+
     local board_name = vu.get_board_name()
     local firmware_info = vu.get_firmware_board_info(beta, "", true, board_name)
     html = autonta.render('update_install.html', { update_version=firmware_info.version, update_download_success=true})

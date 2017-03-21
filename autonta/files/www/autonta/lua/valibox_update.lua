@@ -6,6 +6,7 @@
 --
 
 au = require 'autonta_util'
+mio = require 'mio'
 
 local vu = {}
 
@@ -57,8 +58,10 @@ function vu.fetch_firmware_info(base_url, fetch_options)
 end
 
 function vu.get_sha256_sum(filename)
-  local p = io.popen("/usr/bin/sha256sum " .. filename)
-  return p:read("*line"):match("^([0-9a-f]+)")
+  local p = mio.subprocess(mio.split_cmd("/usr/bin/sha256sum " .. filename))
+  result = p:readline():match("^([0-9a-f]+)")
+  p:close()
+  return result
 end
 
 -- Downloads and verifies the sha256sum of the image file for the given
@@ -88,15 +91,16 @@ function vu.download_image(board_firmware_info, fetch_options)
 end
 
 function vu.install_image(filename, keep_settings)
-  local cmd = "/sbin/sysupgrade "
+  local cmd = "/sbin/sysupgrade"
+  local args = {}
   if not keep_settings then
-    cmd = cmd .. "-c "
+    table.insert(args, "-c")
   end
-  cmd = cmd .. filename
+  table.insert(args, filename)
   au.debug("Calling sysupgrade command: " .. cmd)
   --os.execute(cmd)
   -- use io.popen instead of os.execute so we can return
-  return io.popen(cmd)
+  return mio.subprocess(cmd, args, 2)
 end
 
 -- Fetch a file using wget
