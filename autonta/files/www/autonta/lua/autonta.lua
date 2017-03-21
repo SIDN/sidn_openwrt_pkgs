@@ -451,7 +451,7 @@ function autonta.handle_update_install(env)
     if beta then table.insert(args, "-b") end
     if keep_settings then table.insert(args, "-k") end
 
-    au.debug("Calling update command: " .. cmd)
+    au.debug("Calling update command: " .. cmd .. " " .. strjoin(" ", args))
     mio.subprocess(cmd, args, 3)
 
     local board_name = vu.get_board_name()

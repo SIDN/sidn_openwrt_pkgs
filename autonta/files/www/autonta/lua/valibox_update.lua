@@ -58,7 +58,10 @@ function vu.fetch_firmware_info(base_url, fetch_options)
 end
 
 function vu.get_sha256_sum(filename)
-  local p = mio.subprocess(mio.split_cmd("/usr/bin/sha256sum " .. filename))
+  local p,err = mio.subprocess(mio.split_cmd("/usr/bin/sha256sum " .. filename))
+  if p == nil then return nil, err end
+  local line,err = p:readline(true, 5000)
+  if line == nil then return nil, err end
   result = p:readline():match("^([0-9a-f]+)")
   p:close()
   return result
@@ -74,7 +77,11 @@ function vu.download_image(board_firmware_info, fetch_options)
     au.debug("Downloading new image file from " .. image_url)
     if vu.fetch_file(image_url, image_filename, false, fetch_options) then
       -- check sha256
-      file_sha256_sum = vu.get_sha256_sum(image_filename)
+      local file_sha256_sum, err = vu.get_sha256_sum(image_filename)
+      if file_sha256sum == nil then
+        au.debug("Error getting SHA256 of file: " .. err)
+        return nil
+      end
       au.debug("File SHA256: " .. file_sha256_sum)
       if file_sha256_sum == board_firmware_info.sha256sum then
         au.debug("SHA256 sum matches")

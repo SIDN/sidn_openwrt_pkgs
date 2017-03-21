@@ -89,6 +89,7 @@ function mio.popen3(path, args, delay)
         posix.close(w3)
 
         local ret, err = posix.execp(path, args)
+        sys.stderr.write("execp() failed: " .. err)
         assert(ret ~= nil, "execp() failed")
 
         posix._exit(1)
@@ -102,9 +103,26 @@ function mio.popen3(path, args, delay)
     return pid, w1, r2, r3
 end
 
+function strjoin(delimiter, list)
+   local len = table.getn(list)
+   if len == 0 then
+      return ""
+   end
+   local string = list[1]
+   for i = 2, len do
+      string = string .. delimiter .. list[i]
+   end
+   return string
+end
+
+
 function mio.subprocess(path, args, delay)
+  io.stderr:write("[XX] MIO cmd: " .. path .. " " .. strjoin(" ", args) .. "\n")
+  if delay then io.stderr:write("[XX] with delay " .. delay .. "\n") end
+
   local subp = {}
   subp.pid, subp.stdin, subp.stdout, subp.stderr = mio.popen3(path, args, delay)
+  io.stderr:write("[XX] subp got PID " .. subp.pid .. "\n")
 
   subp.readline = function(self, strip_newline, timeout)
     return mio.read_fd_line(subp.stdout, strip_newline, timeout)
