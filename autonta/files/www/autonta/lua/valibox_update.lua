@@ -111,7 +111,9 @@ function vu.install_image(filename, keep_settings)
   au.debug("Calling sysupgrade command: " .. cmd)
   --os.execute(cmd)
   -- use io.popen instead of os.execute so we can return
-  return mio.subprocess(cmd, args)
+  local subp = mio.subprocess(cmd, args)
+
+  return subp:wait()
 end
 
 -- Fetch a file using wget
