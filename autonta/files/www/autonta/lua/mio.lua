@@ -120,120 +120,164 @@ function strjoin(delimiter, list)
 end
 
 
+local subprocess = {}
+subprocess.__index = subprocess
+
 function mio.subprocess(path, args, delay)
-  io.stderr:write("[XX] MIO cmd: " .. path .. " " .. strjoin(" ", args) .. "\n")
-  if delay then io.stderr:write("[XX] with delay " .. delay .. "\n") end
-
-  local subp = {}
-  subp.pid, subp.stdin, subp.stdout, subp.stderr = mio.popen3(path, args, delay)
-  io.stderr:write("[XX] subp got PID " .. subp.pid .. "\n")
-
-  subp.readline = function(self, strip_newline, timeout)
-    io.stderr:write("[XX] READ LINE FROM PROCESS " .. self.pid)
-    if timeout ~= nil then
-      io.stderr:write(" WITH TIMEOUT " .. timeout)
-    end
-    io.stderr:write("\n")
-    local result = mio.read_fd_line(self.stdout, strip_newline, timeout)
-    if result ~= nil then
-      io.stderr:write("[XX] LINE: '" .. result .. "'\n")
-    else
-      io.stderr:write("[XX] LINE empty\n")
-    end
-    return result
-  end
-
-  subp.readlines = function(self, strip_newlines, timeout)
-    local function next_line()
-      return self:readline(strip_newlines, timeout)
-    end
-    return next_line
-  end
-
-  subp.readline_stderr = function(self, strip_newline)
-    return mio.read_fd_line(self.stderr, strip_newline)
-  end
-
-  subp.writeline = function(self, line, add_newline)
-    return mio.write_fd_line(self.stdin, line, add_newline)
-  end
-
-  subp.close = function(self)
-    posix.close(self.stdin)
-    posix.close(self.stdout)
-    posix.close(self.stderr)
-    local spid, state, rcode = posix.wait(self.pid)
-    if spid == self.pid then
-      self.rcode = rcode
-      self.pid = nil
-      self.stdin = nil
-      self.stdout = nil
-      self.stderr = nil
-    end
-    return rcode
-  end
-
-  return subp
+  local subp = {}             -- our new object
+  setmetatable(subp,subprocess)  -- make Account handle lookup
+  subp.path = path
+  subp.args = args
+  subp.delay = delay
+  return subp:start()
 end
+
+function subprocess:start()
+  io.stderr:write("[XX] MIO cmd: " .. self.path .. " " .. strjoin(" ", self.args) .. "\n")
+  if self.delay then io.stderr:write("[XX] with delay " .. self.delay .. "\n") end
+
+  self.pid, self.stdin, self.stdout, self.stderr = mio.popen3(path, args, delay)
+  io.stderr:write("[XX] subp got PID " .. self.pid .. "\n")
+
+  -- todo: error?
+  return self
+end
+
+function subprocess:readline(strip_newline, timeout)
+  io.stderr:write("[XX] READ LINE FROM PROCESS " .. self.pid)
+  if timeout ~= nil then
+    io.stderr:write(" WITH TIMEOUT " .. timeout)
+  end
+  io.stderr:write("\n")
+  local result = mio.read_fd_line(self.stdout, strip_newline, timeout)
+  if result ~= nil then
+    io.stderr:write("[XX] LINE: '" .. result .. "'\n")
+  else
+    io.stderr:write("[XX] LINE empty\n")
+  end
+  return result
+end
+
+function subprocess:readlines(strip_newlines, timeout)
+  local function next_line()
+    return self:readline(strip_newlines, timeout)
+  end
+  return next_line
+end
+
+function subprocess:readline_stderr(strip_newline)
+  return mio.read_fd_line(self.stderr, strip_newline)
+end
+
+function subprocess:writeline(line, add_newline)
+  return mio.write_fd_line(self.stdin, line, add_newline)
+end
+
+function subprocess:wait()
+  -- does this leave fd's open?
+  local spid, state, rcode = posix.wait(self.pid)
+  local spid, state, rcode = posix.wait(self.pid)
+  if spid == self.pid then
+    self.rcode = rcode
+    self.pid = nil
+    self.stdin = nil
+    self.stdout = nil
+    self.stderr = nil
+  end
+  return rcode
+end
+
+function subprocess:close()
+  posix.close(self.stdin)
+  posix.close(self.stdout)
+  posix.close(self.stderr)
+  return self:wait()
+end
+
 
 -- text file reading
+local filereader = {}
+filereader.__index = filereader
+
 function mio.file_reader(filename)
-  local f = {}
-  f.fd, err = posix.open(filename, posix.O_RDONLY)
-  if f.fd == nil then return nil, err end
-
-  -- read one line from the file
-  f.readline = function(self, strip_newline)
-    local result = mio.read_fd_line(f.fd, strip_newline)
-    if result == nil then f:close() end
-    return result
-  end
-
-  -- return the lines of the file as an iterator
-  f.readlines = function(self, strip_newlines)
-    local function next_line()
-      return f.readline(strip_newlines)
-    end
-    return next_line
-  end
-
-  f.close = function(self)
-    if f.fd then
-      posix.close(f.fd)
-      f.fd = nil
-    end
-  end
-
-  return f
+  local fr = {}             -- our new object
+  setmetatable(fr,filereader)  -- make Account handle lookup
+  fr.filename = filename
+  local r, err = fr:open()
+  if r == nil then return nil, err end
+  return fr
 end
 
+function filereader:open()
+  self.fd, err = posix.open(self.filename, posix.O_RDONLY)
+  if self.fd == nil then return nil, err end
+  return self
+end
+
+-- read one line from the file
+function filereader:readline(strip_newline)
+  local result = mio.read_fd_line(self.fd, strip_newline)
+  if result == nil then self:close() end
+  return result
+end
+
+-- return the lines of the file as an iterator
+function filereader:readlines(strip_newlines)
+  local function next_line()
+    return self:readline(strip_newlines)
+  end
+  return next_line
+end
+
+function filereader:close()
+  if self.fd then
+    posix.close(self.fd)
+    self.fd = nil
+  end
+end
+
+
+-- text file reading
+local filewriter = {}
+filewriter.__index = filewriter
+
 function mio.file_writer(filename)
-  local f = {}
-  f.fd, err = posix.open(filename, bit.bor(posix.O_CREAT, posix.O_WRONLY), 600)
-  if f.fd == nil then return nil, "wut: " .. err end
+  local fw = {}             -- our new object
+  setmetatable(fw,filewriter)  -- make Account handle lookup
+  fw.filename = filename
+  local r, err = fw:open()
+  if r == nil then return nil, err end
+  return fw
+end
 
-  f.writeline = function(self, line, add_newline)
-    return mio.write_fd_line(f.fd, line, add_newline)
+function filewriter:open()
+  self.fd, err = posix.open(self.filename, bit.bor(posix.O_CREAT, posix.O_WRONLY), 600)
+  if self.fd == nil then return nil, err end
+  return self
+end
+
+function filewriter:writeline(line, add_newline)
+  if f.fd == nil then
+    return nil, "Write on closed file"
   end
+  return mio.write_fd_line(self.fd, line, add_newline)
+end
 
-  f.writelines = function(self, iterator)
-    if f.fd == nil then
-      return nil, "Write on closed file"
-    end
-    for line in iterator() do
-      posix.write(f.fd, line)
-    end
-    return true
+function filewriter:writelines(iterator)
+  if self.fd == nil then
+    return nil, "Write on closed file"
   end
-
-  f.close = function()
-    if f.fd then
-      posix.close(f.fd)
-      f.fd = nil
-    end
+  for line in iterator() do
+    posix.write(self.fd, line)
   end
+  return true
+end
 
-  return f
+function filewriter:close()
+  if self.fd then
+    posix.close(self.fd)
+    self.fd = nil
+  end
 end
 
 function mio.file_last_modified(filename)
@@ -241,6 +285,5 @@ function mio.file_last_modified(filename)
   if result == nil then return nil, err end
   return result.mtime
 end
-
 
 return mio

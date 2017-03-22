@@ -94,6 +94,7 @@ function autonta:is_first_run()
   return posix.stat("/etc/valibox_name_set") == nil
 end
 
+-- todo: we have a config file parser now, use that
 function autonta:get_wifi_option(key)
   local f = io.open("/etc/config/wireless", "r")
   if not f then return "<no wireless config found>" end

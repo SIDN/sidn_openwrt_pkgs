@@ -24,6 +24,7 @@ end
 -- initial setup, load templates, etc.
 store_pid()
 local autonta = an.create()
+autonta:init()
 
 -- main handler function.
 function handle_request(env)
