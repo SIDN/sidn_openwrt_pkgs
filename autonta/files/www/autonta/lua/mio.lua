@@ -104,15 +104,19 @@ function mio.popen3(path, args, delay)
 end
 
 function strjoin(delimiter, list)
-   local len = table.getn(list)
+   local len = 0
+   if list then len = table.getn(list) end
    if len == 0 then
       return ""
+   elseif len == 1 then
+      return list[1]
+   else
+     local string = list[1]
+     for i = 2, len do
+        string = string .. delimiter .. list[i]
+     end
+     return string
    end
-   local string = list[1]
-   for i = 2, len do
-      string = string .. delimiter .. list[i]
-   end
-   return string
 end
 
 
@@ -151,7 +155,7 @@ function mio.subprocess(path, args, delay)
   end
 
   subp.writeline = function(self, line, add_newline)
-    return mio.write_fd_line(s.stdin, line, add_newline)
+    return mio.write_fd_line(self.stdin, line, add_newline)
   end
 
   subp.close = function(self)
