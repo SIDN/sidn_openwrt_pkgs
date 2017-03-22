@@ -202,6 +202,8 @@ function get_unbound_host_faildata(domain)
     local cmd = 'unbound-host -C /etc/unbound/unbound.conf ' .. domain
     local pattern = "validation failure <([a-zA-Z.-]+) [A-Z]+ [A-Z]+>: (.*) from (.*) for (.*) (.*) while building chain of trust"
     local p = mio.subprocess(mio.split_cmd(cmd))
+    -- todo: there a better way to know the process has spun up?
+    posix.sleep(1)
     for line in p:readlines(true, 10000) do
         au.debug("[XX] Line: " .. line)
         result.target_dname, result.err_msg, result.auth_server, result.fail_type, result.fail_dname = line:match(pattern)
