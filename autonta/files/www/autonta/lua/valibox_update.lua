@@ -105,7 +105,7 @@ function vu.install_image(filename, keep_settings)
   local cmd = "/sbin/sysupgrade"
   local args = {}
   if not keep_settings then
-    table.insert(args, "-c")
+    table.insert(args, "-n")
   end
   table.insert(args, filename)
   au.debug("Calling sysupgrade command: " .. cmd)
