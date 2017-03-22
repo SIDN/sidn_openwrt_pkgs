@@ -285,7 +285,7 @@ function autonta.handle_autonta_main(env)
     return redirect_to("/autonta/set_passwords")
   end
 
-   local headers = {}
+  local headers = {}
   headers['Status'] = "200 OK"
   headers['Content-Type'] = "text/html"
 
@@ -514,8 +514,9 @@ function autonta.handle_ask_nta(env, args)
     au.debug("error calling unbound-host (attempt " .. i .. "): " .. err)
   end
 
-  -- TODO: check config to see if nta has not been disabled
-  local nta_disabled = false
+  if err == nil then return redirect_to("//" .. domain) end
+
+  local nta_disabled = autonta.config:get('options', 'disable_nta') == '1'
 
   -- add all superdomains
   if string_endswith(domain, ".") then domain = string.sub(domain, 1, string.len(domain)-1) end
