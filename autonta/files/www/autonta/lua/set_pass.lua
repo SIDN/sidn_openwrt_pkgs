@@ -1,6 +1,6 @@
 #!/usr/bin/env lua
 
-local autonta = require 'autonta'
+local an = require 'autonta'
 local au = require 'autonta_util'
 local posix = require 'posix'
 
@@ -28,11 +28,12 @@ parser:flag("-w --wait", "Wait 2 seconds before activating change")
 
 local args = parser:parse()
 
-local old_wifi_name = autonta.get_wifi_name()
+local autonta = an.create()
+local old_wifi_name = autonta:get_wifi_name()
 local wifi_name = prompt("Wireless network name [" .. old_wifi_name .. "]: ", true, args.quiet)
 local wifi_pass = prompt("Wireless password [keep current]: ", false, args.quiet)
 local admin_pass = prompt("Administrator password [keep current]: ", false, args.quiet)
 
 if args.wait then posix.sleep(2) end
 
-autonta.update_wifi_and_password(wifi_name, wifi_pass, admin_pass)
+autonta:update_wifi_and_password(wifi_name, wifi_pass, admin_pass)

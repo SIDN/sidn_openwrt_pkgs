@@ -9,6 +9,44 @@ function au.debug(msg)
   end
 end
 
+-- Some lua magic; this translates an unpacked variable number
+-- of arguments into one array (useful if functions return an unknown
+-- number of values, like the page pattern matcher)
+function au.pack(...)
+  return arg
+end
+
+function au.string_endswith(str, e)
+  return e == '' or string.sub(str, -string.len(e)) == e
+end
+
+function au.string_startswith(str, s)
+  return string.sub(str, 1, string.len(s))==s
+end
+
+-- TODO: move to util
+local charset = {}
+
+-- qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM1234567890
+for i = 48,  57 do table.insert(charset, string.char(i)) end
+for i = 65,  90 do table.insert(charset, string.char(i)) end
+for i = 97, 122 do table.insert(charset, string.char(i)) end
+
+function au.randomstring(length)
+  math.randomseed(os.time())
+
+  if length > 0 then
+    return au.randomstring(length - 1) .. charset[math.random(1, #charset)]
+  else
+    return ""
+  end
+end
+
+function au.split_host_port(host_str)
+  local domain, port = host_str:match("([^:]+):([0-9]+)")
+  if domain and port then return domain,port else return host_str end
+end
+
 
 function au.indent_str(indent)
   local result = ""
