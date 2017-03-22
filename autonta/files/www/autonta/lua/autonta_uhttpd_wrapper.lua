@@ -1,5 +1,5 @@
-autonta = require'autonta'
-au = require 'autonta_util'
+local an = require'autonta'
+local au = require 'autonta_util'
 
 -- essentially, this script does not do much by itself
 -- But if we want to generalize to other wrappers, this
@@ -23,7 +23,7 @@ end
 
 -- initial setup, load templates, etc.
 store_pid()
-autonta.init()
+local autonta = an.create()
 
 -- main handler function.
 function handle_request(env)
@@ -36,7 +36,7 @@ function handle_request(env)
             au.debug("  -- Received HTTP GET --")
         end
 
-        headers, html = autonta.handle_request(env)
+        headers, html = autonta:handle_request(env)
         for k,v in pairs(headers) do
           uhttpd.send(k .. ": " .. v .. "\r\n")
         end

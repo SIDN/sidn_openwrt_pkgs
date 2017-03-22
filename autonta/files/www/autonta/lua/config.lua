@@ -9,88 +9,87 @@ local _m = {}
 -- print(c:get('language', 'language'))
 --
 
-function _m.read_config(filename)
-  -- table of tables (sections/elements)
-  local config = {}
+local config = {}
+config.__index = config
 
-  config.read = function()
-    config.sections = {}
-    config.last_modified = config.read_last_modified()
+function _m.create(filename)
+  local cf = {}             -- our new object
+  setmetatable(cf,config)  -- make Account handle lookup
+  cf.filename = filename
+  return cf
+end
 
-    local f = io.open(config.filename)
-    if not f then
-      io.stderr:write("Error, unable to open " .. config.filename .. "\n")
-      return nil
-    end
+function config:read_config()
+  self.sections = {}
+  self.last_modified = self:read_last_modified()
 
-    local current_section = {}
-    local current_section_name = nil
-    for line in f:lines() do
-      sname = line:match("config%s+(%S+)")
-      qoname,qoval = line:match("%s*option%s+(%S+)%s+'([^']+)'")
-      oname,oval = line:match("%s*option%s+(%S+)%s+([%S]+)")
-      if sname then
-        if current_section_name then
-          config.sections[current_section_name] = current_section
-          current_section = {}
-        end
-        current_section_name = sname
-      elseif qoname and qoval then
-        if not current_section_name then
-          io.stderr:write("Parse error in " .. config.filename .. ": option outside of section")
-          return nil
-        end
-        current_section[qoname] = qoval
-      elseif oname and oval then
-        if not current_section_name then
-          io.stderr:write("Parse error in " .. config.filename .. ": option outside of section")
-          return nil
-        end
-        current_section[oname] = oval
+  local cfr, err = mio.file_reader(self.filename)
+  if cfr == nil then
+    io.stderr:write("Error, unable to open " .. self.filename .. ": " .. err .. "\n")
+    return nil, err
+  end
+
+  local current_section = {}
+  local current_section_name = nil
+  for line in cfr:readlines() do
+    local sname = line:match("config%s+(%S+)")
+    local qoname,qoval = line:match("%s*option%s+(%S+)%s+'([^']+)'")
+    local oname,oval = line:match("%s*option%s+(%S+)%s+([%S]+)")
+    if sname then
+      if current_section_name then
+        self.sections[current_section_name] = current_section
+        current_section = {}
       end
-    end
-    if current_section_name then
-      config.sections[current_section_name] = current_section
-    end
-    f:close()
-
-    return true
-  end
-
-  config.read_last_modified = function()
-    local f = io.popen("stat -c %Y " .. config.filename)
-    return f:read()
-  end
-
-  config.print = function(self)
-    for sname,sdata in pairs(config.sections) do
-      print("config " .. sname)
-      for n,v in pairs(sdata) do
-        print("\toption " .. n .. " '" .. v .. "'")
+      current_section_name = sname
+    elseif qoname and qoval then
+      if not current_section_name then
+        io.stderr:write("Parse error in " .. self.filename .. ": option outside of section")
+        return nil
       end
+      current_section[qoname] = qoval
+    elseif oname and oval then
+      if not current_section_name then
+        io.stderr:write("Parse error in " .. self.filename .. ": option outside of section")
+        return nil
+      end
+      current_section[oname] = oval
     end
   end
-
-  config.updated = function(self, reload)
-    local result = config.last_modified ~= config.read_last_modified()
-    if reload then return self.load() else return result end
+  if current_section_name then
+    self.sections[current_section_name] = current_section
   end
+  cfr:close()
 
-  config.get = function(self, sname, option)
-    if not config.sections[sname] then
-      io.stderr:write("Warning: unknown section '" .. sname .. "'\n")
-      return nil
+  return true
+end
+
+function config:read_last_modified()
+  return mio.file_last_modified(self.filename)
+end
+
+function config:print()
+  for sname,sdata in pairs(self.sections) do
+    print("config " .. sname)
+    for n,v in pairs(sdata) do
+      print("\toption " .. n .. " '" .. v .. "'")
     end
-    if not config.sections[sname][option] then
-      io.stderr:write("Warning: option '" .. option .. "' not found in section '" .. sname .. "'")
-    end
-    return config.sections[sname][option]
   end
+end
 
-  -- init and return
-  config.filename = filename
-  if not config.read() then return nil else return config end
+function config:updated(reload)
+  local result = self.last_modified ~= self:read_last_modified()
+  if reload then return self:read_config() else return result end
+end
+
+function config:get(sname, option)
+  if not self.sections[sname] then
+    io.stderr:write("Warning: unknown section '" .. sname .. "'\n")
+    return nil
+  end
+  if not self.sections[sname][option] then
+    io.stderr:write("Warning: option '" .. option .. "' not found in section '" .. sname .. "'")
+  end
+  return self.sections[sname][option]
 end
 
 return _m
-

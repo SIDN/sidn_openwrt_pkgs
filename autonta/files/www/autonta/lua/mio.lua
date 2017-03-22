@@ -236,4 +236,11 @@ function mio.file_writer(filename)
   return f
 end
 
+function mio.file_last_modified(filename)
+  local result, err = posix.stat(filename)
+  if result == nil then return nil, err end
+  return result.mtime
+end
+
+
 return mio
