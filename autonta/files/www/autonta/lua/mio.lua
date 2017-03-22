@@ -68,6 +68,7 @@ end
 -- Simple popen3() implementation
 --
 function mio.popen3(path, args, delay)
+    io.stderr:write("[XX] STARTING PROCESS: " .. path)
     if args == nil then args = {} end
     local r1, w1 = posix.pipe()
     local r2, w2 = posix.pipe()
@@ -136,7 +137,7 @@ function subprocess:start()
   io.stderr:write("[XX] MIO cmd: " .. self.path .. " " .. strjoin(" ", self.args) .. "\n")
   if self.delay then io.stderr:write("[XX] with delay " .. self.delay .. "\n") end
 
-  self.pid, self.stdin, self.stdout, self.stderr = mio.popen3(path, args, delay)
+  self.pid, self.stdin, self.stdout, self.stderr = mio.popen3(self.path, self.args, self.delay)
   io.stderr:write("[XX] subp got PID " .. self.pid .. "\n")
 
   -- todo: error?
@@ -144,6 +145,9 @@ function subprocess:start()
 end
 
 function subprocess:readline(strip_newline, timeout)
+  if self.pid == nil then
+    return nil, "readline() from stopped child process"
+  end
   io.stderr:write("[XX] READ LINE FROM PROCESS " .. self.pid)
   if timeout ~= nil then
     io.stderr:write(" WITH TIMEOUT " .. timeout)
@@ -175,7 +179,6 @@ end
 
 function subprocess:wait()
   -- does this leave fd's open?
-  local spid, state, rcode = posix.wait(self.pid)
   local spid, state, rcode = posix.wait(self.pid)
   if spid == self.pid then
     self.rcode = rcode
