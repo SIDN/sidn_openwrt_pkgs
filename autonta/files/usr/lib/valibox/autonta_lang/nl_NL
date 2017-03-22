@@ -3,7 +3,6 @@ VALIBOX: ValiBox
 
 MAINMENU: Hoofdmenu
 GO_TO_MAIN: Ga naar ValiBox hoofdmenu
-SETTINGS_DESCRIPTION: Hier kun je de instellingen van de ValiBox wijzigen, de wachtwoorden veranderen, de logs bekijken, de software updaten, en backups maken.
 
 ERROR: Er is een interne fout opgetreden. De foutmelding is: %s
 
@@ -56,7 +55,8 @@ INDEX_NTA_DESCRIPTION1: Hier kun je de huidige Negative Trust Anchors bekijken e
 INDEX_NTA_DESCRIPTION2: Als er een Negative Trust Anchor voor een domein gezet is, betekent dat dat de DNSSEC-validatie voor dit domein uitgeschakeld staat. Daarmee kun je websites toch bereiken als er door een fout van de beheerders de DNSSEC-validatie mis gaat. Gebruik deze *niet* als je een foutmelding krijgt en het niet vertrouwt.
 INDEX_NTA_DESCRIPTION3: Op het moment dat je via je browser naar een website probeert te gaan waarvan de domeinnaam niet valideert, zal de ValiBox je automatisch vragen of er een Negative Trust Anchor voor dit domein gezet moet worden.
 
-INDEX_CONFIGURE: Configure the ValiBox
+INDEX_CONFIGURE: Instellingen
+SETTINGS_DESCRIPTION: Hier kun je de instellingen van de ValiBox wijzigen, de wachtwoorden veranderen, de logs bekijken, de software updaten, en backups maken.
 
 INDEX_FIRMWARE_UPDATE: Firmware update
 INDEX_FIRMWARE_UPDATE_DESCRIPTION: Hier kun je kijken of er een nieuwe versie van de firmware voor de ValiBox is, en deze installeren. Huidige versie: %s

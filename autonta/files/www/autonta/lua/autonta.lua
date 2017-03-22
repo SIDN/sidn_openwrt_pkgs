@@ -585,6 +585,14 @@ end
 
 function autonta.handle_set_passwords(env)
   if autonta.config:updated() then autonta.init() end
+  -- if these settings have been done already, the user should
+  -- go through the LuCI interface which requires the administrator
+  -- password
+  if not is_first_run() then
+    return redirect_to("/cgi-bin/luci")
+  end
+
+
   if env.REQUEST_METHOD == "POST" then
     return autonta.handle_set_passwords_post(env)
   else
