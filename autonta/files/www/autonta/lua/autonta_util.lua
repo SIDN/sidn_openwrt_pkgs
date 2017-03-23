@@ -1,7 +1,7 @@
 
 local au = {}
 
-local debug_enabled = true
+local debug_enabled = false
 
 function au.debug(msg)
   if debug_enabled then

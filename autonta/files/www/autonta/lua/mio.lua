@@ -196,7 +196,7 @@ function subprocess:readline_stderr(strip_newline)
   return mio.read_fd_line(self.stderr, strip_newline)
 end
 
-function subprocess:writeline(line, add_newline)
+function subprocess:write_line(line, add_newline)
   return mio.write_fd_line(self.stdin, line, add_newline)
 end
 
@@ -214,10 +214,10 @@ function subprocess:wait()
 end
 
 function subprocess:close()
-  if self.pipe_stdin then posix.close(self.stdin) end
-  if self.pipe_stdout then posix.close(self.stdout) end
-  if self.pipe_stderr then posix.close(self.stderr) end
-  return self:wait()
+  if self.stdin then posix.close(self.stdin) end
+  if self.stdout then posix.close(self.stdout) end
+  if self.stderr then posix.close(self.stderr) end
+  if self.pid then return self:wait() else return self.rcode end
 end
 
 
@@ -272,9 +272,12 @@ function filereader:close()
   end
 end
 
-
-function mio.execute(command)
-  local subp = mio.subprocess(mio.split_cmd(command), nil, false, false, false)
+-- if drop_output is true; the stdout and the stderr
+-- of the process will be ignored; if not, they will
+-- be passed on to our own stdout and stderr
+function mio.execute(command, drop_output)
+  local cmd, args = mio.split_cmd(command)
+  local subp = mio.subprocess(cmd, args, nil, drop_output, drop_output, false)
   return subp:close()
 end
 
@@ -297,7 +300,7 @@ function filewriter:open()
   return self
 end
 
-function filewriter:writeline(line, add_newline)
+function filewriter:write_line(line, add_newline)
   if self.fd == nil then
     return nil, "Write on closed file"
   end

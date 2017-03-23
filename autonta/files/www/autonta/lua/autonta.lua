@@ -153,7 +153,7 @@ function autonta:update_wifi(wifi_name, wifi_pass)
   end
   f_out:close()
   f_in:close()
-  mio.subprocess("./restart_network.sh", {}, 3)
+  mio.subprocess("/etc/init.d/network", { 'restart' }, 3, true)
 end
 
 function autonta:update_admin_password(new_password)
@@ -161,7 +161,8 @@ function autonta:update_admin_password(new_password)
   --local orig_stdin = io.stdin
   --local orig_stdout = io.stdout
   --local orig_stderr = io.stderr
-  local p = mio.subprocess("/usr/bin/passwd", {}, nil, false, false, true)
+  local p = mio.subprocess("/usr/bin/passwd", {}, nil, true, false, true)
+  p:read_line()
   p:write_line(new_password, true)
   p:write_line(new_password, true)
   local rcode = p:wait()
@@ -179,8 +180,8 @@ function autonta:update_wifi_and_password(new_wifi_name, new_wifi_password, new_
   if new_admin_password and new_admin_password ~= "" then
     au.debug("Updating administrator password")
     self:update_admin_password(new_admin_password)
-    mio.execute("/usr/sbin/unbound-control local_zone_remove .")
-    mio.execute("/etc/init.d/unbound restart")
+    mio.execute("/usr/sbin/unbound-control local_zone_remove .", true)
+    mio.execute("/etc/init.d/unbound restart", true)
   end
 
   if (new_wifi_name and new_wifi_name ~= "") or
