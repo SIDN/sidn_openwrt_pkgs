@@ -1,0 +1,76 @@
+SIDNLABS: SIDN Labs
+VALIBOX: ValiBox
+
+MAINMENU: Main menu
+GO_TO_MAIN: Go to the ValiBox main menu
+SETTINGS_DESCRIPTION: Here you can change the settings of the ValiBox, update passwords, see log files, and make backups.
+
+ERROR: An internal error occurred, the error was: %s
+
+TRUST_ANCHOR_SET: A negative trust anchor has been set for the domain %s
+TRUST_ANCHOR_MINUTES: It can take a few minutes before this is visible in the browser.
+TRUST_ANCHOR_WAIT: You can wait until then, or you can close the browser and start a new session.
+TRY_NOW: Try now
+
+TRUST_ANCHOR_LIST: Current Negative Trust Anchors:
+TRUST_ANCHOR_REMOVE: Remove
+TRUST_ANCHOR_NO_ANCHORS: No negative trust anchors are set at this moment.
+
+UPDATE: Update
+UPDATE_INSTALLING: Installing version %s
+UPDATE_WAIT: Do not turn off the ValiBox, and wait for 5 to 10 minutes until the update has been installed and the ValiBox has restarted.
+UPDATE_CLOSE: You can close this screen.
+UPDATE_ERROR: An error occurred while downloading version %s. Please try again later. If this error keeps occurring, please contact the ValiBox maintainers.
+UPDATE_TRY_AGAIN: Try again
+
+UPDATE_CHECK_FAILED: Could not check whether updates are available. Is the ValiBox connected to the Internet?
+UPDATE_CHECK_CURRENT_VERSION: Current version: %s
+UPDATE_CHECK_AVAILABLE: Version %s available! (current version: %s)
+UPDATE_CHECK_NO_UPDATE: No update available (current version: %s)
+
+UPDATE_KEEP_SETTINGS: Remember current configuration settings
+UPDATE_INSTALL_START: Start the installation
+UPDATE_INSTALL_AGAIN: Install thee ValiBox software again
+
+UPDATE_INSTALL_CURRENT: Click here to install the update
+UPDATE_INSTALL_LATEST: Click here to install the latest release version (%s)
+UPDATE_INSTALL_LATEST_BETA: Click here to install the latest beta version (%s)
+UPDATE_INSTALL_REINSTALL: Click here to reinstall the current version
+
+DNSSEC_ERROR_NAME: Problem with %s
+DNSSEC_ERROR_NAME_LONG: An error occurred while looking up the domain name %s.
+DNSSEC_ERROR_REASON: It is possible this error is caused because DNSSEC-validation failed
+
+DNSSEC_ERROR_SERVER: The server at %s returned a bad answer
+DNSSEC_ERROR_ERROR: Error: %s
+DNSSEC_ERROR_RECORD: For the DNS record: %s %s
+
+DNSSEC_ERROR_SET_NTA_DESCRIPTION: If you think that this is caused by a configuration error of the DNS administrator at this zone, you can set a Negative Trust Anchor. Doing so will enable (insecure) access to the domain. The NTA will remain until the ValiBox is restarted.
+DNSSEC_ERROR_NOT_IF_NOT_TRUSTED: Do NOT do this if you do not trust it.
+
+DNSSEC_ERROR_SET_NTA: Set a Negative Trust Anchor for %s
+
+INDEX_WELCOME: Welcome to de SIDN Labs ValiBox
+INDEX_NTA_MGMT: Negative Trust Anchor management
+INDEX_NTA_DESCRIPTION1: Here you can see the current list of Negative Trust Anchors, and disable them
+INDEX_NTA_DESCRIPTION2: When a Negative Trust Anchor has been set for a domain, it means that DNSSEC validation is disabled for that domain. That way, you can reach websites when DNSSEC validation fails because of an error by the DNS administrators. Do NOT set a Negative Trust Anchor for a domain if you do not trust it.
+INDEX_NTA_DESCRIPTION3: Whenever you visit a website where the domain name does not validate, the ValiBox will automatically ask you whether a Negative Trust Anchor should be set for that domain.
+
+INDEX_CONFIGURE: Configureer de ValiBox
+
+INDEX_FIRMWARE_UPDATE: Firmware update
+INDEX_FIRMWARE_UPDATE_DESCRIPTION: Here you can check if there is a newer version of the ValiBox firmware, and install it if so. Current version: %s
+
+INDEX_SPIN_GRAPH: SPIN Live network traffic (experimental)
+INDEX_SPIN_GRAPH_DESCRIPTION: Here you can see a live overview of the data traffic in your network
+
+
+PASS_INTRO: Welcome to the SIDN Labs ValiBox. Before you can start using the ValiBox, please set a name for your wireless network and passwords for the network and the ValiBox administrative interface.
+WIFI_NAME: Name of the wireless network
+WIFI_PASS: Password of the wireless network (if left empty password is unchanged)
+WIFI_PASS_REPEAT: Confirm password for the wireless network
+PASS_ADMIN: Password for administration of the ValiBox (if left empty password is unchanged)
+PASS_ADMIN_REPEAT: Confirm password for administration
+PASS_MISMATCH: Password confirmation did not match
+PASS_UPDATE: Save
+SETTINGS_UPDATED: The changes have been stored. If the name or password of the wireless network has changed, please reconnect to the network.
