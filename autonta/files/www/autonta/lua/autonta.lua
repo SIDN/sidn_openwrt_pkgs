@@ -157,6 +157,8 @@ function autonta:update_admin_password(new_password)
   local p = mio.subprocess("/usr/bin/passwd")
   p:writeline(new_password, true)
   p:writeline(new_password, true)
+  local rcode = p:wait()
+  if rcode ~= 0 then au.debug("Error running passwd: return code " .. rcode) end
   p:close()
   --io.stdin = orig_stdin
   --io.stdout = orig_stdout
@@ -277,7 +279,7 @@ end
 function autonta:handle_autonta_main(env)
   if self.config:updated() then self:init() end
   if self:is_first_run() then
-    return self:redirect_to("/autonta/set_passwords")
+    return self:redirect_to("//valibox./autonta/set_passwords")
   end
 
   local headers = {}
@@ -295,7 +297,7 @@ end
 function autonta:handle_ntalist(env, arg1, arg2, arg3, arg4)
   if self.config:updated() then self:init() end
   if self:is_first_run() then
-    return self:redirect_to("/autonta/set_passwords")
+    return self:redirect_to("//valibox./autonta/set_passwords")
   end
 
   local headers = self:create_default_headers()
@@ -380,7 +382,7 @@ end
 function autonta:handle_update_check(env)
   if self.config:updated() then self:init() end
   if self:is_first_run() then
-    return self:redirect_to("/autonta/set_passwords")
+    return self:redirect_to("//valibox./autonta/set_passwords")
   end
 
   local headers = self:create_default_headers()
@@ -473,7 +475,7 @@ function autonta:handle_ask_nta(env, args)
   local domain = args[1]
   if self.config:updated() then self:init() end
   if self:is_first_run() then
-    return self:redirect_to("/autonta/set_passwords")
+    return self:redirect_to("//valibox./autonta/set_passwords")
   end
 
   -- create a double-submit token
@@ -576,7 +578,7 @@ end
 function autonta:handle_domain(env, domain)
   if self.config:updated() then self:init() end
   if self:is_first_run() then
-    return self:redirect_to("/autonta/set_passwords")
+    return self:redirect_to("//valibox./autonta/set_passwords")
   end
 
   return self:redirect_to("//valibox./autonta/ask_nta/" .. domain)

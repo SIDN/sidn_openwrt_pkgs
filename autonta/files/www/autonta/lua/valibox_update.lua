@@ -112,7 +112,6 @@ function vu.install_image(filename, keep_settings)
   --os.execute(cmd)
   -- use io.popen instead of os.execute so we can return
   local subp = mio.subprocess(cmd, args)
-
   return subp:wait()
 end
 
