@@ -81,7 +81,7 @@ function mio.popen3(path, args, delay, pipe_stdout, pipe_stderr, pipe_stdin)
 
     --assert((w1 ~= nil or r2 ~= nil or r3 ~= nil), "pipe() failed")
 
-    local pid, err = posix.fork()
+    local pid, fork_err = posix.fork()
     assert(pid ~= nil, "fork() failed")
     if pid == 0 then
         if delay then posix.sleep(delay) end
@@ -102,8 +102,8 @@ function mio.popen3(path, args, delay, pipe_stdout, pipe_stderr, pipe_stdin)
           posix.close(w3)
         end
 
-        local ret, err = posix.execp(path, args)
-        assert(ret ~= nil, "execp() failed for '" .. path .. "': " .. err)
+        local ret, exec_err = posix.execp(path, args)
+        assert(ret ~= nil, "execp() failed for '" .. path .. "': " .. exec_err)
 
         posix._exit(1)
         return
@@ -116,7 +116,7 @@ function mio.popen3(path, args, delay, pipe_stdout, pipe_stderr, pipe_stdin)
     return pid, w1, r2, r3
 end
 
-function strjoin(delimiter, list)
+local function strjoin(delimiter, list)
    local len = 0
    if list then len = table.getn(list) end
    if len == 0 then
@@ -235,6 +235,7 @@ function mio.file_reader(filename)
 end
 
 function filereader:open()
+  local err
   self.fd, err = posix.open(self.filename, posix.O_RDONLY)
   if self.fd == nil then return nil, err end
   return self
@@ -295,6 +296,7 @@ function mio.file_writer(filename)
 end
 
 function filewriter:open()
+  local err
   self.fd, err = posix.open(self.filename, bit.bor(posix.O_CREAT, posix.O_WRONLY), 600)
   if self.fd == nil then return nil, err end
   return self

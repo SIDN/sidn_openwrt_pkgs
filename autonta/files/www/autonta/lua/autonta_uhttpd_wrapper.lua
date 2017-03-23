@@ -7,7 +7,7 @@ local au = require 'autonta_util'
 -- would take place.
 -- right now, we simple pass the env variable
 
-function store_pid()
+local function store_pid()
   local f = io.open("/proc/self/stat")
   if f then
     local pid = f:read("*line"):match("^([0-9]+)")

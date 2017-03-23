@@ -32,7 +32,7 @@ if not firmware_info then
   return
 end
 
-board_firmware_info = firmware_info[board_name]
+local board_firmware_info = firmware_info[board_name]
 if not board_firmware_info then
   print("No firmware found for board type '" .. board_name .. "'")
   return
