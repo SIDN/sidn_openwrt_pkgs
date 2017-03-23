@@ -67,39 +67,51 @@ end
 --
 -- Simple popen3() implementation
 --
-function mio.popen3(path, args, delay)
+function mio.popen3(path, args, delay, pipe_stdout, pipe_stderr, pipe_stdin)
     io.stderr:write("[XX] STARTING PROCESS: " .. path)
     if args == nil then args = {} end
-    local r1, w1 = posix.pipe()
-    local r2, w2 = posix.pipe()
-    local r3, w3 = posix.pipe()
+    -- w1 = process stdin (we write to it)
+    -- r2 = process stdout (we read from it)
+    -- r3 = process stderr (we read from it)
+    -- can be nil depending on arguments
+    local r1,w1,r2,w2,r3,w3
+    if pipe_stdin then r1, w1 = posix.pipe() end
+    if pipe_stdout then r2, w2 = posix.pipe() end
+    if pipe_stderr then r3, w3 = posix.pipe() end
 
-    assert((w1 ~= nil or r2 ~= nil or r3 ~= nil), "pipe() failed")
+    --assert((w1 ~= nil or r2 ~= nil or r3 ~= nil), "pipe() failed")
 
     local pid, err = posix.fork()
     assert(pid ~= nil, "fork() failed")
     if pid == 0 then
         if delay then posix.sleep(delay) end
-        posix.close(w1)
-        posix.close(r2)
-        posix.dup2(r1, posix.fileno(io.stdin))
-        posix.dup2(w2, posix.fileno(io.stdout))
-        posix.dup2(w3, posix.fileno(io.stderr))
-        posix.close(r1)
-        posix.close(w2)
-        posix.close(w3)
+        if pipe_stdin then
+          posix.close(w1)
+          posix.dup2(r1, posix.fileno(io.stdin))
+          posix.close(r1)
+        end
+
+        if pipe_stdout then
+          posix.close(r2)
+          posix.dup2(w2, posix.fileno(io.stdout))
+          posix.close(w2)
+        end
+
+        if pipe_stderr then
+          posix.dup2(w3, posix.fileno(io.stderr))
+          posix.close(w3)
+        end
 
         local ret, err = posix.execp(path, args)
-        sys.stderr.write("execp() failed: " .. err)
-        assert(ret ~= nil, "execp() failed")
+        assert(ret ~= nil, "execp() failed for '" .. path .. "': " .. err)
 
         posix._exit(1)
         return
     end
 
-    posix.close(r1)
-    posix.close(w2)
-    posix.close(w3)
+    if pipe_stdin then posix.close(r1) end
+    if pipe_stdout then posix.close(w2) end
+    if pipe_stderr then posix.close(w3) end
 
     return pid, w1, r2, r3
 end
@@ -124,12 +136,15 @@ end
 local subprocess = {}
 subprocess.__index = subprocess
 
-function mio.subprocess(path, args, delay)
+function mio.subprocess(path, args, delay, pipe_stdout, pipe_stderr, pipe_stdin)
   local subp = {}             -- our new object
   setmetatable(subp,subprocess)  -- make Account handle lookup
   subp.path = path
   subp.args = args
   subp.delay = delay
+  subp.pipe_stdout = pipe_stdout
+  subp.pipe_stderr = pipe_stderr
+  subp.pipe_stdin = pipe_stdin
   return subp:start()
 end
 
@@ -137,16 +152,16 @@ function subprocess:start()
   io.stderr:write("[XX] MIO cmd: " .. self.path .. " " .. strjoin(" ", self.args) .. "\n")
   if self.delay then io.stderr:write("[XX] with delay " .. self.delay .. "\n") end
 
-  self.pid, self.stdin, self.stdout, self.stderr = mio.popen3(self.path, self.args, self.delay)
+  self.pid, self.stdin, self.stdout, self.stderr = mio.popen3(self.path, self.args, self.delay, self.pipe_stdout, self.pipe_stderr, self.pipe_stdin)
   io.stderr:write("[XX] subp got PID " .. self.pid .. "\n")
 
   -- todo: error?
   return self
 end
 
-function subprocess:readline(strip_newline, timeout)
+function subprocess:read_line(strip_newline, timeout)
   if self.pid == nil then
-    return nil, "readline() from stopped child process"
+    return nil, "read_line() from stopped child process"
   end
   io.stderr:write("[XX] READ LINE FROM PROCESS " .. self.pid)
   if timeout ~= nil then
@@ -162,9 +177,17 @@ function subprocess:readline(strip_newline, timeout)
   return result
 end
 
-function subprocess:readlines(strip_newlines, timeout)
+function subprocess:read_lines(strip_newlines, timeout)
+  local result = {}
+  for line in self:read_line_iterator(strip_newlines, timeout) do
+    table.insert(result, line)
+  end
+  return result
+end
+
+function subprocess:read_line_iterator(strip_newlines, timeout)
   local function next_line()
-    return self:readline(strip_newlines, timeout)
+    return self:read_line(strip_newlines, timeout)
   end
   return next_line
 end
@@ -173,7 +196,7 @@ function subprocess:readline_stderr(strip_newline)
   return mio.read_fd_line(self.stderr, strip_newline)
 end
 
-function subprocess:writeline(line, add_newline)
+function subprocess:write_line(line, add_newline)
   return mio.write_fd_line(self.stdin, line, add_newline)
 end
 
@@ -191,10 +214,10 @@ function subprocess:wait()
 end
 
 function subprocess:close()
-  posix.close(self.stdin)
-  posix.close(self.stdout)
-  posix.close(self.stderr)
-  return self:wait()
+  if self.stdin then posix.close(self.stdin) end
+  if self.stdout then posix.close(self.stdout) end
+  if self.stderr then posix.close(self.stderr) end
+  if self.pid then return self:wait() else return self.rcode end
 end
 
 
@@ -218,19 +241,29 @@ function filereader:open()
 end
 
 -- read one line from the file
-function filereader:readline(strip_newline)
+function filereader:read_line(strip_newline)
   local result = mio.read_fd_line(self.fd, strip_newline)
   if result == nil then self:close() end
   return result
 end
 
 -- return the lines of the file as an iterator
-function filereader:readlines(strip_newlines)
+function filereader:read_line_iterator(strip_newlines)
   local function next_line()
-    return self:readline(strip_newlines)
+    return self:read_line(strip_newlines)
   end
   return next_line
 end
+
+-- read all lines and return as a list
+function filereader:read_lines(strip_newlines, timeout)
+  local result = {}
+  for line in self:read_line_iterator(strip_newlines, timeout) do
+    table.insert(result, line)
+  end
+  return result
+end
+
 
 function filereader:close()
   if self.fd then
@@ -239,6 +272,14 @@ function filereader:close()
   end
 end
 
+-- if drop_output is true; the stdout and the stderr
+-- of the process will be ignored; if not, they will
+-- be passed on to our own stdout and stderr
+function mio.execute(command, drop_output)
+  local cmd, args = mio.split_cmd(command)
+  local subp = mio.subprocess(cmd, args, nil, drop_output, drop_output, false)
+  return subp:close()
+end
 
 -- text file reading
 local filewriter = {}
@@ -259,18 +300,30 @@ function filewriter:open()
   return self
 end
 
-function filewriter:writeline(line, add_newline)
-  if f.fd == nil then
+function filewriter:write_line(line, add_newline)
+  if self.fd == nil then
     return nil, "Write on closed file"
   end
   return mio.write_fd_line(self.fd, line, add_newline)
 end
 
-function filewriter:writelines(iterator)
+-- write all the lines from the given iterator
+function filewriter:write_line_iterator(iterator)
   if self.fd == nil then
     return nil, "Write on closed file"
   end
   for line in iterator() do
+    posix.write(self.fd, line)
+  end
+  return true
+end
+
+-- write all lines from the given list
+function filewriter:write_lines(list)
+  if self.fd == nil then
+    return nil, "Write on closed file"
+  end
+  for _,line in ipairs(list) do
     posix.write(self.fd, line)
   end
   return true

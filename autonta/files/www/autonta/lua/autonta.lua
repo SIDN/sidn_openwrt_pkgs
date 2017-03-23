@@ -10,21 +10,24 @@ local an_M = {}
 local autonta = {}
 autonta.__index = autonta
 
-function an_M.create()
+function an_M.create(config_file, fixed_langkey_file)
   local an = {}             -- our new object
   setmetatable(an,autonta)  -- make Account handle lookup
-  an:init()
+  an:init(config_file, fixed_langkey_file)
   return an
 end
 
 -- initial setup, load templates, etc.
-function autonta:init()
+function autonta:init(config_file, fixed_langkey_file)
   self:load_templates()
 
-  self.config = cfg.create("/etc/config/valibox")
+  self.config = cfg.create(config_file)
   self.config:read_config()
 
-  local language_file = "/usr/lib/valibox/autonta_lang/" .. self.config:get('language', 'language')
+  local language_file = fixed_langkey_file
+  if fixed_langkey_file == nil then
+    language_file = "/usr/lib/valibox/autonta_lang/" .. self.config:get('language', 'language')
+  end
   language_keys.load(language_file)
   au.debug("Language file " .. language_file .. " loaded")
 
@@ -57,8 +60,8 @@ function autonta:load_templates()
   self.templates = {}
   self.base_template_name = "base.html"
   local dirname = 'templates/'
-  local p = mio.subprocess(mio.split_cmd('ls ' .. dirname))
-  for name in p:readlines(true) do
+  local p = mio.subprocess('ls', {dirname}, nil, true)
+  for name in p:read_line_iterator(true) do
     if au.string_endswith(name, '.html') then
       self.templates[name] = liluat.compile_file("templates/" .. name)
     end
@@ -82,6 +85,10 @@ end
 
 -- render just the page itself (no base.html supertemplate)
 function autonta:render_raw(template_name, args)
+  if not args then args = {} end
+  if not self.templates[template_name] then
+    return "[Error: could not find template " .. template_name .. "]"
+  end
   args['langkeys'] = language_keys
   return liluat.render(self.templates[template_name], args)
 end
@@ -146,7 +153,7 @@ function autonta:update_wifi(wifi_name, wifi_pass)
   end
   f_out:close()
   f_in:close()
-  mio.subprocess("./restart_network.sh", {}, 3)
+  mio.subprocess("/etc/init.d/network", { 'restart' }, 3, true)
 end
 
 function autonta:update_admin_password(new_password)
@@ -154,9 +161,10 @@ function autonta:update_admin_password(new_password)
   --local orig_stdin = io.stdin
   --local orig_stdout = io.stdout
   --local orig_stderr = io.stderr
-  local p = mio.subprocess("/usr/bin/passwd")
-  p:writeline(new_password, true)
-  p:writeline(new_password, true)
+  local p = mio.subprocess("/usr/bin/passwd", {}, nil, true, false, true)
+  p:read_line()
+  p:write_line(new_password, true)
+  p:write_line(new_password, true)
   local rcode = p:wait()
   if rcode ~= 0 then au.debug("Error running passwd: return code " .. rcode) end
   p:close()
@@ -172,8 +180,8 @@ function autonta:update_wifi_and_password(new_wifi_name, new_wifi_password, new_
   if new_admin_password and new_admin_password ~= "" then
     au.debug("Updating administrator password")
     self:update_admin_password(new_admin_password)
-    os.execute("/usr/sbin/unbound-control local_zone_remove .")
-    os.execute("/etc/init.d/unbound restart")
+    mio.execute("/usr/sbin/unbound-control local_zone_remove .", true)
+    mio.execute("/etc/init.d/unbound restart", true)
   end
 
   if (new_wifi_name and new_wifi_name ~= "") or
@@ -196,12 +204,12 @@ end
 -- fail_dname: the specific domain name where validation failed
 function autonta:get_unbound_host_faildata(domain)
     local result = {}
-    local cmd = 'unbound-host -C /etc/unbound/unbound.conf ' .. domain
+    local cmd, args = mio.split_cmd('unbound-host -C /etc/unbound/unbound.conf ' .. domain)
     local pattern = "validation failure <([a-zA-Z.-]+) [A-Z]+ [A-Z]+>: (.*) from (.*) for (.*) (.*) while building chain of trust"
-    local p = mio.subprocess(mio.split_cmd(cmd))
+    local p = mio.subprocess(cmd, args, nil, true)
     -- todo: there a better way to know the process has spun up?
     posix.sleep(1)
-    for line in p:readlines(true, 10000) do
+    for line in p:read_line_iterator(true, 10000) do
         au.debug("[XX] Line: " .. line)
         result.target_dname, result.err_msg, result.auth_server, result.fail_type, result.fail_dname = line:match(pattern)
         if result.target_dname then
@@ -215,11 +223,11 @@ function autonta:get_unbound_host_faildata(domain)
 end
 
 function autonta:get_nta_list()
-  local p = mio.subprocess(mio.split_cmd('unbound-control list_insecure'))
+  local p = mio.subprocess('unbound-control', {'list_insecure'}, nil, true)
   local result = {}
   -- todo better way to see if subp is actually running
   posix.sleep(1)
-  for nta in p:readlines(true, 10000) do
+  for nta in p:read_line_iterator(true, 10000) do
     table.insert(result, nta)
   end
   p:close()
@@ -227,12 +235,12 @@ function autonta:get_nta_list()
 end
 
 function autonta:add_nta(domain)
-  local p = mio.subprocess(mio.split_cmd('unbound-control insecure_add ' .. domain))
+  local p = mio.subprocess('unbound-control', {'insecure_add', domain}, nil, true)
   p:close()
 end
 
 function autonta:remove_nta(domain)
-  local p = mio.subprocess(mio.split_cmd('unbound-control insecure_remove ' .. domain))
+  local p = mio.subprocess('unbound-control', {'insecure_remove', domain}, nil, true)
   p:close()
 end
 

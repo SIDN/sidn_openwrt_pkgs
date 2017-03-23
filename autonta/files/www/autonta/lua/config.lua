@@ -31,7 +31,7 @@ function config:read_config()
 
   local current_section = {}
   local current_section_name = nil
-  for line in cfr:readlines() do
+  for line in cfr:read_line_iterator() do
     local sname = line:match("config%s+(%S+)")
     local qoname,qoval = line:match("%s*option%s+(%S+)%s+'([^']+)'")
     local oname,oval = line:match("%s*option%s+(%S+)%s+([%S]+)")

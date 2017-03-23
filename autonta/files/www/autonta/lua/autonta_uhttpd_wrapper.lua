@@ -23,8 +23,7 @@ end
 
 -- initial setup, load templates, etc.
 store_pid()
-local autonta = an.create()
-autonta:init()
+local autonta = an.create("/etc/config/valibox")
 
 -- main handler function.
 function handle_request(env)
