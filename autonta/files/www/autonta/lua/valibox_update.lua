@@ -58,7 +58,8 @@ function vu.fetch_firmware_info(base_url, fetch_options)
 end
 
 function vu.get_sha256_sum(filename)
-  local p,err = mio.subprocess(mio.split_cmd("/usr/bin/sha256sum " .. filename))
+  local cmd, args = mio.split_cmd("/usr/bin/sha256sum " .. filename)
+  local p,err = mio.subprocess(cmd, args, nil, true)
   if p == nil then
     au.debug("[XX] error in sha256sum...")
     return nil, err
