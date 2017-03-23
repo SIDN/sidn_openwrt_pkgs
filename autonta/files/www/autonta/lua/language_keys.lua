@@ -1,9 +1,10 @@
-au = require 'autonta_util'
+local au = require 'autonta_util'
 
-lk = {}
+local lk = {}
 lk.keys = {}
 
 lk.verbose = false
+
 function lk.debug(msg)
   au.debug(msg)
 end
@@ -11,7 +12,7 @@ end
 -- todo: add args
 function lk.get(key, ...)
     if lk.keys[key] then
-      result = lk.keys[key]
+      local result = lk.keys[key]
       -- todo: verify argument counts
       for i,v in ipairs(arg) do
         lk.debug("Replace key with '" .. v .. "'")
@@ -31,7 +32,7 @@ function lk.load(filename)
     local f = io.open(filename, "r")
     -- todo: report error
     if not f then return nil end
-    s = f:read("*all")
+    local s = f:read("*all")
     f:close()
     for key,value in string.gmatch(s, "(%S+):%s*([^\n]*)") do
         lk.keys[key] = value

@@ -1,9 +1,10 @@
-liluat = require'liluat'
-language_keys = require 'language_keys'
-au = require 'autonta_util'
-vu = require 'valibox_update'
-cfg = require 'config'
-posix = require 'posix'
+local liluat = require'liluat'
+local language_keys = require 'language_keys'
+local au = require 'autonta_util'
+local vu = require 'valibox_update'
+local cfg = require 'config'
+local mio = require 'mio'
+local posix = require 'posix'
 
 local an_M = {}
 
@@ -129,14 +130,14 @@ function autonta:update_wifi(wifi_name, wifi_pass)
   if not wifi_name then wifi_name = self:get_wifi_name() end
   if not wifi_pass then wifi_pass = self:get_wifi_pass() end
 
-  local f_in, err = io.open("/etc/config/wireless.in", "r")
+  local f_in, err_in = io.open("/etc/config/wireless.in", "r")
   if not f_in then
-    au.debug("Error: could not read /etc/config/wireless.in: " .. err)
+    au.debug("Error: could not read /etc/config/wireless.in: " .. err_in)
     return
   end
-  local f_out, err = io.open("/etc/config/wireless", "w")
+  local f_out, err_out = io.open("/etc/config/wireless", "w")
   if not f_out or not f_out then
-    au.debug("Error: could not write to /etc/config/wireless" .. err)
+    au.debug("Error: could not write to /etc/config/wireless" .. err_out)
     return
   end
   for line in f_in:lines() do
@@ -294,10 +295,10 @@ function autonta:handle_autonta_main(env)
   headers['Status'] = "200 OK"
   headers['Content-Type'] = "text/html"
 
-  args = {
+  local args = {
       current_version = vu.get_current_version()
   }
-  html = self:render_raw('index.html', args)
+  local html = self:render_raw('index.html', args)
 
   return headers, html
 end
@@ -309,8 +310,8 @@ function autonta:handle_ntalist(env, arg1, arg2, arg3, arg4)
   end
 
   local headers = self:create_default_headers()
-  args = { ntas = self:get_nta_list() }
-  html = self:render('nta_list.html', args)
+  local args = { ntas = self:get_nta_list() }
+  local html = self:render('nta_list.html', args)
   return headers, html
 end
 
@@ -350,7 +351,7 @@ function autonta:check_validity(env, host_match, dst_cookie_val, dst_http_val)
     return false
   else
     if dst_http_val ~= dst_cookie_val then
-      au.debug("DST cookie mismatch: " .. dst_http_val .. " != " .. q_dst_val)
+      au.debug("DST cookie mismatch: " .. dst_http_val .. " != " .. dst_cookie_val)
       return false
     else
       return true
@@ -370,7 +371,7 @@ function autonta:handle_set_nta(env, args)
   if self:check_validity(env, host_match, dst_cookie_val, q_dst_val) then
     self:add_nta(domain)
     self:remove_cookie(headers, "valibox_nta")
-    html = self:render('nta_set.html', { domain=domain })
+    local html = self:render('nta_set.html', { domain=domain })
     return headers, html
   else
     return self:redirect_to("/autonta/ask_nta/" .. domain)
@@ -461,12 +462,11 @@ function autonta:handle_update_install(env)
     if beta then table.insert(args, "-b") end
     if keep_settings then table.insert(args, "-k") end
 
-    au.debug("Calling update command: " .. cmd .. " " .. strjoin(" ", args))
     mio.subprocess(cmd, args, 3)
 
     local board_name = vu.get_board_name()
     local firmware_info = vu.get_firmware_board_info(beta, "", true, board_name)
-    html = self:render('update_install.html', { update_version=firmware_info.version, update_download_success=true})
+    local html = self:render('update_install.html', { update_version=firmware_info.version, update_download_success=true})
     self:remove_cookie(headers, "valibox_update")
     return headers, html
   end
@@ -512,7 +512,7 @@ function autonta:handle_ask_nta(env, args)
   end
 
   local targs = { dst = dst, name = domain, names = hosts, err = err, nta_disabled = nta_disabled }
-  html = self:render('ask_nta.html', targs)
+  local html = self:render('ask_nta.html', targs)
   return headers, html
 end
 
@@ -607,7 +607,7 @@ end
 
 function autonta:redirect_to(url)
   au.debug("Redirecting client to: " .. url)
-  headers = {}
+  local headers = {}
   headers['Status'] = "303 See Other"
   headers['Location'] = url
   return headers, ""
@@ -630,7 +630,7 @@ function autonta:handle_request(env)
   au.debug(au.obj2str(env))
   au.debug("\n")
   for _,v in pairs(self.mapping) do
-    match_elements = au.pack(request_uri:match(v.pattern))
+    local match_elements = au.pack(request_uri:match(v.pattern))
     if #match_elements > 0 then
       --return self:create_default_headers(), au.obj2str(v)
       -- handlers should return 2 or 3 elements;
@@ -643,7 +643,7 @@ function autonta:handle_request(env)
   local headers = {}
   headers['Status'] = "404 Not found"
   headers['Content-Type'] = "text/html"
-  html = "Path " .. request_uri .. " not found"
+  local html = "Path " .. request_uri .. " not found"
   return headers, html
 end
 

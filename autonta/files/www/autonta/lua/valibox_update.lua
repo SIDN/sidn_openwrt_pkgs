@@ -5,8 +5,8 @@
 -- or from the command line (update_cli.lua)
 --
 
-au = require 'autonta_util'
-mio = require 'mio'
+local au = require 'autonta_util'
+local mio = require 'mio'
 
 local vu = {}
 
@@ -38,7 +38,8 @@ end
 --                   info_url: <url with release info> }
 function vu.fetch_firmware_info(base_url, fetch_options)
   local result = {}
-  local info = vu.fetch_file(base_url .. "/versions.txt", "/tmp/firmware_info.txt", true, fetch_options)
+  local url = base_url .. "/versions.txt"
+  local info = vu.fetch_file(url, "/tmp/firmware_info.txt", true, fetch_options)
   local pattern = "%s*(%S+)%s+(%S+)%s+(%S+)%s+(%S+)%s+(%S+)%s*"
   if info then
     for line in info do
@@ -64,9 +65,9 @@ function vu.get_sha256_sum(filename)
     au.debug("[XX] error in sha256sum...")
     return nil, err
   end
-  local line,err = p:read_line(true, 5000)
-  if line == nil then return nil, err end
-  result = line:match("^([0-9a-f]+)")
+  local line,lerr = p:read_line(true, 5000)
+  if line == nil then return nil, lerr end
+  local result = line:match("^([0-9a-f]+)")
   p:close()
   au.debug("[XX] LINE FROM SHA256: " .. au.obj2str(result))
   return result
@@ -85,7 +86,7 @@ function vu.download_image(board_firmware_info, fetch_options)
       local file_sha256_sum, err = vu.get_sha256_sum(image_filename)
       if file_sha256_sum == nil then
         au.debug("Error getting SHA256 of file: " .. err)
-        return nil
+        return nil, "Error getting SHA256 of file: " .. err
       end
       au.debug("File SHA256: " .. file_sha256_sum)
       if file_sha256_sum == board_firmware_info.sha256sum then
@@ -93,12 +94,11 @@ function vu.download_image(board_firmware_info, fetch_options)
         return image_filename
       else
         au.debug("SHA256 mismatch, file sum: '" .. file_sha256_sum .. "' expected: '" .. board_firmware_info.sha256sum .. "', aborting update")
-        return nil
+        return nil, "SHA256 mismatch, file sum: '" .. file_sha256_sum .. "' expected: '" .. board_firmware_info.sha256sum .. "', aborting update"
       end
     end
   else
-    au.debug("No information found for board " .. board_name .. ", aborting update.")
-    return nil
+    return nil, "download image called with nil firmware info object"
   end
 end
 
@@ -125,7 +125,7 @@ end
 -- (returns false if fetching failed)
 function vu.fetch_file(url, output_file, return_data, fetch_options)
   au.debug("Fetch file from " .. url .. " and store in " .. output_file)
-  cmd = "curl -s -o " .. output_file .. " " .. url
+  local cmd = "curl -s -o " .. output_file .. " " .. url
   if fetch_options then cmd = cmd .. " " .. fetch_options end
   au.debug("Command: " .. cmd)
   local rcode = os.execute(cmd)
@@ -168,11 +168,11 @@ end
 -- debug_msgs: print debug messages (currently always true)
 function vu.get_firmware_info(beta, fetch_options, debug_msgs)
   local base_url = "https://valibox.sidnlabs.nl/downloads/valibox/"
-  if alternative_base_url then base_url = alternative_base_url end
+  --if alternative_base_url then base_url = alternative_base_url end
   if beta then base_url = base_url .. "beta/" end
   au.debug("Downloading upgrade information from " .. base_url)
 
-  return vu.fetch_firmware_info(base_url)
+  return vu.fetch_firmware_info(base_url, fetch_options)
 end
 
 function vu.get_firmware_board_info(beta, fetch_options, debug_msgs, board_name)

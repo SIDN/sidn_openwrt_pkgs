@@ -4,7 +4,7 @@ local an = require 'autonta'
 local au = require 'autonta_util'
 local posix = require 'posix'
 
-function prompt(msg, allow_space, quiet)
+local function prompt(msg, allow_space, quiet)
   local line
   while true do
     if not quiet then io.stdout:write(msg) end

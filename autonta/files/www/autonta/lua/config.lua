@@ -1,6 +1,8 @@
 
 local _m = {}
 
+local mio = require 'mio'
+
 -- Config file wrapper
 --
 -- local c = _m.read_config("/tmp/valibox")
