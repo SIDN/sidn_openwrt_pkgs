@@ -1,0 +1,99 @@
+HTTP_ACCEPT: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+SCRIPT_NAME:
+QUERY_STRING:
+HTTP_ACCEPT_ENCODING: gzip, deflate
+headers: <table>
+  connection: close
+  accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+  cookie: valibox_nta=Jl1r74qB92ym
+  host: valibox
+  referer: http://valibox./
+  accept-language: en-US,en;q=0.5
+  user-agent: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0
+  dnt: 1
+  accept-encoding: gzip, deflate
+  URL: /autonta/nta_list
+
+SERVER_ADDR: 127.0.0.1
+GATEWAY_INTERFACE: CGI/1.1
+HTTP_AUTHORIZATION:
+CONTENT_TYPE:
+SERVER_PORT: 8001
+HTTP_VERSION: 1
+SCRIPT_FILENAME: ./autonta_uhttpd_wrapper.lua
+REQUEST_URI: /autonta/nta_list
+SERVER_PROTOCOL: HTTP/1.0
+HTTP_ACCEPT_CHARSET:
+REMOTE_HOST: 127.0.0.1
+REMOTE_PORT: 38656
+REMOTE_ADDR: 127.0.0.1
+SERVER_NAME: 127.0.0.1
+REDIRECT_STATUS: 200
+HTTP_REFERER: http://valibox./
+HTTP_ACCEPT_LANGUAGE: en-US,en;q=0.5
+SERVER_SOFTWARE: uhttpd
+HTTP_COOKIE: valibox_nta=Jl1r74qB92ym
+HTTP_HOST: valibox
+CONTENT_LENGTH:
+HTTP_CONNECTION: close
+PATH_INFO: /autonta/nta_list
+HTTP_USER_AGENT: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0
+HTTP_X_HTTP_METHOD_OVERRIDE:
+REQUEST_METHOD: GET
+
+[EXPECTED HEADERS]
+Status: 200 OK
+Content-Type: text/html
+Cache-Control: no-store, no-cache, must-revalidate
+Pragma: no-cache
+[EXPECTED CONTENT]
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>SIDN Labs ValiBox</title>
+    <link rel='stylesheet' href='//valibox./resources/default.css' type='text/css' />
+</head>
+<body>
+<div class="main" id="main">
+    <div class="header">
+        <h2 class="main_header_title">SIDN Labs</h2>
+    </div>
+
+    <div>
+        <b>Current Negative Trust Anchors:</b>
+        <div class="inlay lined">
+            <p>
+            <table>
+                <tr>
+                    <td class="nta_domain">servfail.nl.</td>
+                    <td>&nbsp;</td>
+                    <td><a href="/autonta/remove_nta/servfail.nl.">Remove</a></td>
+                </tr>
+                <tr>
+                    <td class="nta_domain">sigexpired.ok.bad-dnssec.wb.sidnlabs.nl.</td>
+                    <td>&nbsp;</td>
+                    <td><a href="/autonta/remove_nta/sigexpired.ok.bad-dnssec.wb.sidnlabs.nl.">Remove</a></td>
+                </tr>
+            </table>
+            </p>
+        </div>
+    </div>
+
+    <div>
+        <p>
+            <a href="/">ValiBox Main menu</a>
+        </p>
+        <div class="inlay">
+        <p>
+            Here you can change the settings of the ValiBox, update passwords, see log files, and make backups.
+        </p>
+        </div>
+    </div>
+</div>
+<div class="logo" id="logo">
+    <img src="//valibox./resources/valibox_logo.png" alt="valibox-logo"/>
+</div>
+</body>
+</html>
+

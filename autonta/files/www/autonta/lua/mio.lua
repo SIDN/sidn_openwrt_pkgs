@@ -68,7 +68,6 @@ end
 -- Simple popen3() implementation
 --
 function mio.popen3(path, args, delay, pipe_stdout, pipe_stderr, pipe_stdin)
-    io.stderr:write("[XX] STARTING PROCESS: " .. path)
     if args == nil then args = {} end
     -- w1 = process stdin (we write to it)
     -- r2 = process stdout (we read from it)
@@ -149,12 +148,7 @@ function mio.subprocess(path, args, delay, pipe_stdout, pipe_stderr, pipe_stdin)
 end
 
 function subprocess:start()
-  io.stderr:write("[XX] MIO cmd: " .. self.path .. " " .. strjoin(" ", self.args) .. "\n")
-  if self.delay then io.stderr:write("[XX] with delay " .. self.delay .. "\n") end
-
   self.pid, self.stdin, self.stdout, self.stderr = mio.popen3(self.path, self.args, self.delay, self.pipe_stdout, self.pipe_stderr, self.pipe_stdin)
-  io.stderr:write("[XX] subp got PID " .. self.pid .. "\n")
-
   -- todo: error?
   return self
 end
@@ -163,17 +157,7 @@ function subprocess:read_line(strip_newline, timeout)
   if self.pid == nil then
     return nil, "read_line() from stopped child process"
   end
-  io.stderr:write("[XX] READ LINE FROM PROCESS " .. self.pid)
-  if timeout ~= nil then
-    io.stderr:write(" WITH TIMEOUT " .. timeout)
-  end
-  io.stderr:write("\n")
   local result = mio.read_fd_line(self.stdout, strip_newline, timeout)
-  if result ~= nil then
-    io.stderr:write("[XX] LINE: '" .. result .. "'\n")
-  else
-    io.stderr:write("[XX] LINE empty\n")
-  end
   return result
 end
 

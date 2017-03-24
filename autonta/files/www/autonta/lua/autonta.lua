@@ -98,7 +98,6 @@ end
 -- Backend logic functions; TODO: move this to a utility-class
 --
 function autonta:is_first_run()
-  -- TODO
   return posix.stat("/etc/valibox_name_set") == nil
 end
 
@@ -278,6 +277,7 @@ function autonta:get_referer_match_line(env, path)
   --if env.SERVER_PORT ~= 80 and env.SERVER_PORT ~= 443 then
   --  host_match = host_match .. ":" .. env.SERVER_PORT
   --end
+  path = string.gsub(path, "%-", "%%-")
   return host_match .. path
 end
 
