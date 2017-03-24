@@ -1,9 +1,14 @@
 #!/usr/bin/lua
 
 local mio = require 'mio'
---require 'argparse'
 local an = require 'autonta'
 local au = require 'autonta_util'
+local argparse = require 'argparse'
+
+local print_full_output = false
+local print_line_numbers = false
+
+local autonta = an.create("tests/valibox_config_file.txt", "tests/langkeys.txt")
 
 -- Reads a request data file (test case)
 -- see test_request1.txt for the format
@@ -56,8 +61,6 @@ local function read_request_data(file_name)
   end
   return env, response_headers, response_content
 end
-
-local autonta = an.create("tests/valibox_config_file.txt", "tests/langkeys.txt")
 
 local function multiline_to_list(str)
   local list = {}
@@ -133,6 +136,18 @@ local function test_request(testcase_file)
   --print("[XX] EXPECT: " .. au.obj2str(expected_content))
   --print("[XX] GOT: " .. au.obj2str(content_list))
   if not compare_lists(content_list, expected_content) then
+    if print_full_output then
+      print("[[[ Full actual output: ]]]")
+      for i,l in pairs(content_list) do
+        if print_line_numbers then io.stdout:write(i .. ": ") end
+        print(l)
+      end
+      print("[[[ Full expected output: ]]]")
+      for i,l in pairs(expected_content) do
+        if print_line_numbers then io.stdout:write(i .. ": ") end
+        print(l)
+      end
+    end
     print("[Test case: " .. testcase_file .. " FAILED]")
     return false
   end
@@ -141,20 +156,60 @@ local function test_request(testcase_file)
 end
 
 
---
--- overwrite some functions as they depend on the environment of the device
---
-function autonta.is_first_run() return false end
 
-io.flush()
-test_request("tests/test_request_index.txt")
+local function do_tests()
+  io.flush()
 
-function autonta.get_nta_list() return {} end
-test_request("tests/test_request_nta_list_empty.txt")
+  --
+  -- overwrite some functions as they depend on the environment of the device
+  --
+  function autonta.is_first_run() return true end
+  test_request("tests/test_request_firstrun.txt")
 
-function autonta.get_nta_list()
-  return { "servfail.nl.", "sigexpired.ok.bad-dnssec.wb.sidnlabs.nl." }
+  function autonta.is_first_run() return false end
+  test_request("tests/test_request_index.txt")
+
+  function autonta.get_nta_list() return {} end
+  test_request("tests/test_request_nta_list_empty.txt")
+
+  function autonta.get_nta_list()
+    return { "servfail.nl.", "sigexpired.ok.bad-dnssec.wb.sidnlabs.nl." }
+  end
+  test_request("tests/test_request_nta_list_nonempty.txt")
+
+  test_request("tests/test_request_servfail.txt")
+
+  function autonta:create_dst(headers, cookie, value)
+    return "SOME_FIXED_DST_VALUE"
+  end
+
+  -- also need to overwrite some functions that are imported
+  function package.loaded.valibox_update.get_current_version() return "test_version" end
+  function package.loaded.valibox_update.get_board_name() return "test_board" end
+  function package.loaded.valibox_update.get_firmware_board_info()
+    local result = {}
+    result.version = "test_update_version"
+    result.sha256sum = "fake_sha256_sum"
+    result.base_url = "http://foo.example/update"
+    result.firmware_url = "downloads/fake_firmware.bin"
+    result.info_url = "downloads/info.txt"
+    return result
+  end
+  function package.loaded.valibox_update.fetch_update_info_txt()
+    return "fake update info"
+  end
+  test_request("tests/test_request_check_version.txt")
 end
-test_request("tests/test_request_nta_list_nonempty.txt")
 
 
+local parser = argparse()
+parser:flag("-p --print", "Print full output of failing test")
+parser:flag("-l --linenumbers", "Print line numbers in full output (-p)")
+parser:flag("-v --verbose", "Set AutoNTA to verbose mode")
+local args = parser:parse()
+if args.print then print_full_output = true end
+if args.linenumbers then print_line_numbers = true end
+if args.verbose then au.verbose = true else au.verbose = false end
+
+--au.objprint(package.loaded.valibox_update)
+do_tests()

@@ -76,5 +76,32 @@ function au.obj2str(obj, indent)
   return result
 end
 
+function au.objprint(obj, indent, is_package)
+  local t = type(obj)
+  if not indent then indent = 0 end
+  if t == "string" or t == "number" then
+    io.stdout:write(obj)
+    --result = result .. "\n"
+  elseif t == "table" then
+  io.stdout:write("<table>\n")
+  for k,v in pairs(obj) do
+    io.stdout:write(au.indent_str(indent))
+    io.stdout:write("<"..k .. ">: ")
+    if (k ~= '_G') then
+      if k == 'package' or k == 'loaded' then
+        if not is_package then
+          au.objprint(v, indent + 2, true)
+        end
+      else
+        au.objprint(v, indent + 2)
+      end
+    end
+    io.stdout:write("\n")
+  end
+  else
+  io.stdout:write("<unprintable type: " .. t .. ">")
+  end
+end
+
 
 return au

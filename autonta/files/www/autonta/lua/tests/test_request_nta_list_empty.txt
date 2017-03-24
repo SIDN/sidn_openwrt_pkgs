@@ -5,7 +5,6 @@ HTTP_ACCEPT_ENCODING: gzip, deflate
 headers: <table>
   connection: close
   accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
-  cookie: valibox_nta=Jl1r74qB92ym
   host: valibox
   referer: http://valibox./autonta/nta_list
   accept-language: en-US,en;q=0.5
@@ -32,7 +31,7 @@ REDIRECT_STATUS: 200
 HTTP_REFERER: http://valibox./autonta/nta_list
 HTTP_ACCEPT_LANGUAGE: en-US,en;q=0.5
 SERVER_SOFTWARE: uhttpd
-HTTP_COOKIE: valibox_nta=Jl1r74qB92ym
+HTTP_COOKIE:
 HTTP_HOST: valibox
 CONTENT_LENGTH:
 HTTP_CONNECTION: close

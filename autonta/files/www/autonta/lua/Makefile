@@ -1,4 +1,4 @@
-all: check test
+all: test
 
 test:
 	lua ./tests/request_tester.lua
