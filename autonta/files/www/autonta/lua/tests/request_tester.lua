@@ -163,7 +163,11 @@ local function do_tests()
   --
   -- overwrite some functions as they depend on the environment of the device
   --
+  -- also need to overwrite some functions that are imported
+  function package.loaded.valibox_update.get_current_version() return "test_version" end
+
   function autonta.is_first_run() return true end
+
   test_request("tests/test_request_firstrun.txt")
 
   function autonta.is_first_run() return false end
@@ -183,8 +187,6 @@ local function do_tests()
     return "SOME_FIXED_DST_VALUE"
   end
 
-  -- also need to overwrite some functions that are imported
-  function package.loaded.valibox_update.get_current_version() return "test_version" end
   function package.loaded.valibox_update.get_board_name() return "test_board" end
   function package.loaded.valibox_update.get_firmware_board_info()
     local result = {}

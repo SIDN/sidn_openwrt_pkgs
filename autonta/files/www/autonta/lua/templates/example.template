@@ -3,23 +3,23 @@ this is a template
 <ul>
 <? for i = 1, 3 do ?>
   <li>item #<%i%></li>
-<? end ?> 
+<? end ?>
 </ul>
 
-root@OpenWrt:/tmp# vi test.template 
-root@OpenWrt:/tmp# cat test.template 
+root@OpenWrt:/tmp# vi test.template
+root@OpenWrt:/tmp# cat test.template
 <!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>{{= title}}</title>
+        <title>{{== title}}</title>
     </head>
     <body>
         <h1>Vegetables</h1>
         <ul>
         {{ -- write regular lua code in the template}}
         {{for _,vegetable in ipairs(vegetables) do}}
-            <li><b>{{= vegetable}}</b></li>
+            <li><b>{{== vegetable}}</b></li>
         {{end}}
         </ul>
     </body>

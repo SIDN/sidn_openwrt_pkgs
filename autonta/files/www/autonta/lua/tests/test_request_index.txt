@@ -95,7 +95,7 @@ Content-Type: text/html
                 </p>
                 <div class="inlay lined">
                     <p>
-                        Here you can check if there is a newer version of the ValiBox firmware, and install it if so. Current version: <error reading version file>)
+                        Here you can check if there is a newer version of the ValiBox firmware, and install it if so. Current version: test_version)
                     </p>
                 </div>
                 <p></p>

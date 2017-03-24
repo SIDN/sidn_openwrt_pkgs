@@ -1,32 +1,32 @@
 {{ --$def with (lk, dst, name, names, err, nta_disabled) }}
 <div class="inlay lined">
-    <h2 class="main_header_error">{{= langkeys.get('DNSSEC_ERROR_NAME', name) }}</h2>
+    <h2 class="main_header_error">{{== langkeys.get('DNSSEC_ERROR_NAME', name) }}</h2>
 
     <p>
-        {{= langkeys.get('DNSSEC_ERROR_NAME_LONG', name) }}
+        {{== langkeys.get('DNSSEC_ERROR_NAME_LONG', name) }}
     </p>
     <p>
-        {{= langkeys.get('DNSSEC_ERROR_REASON') }}
+        {{== langkeys.get('DNSSEC_ERROR_REASON') }}
     </p>
     <p>
-        {{= langkeys.get('DNSSEC_ERROR_SERVER', err.auth_server) }}
+        {{== langkeys.get('DNSSEC_ERROR_SERVER', err.auth_server) }}
     </p>
     <p style="color: red">
-        {{= langkeys.get('DNSSEC_ERROR_ERROR' , err.err_msg) }}
+        {{== langkeys.get('DNSSEC_ERROR_ERROR' , err.err_msg) }}
     </p>
     <p>
-        {{= langkeys.get('DNSSEC_ERROR_RECORD', err.fail_type, err.fail_dname) }}
+        {{== langkeys.get('DNSSEC_ERROR_RECORD', err.fail_type, err.fail_dname) }}
     </p>
     {{ if not nta_disabled then }}
         <p>
-            {{= langkeys.get('DNSSEC_ERROR_SET_NTA_DESCRIPTION') }}
+            {{== langkeys.get('DNSSEC_ERROR_SET_NTA_DESCRIPTION') }}
         </p>
         <p>
-            {{= langkeys.get('DNSSEC_ERROR_NOT_IF_NOT_TRUSTED') }}
+            {{== langkeys.get('DNSSEC_ERROR_NOT_IF_NOT_TRUSTED') }}
         </p>
         {{ for _,name in ipairs(names) do }}
             <p>
-                <a href="/autonta/set_nta/{{= name }}?dst={{= dst }}">{{= langkeys.get('DNSSEC_ERROR_SET_NTA', name) }}</a>
+                <a href="/autonta/set_nta/{{== name }}?dst={{== dst }}">{{== langkeys.get('DNSSEC_ERROR_SET_NTA', name) }}</a>
             </p>
         {{ end }}
     {{ end }}
