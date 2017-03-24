@@ -1,87 +1,87 @@
 {{ --$def with (lk, dst, update_check_failed, update_available, current_version, currently_beta, other_version, update_version, update_info) }}
 
     <div>
-        <b>{{= langkeys.get('SIDNLABS') }} {{= langkeys.get('VALIBOX') }} {{= langkeys.get('UPDATE') }}</b>
+        <b>{{== langkeys.get('SIDNLABS') }} {{== langkeys.get('VALIBOX') }} {{== langkeys.get('UPDATE') }}</b>
     <div class="inlay lined">
 
 {{ if update_check_failed then }}
         <p>
-            {{= langkeys.get('UPDATE_CHECK_FAILED') }}
+            {{== langkeys.get('UPDATE_CHECK_FAILED') }}
         </p>
         <p>
-            {{= langkeys.get('UPDATE_CHECK_CURRENT_VERSION', current_version) }}
+            {{== langkeys.get('UPDATE_CHECK_CURRENT_VERSION', current_version) }}
         </p>
         <p>
-            <a href="//valibox./autonta/update_check">{{= langkeys.get('UPDATE_TRY_AGAIN') }}</a>
+            <a href="//valibox./autonta/update_check">{{== langkeys.get('UPDATE_TRY_AGAIN') }}</a>
         </p>
 {{ else }}
     {{ if update_available then }}
         <div class="inlay">
             <p>
-                {{= langkeys.get('UPDATE_CHECK_AVAILABLE', update_version, current_version) }}
+                {{== langkeys.get('UPDATE_CHECK_AVAILABLE', update_version, current_version) }}
             </p>
             <pre>
-                {{= update_info }}
+                {{== update_info }}
             </pre>
 
             <form method="GET" action="/autonta/update_install">
-            <input type="hidden" name="dst" value="{{= dst }}" />
-            <input type="checkbox" name="keepsettings" checked="checked">{{= langkeys.get('UPDATE_KEEP_SETTINGS') }}</input>
+            <input type="hidden" name="dst" value="{{== dst }}" />
+            <input type="checkbox" name="keepsettings" checked="checked">{{== langkeys.get('UPDATE_KEEP_SETTINGS') }}</input>
             {{ if currently_beta then }}
                 <p>
-                    <input type="radio" name="version" value="beta" checked="checked">{{= langkeys.get('UPDATE_INSTALL_CURRENT') }}</input>
+                    <input type="radio" name="version" value="beta" checked="checked">{{== langkeys.get('UPDATE_INSTALL_CURRENT') }}</input>
                 </p>
                 <p>
-                    <input type="radio" name="version" value="release">{{= langkeys.get('UPDATE_INSTALL_LATEST', other_version) }}</option>
+                    <input type="radio" name="version" value="release">{{== langkeys.get('UPDATE_INSTALL_LATEST', other_version) }}</option>
                 </p>
             {{ else }}
                 <p>
-                    <input type="radio" name="version" value="release" checked="checked">{{= langkeys.get('UPDATE_INSTALL_CURRENT') }}</input>
+                    <input type="radio" name="version" value="release" checked="checked">{{== langkeys.get('UPDATE_INSTALL_CURRENT') }}</input>
                 </p>
                 <p>
-                    <input type="radio" name="version" value="beta">{{= langkeys.get('UPDATE_INSTALL_LATEST_BETA', other_version) }}</option>
+                    <input type="radio" name="version" value="beta">{{== langkeys.get('UPDATE_INSTALL_LATEST_BETA', other_version) }}</option>
                 </p>
             {{ end }}
             <p>
-                <input type="submit" value="{{= langkeys.get('UPDATE_INSTALL_START') }}" />
+                <input type="submit" value="{{== langkeys.get('UPDATE_INSTALL_START') }}" />
             </p>
             </form>
         </div>
     {{ else }}
         <div class="inlay">
             <p>
-                {{= langkeys.get('UPDATE_CHECK_NO_UPDATE', current_version) }}
+                {{== langkeys.get('UPDATE_CHECK_NO_UPDATE', current_version) }}
             </p>
             <p>
-                <a href="//valibox./autonta/update_check">{{= langkeys.get('UPDATE_TRY_AGAIN') }}</a>
+                <a href="//valibox./autonta/update_check">{{== langkeys.get('UPDATE_TRY_AGAIN') }}</a>
             </p>
         </div>
         </div>
         <div>
             <p>
-                <b>{{= langkeys.get('UPDATE_INSTALL_AGAIN') }}</b>
+                <b>{{== langkeys.get('UPDATE_INSTALL_AGAIN') }}</b>
             </p>
         <div class="inlay lined">
             <form method="GET" action="http://valibox./autonta/update_install">
-            <input type="hidden" name="dst" value="{{= dst }}" />
-            <input type="checkbox" name="keepsettings" checked="checked">{{= langkeys.get('UPDATE_KEEP_SETTINGS') }}</input>
+            <input type="hidden" name="dst" value="{{== dst }}" />
+            <input type="checkbox" name="keepsettings" checked="checked">{{== langkeys.get('UPDATE_KEEP_SETTINGS') }}</input>
             {{ if currently_beta then }}
                 <p>
-                    <input type="radio" name="version" value="beta" checked="checked">{{= langkeys.get('UPDATE_INSTALL_REINSTALL') }}</input>
+                    <input type="radio" name="version" value="beta" checked="checked">{{== langkeys.get('UPDATE_INSTALL_REINSTALL') }}</input>
                 </p>
                 <p>
-                    <input type="radio" name="version" value="release">{{= langkeys.get('UPDATE_INSTALL_LATEST', other_version) }}</option>
+                    <input type="radio" name="version" value="release">{{== langkeys.get('UPDATE_INSTALL_LATEST', other_version) }}</option>
                 </p>
             {{ else }}
                 <p>
-                    <input type="radio" name="version" value="release" checked="checked">{{= langkeys.get('UPDATE_INSTALL_REINSTALL') }}</input>
+                    <input type="radio" name="version" value="release" checked="checked">{{== langkeys.get('UPDATE_INSTALL_REINSTALL') }}</input>
                 </p>
                 <p>
-                    <input type="radio" name="version" value="beta">{{= langkeys.get('UPDATE_INSTALL_LATEST_BETA', other_version) }}</option>
+                    <input type="radio" name="version" value="beta">{{== langkeys.get('UPDATE_INSTALL_LATEST_BETA', other_version) }}</option>
                 </p>
             {{ end }}
             <p>
-                <input type="submit" value="{{= langkeys.get('UPDATE_INSTALL_START') }}" />
+                <input type="submit" value="{{== langkeys.get('UPDATE_INSTALL_START') }}" />
             </p>
             </form>
         </div>

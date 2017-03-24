@@ -115,6 +115,18 @@ local function initialise_options(options)
 	return merge_tables(default_options, options)
 end
 
+local function escape_html_function(str)
+	local tt = {
+		['&'] = '&amp;',
+		['<'] = '&lt;',
+		['>'] = '&gt;',
+		['"'] = '&quot;',
+		["'"] = '&#39;',
+	}
+	local r = str:gsub('[&<>"\']', tt)
+	return r
+end
+
 -- creates an iterator that iterates over all chunks in the given template
 -- a chunk is either a template delimited by start_tag and end_tag or a normal text
 -- the iterator also returns the type of the chunk as second return value
@@ -124,7 +136,7 @@ local function all_chunks(template, options)
 	-- pattern to match a template chunk
 	local template_pattern = escape_pattern(options.start_tag) .. "([+-]?)(.-)([+-]?)" .. escape_pattern(options.end_tag)
 	local include_pattern = "^"..escape_pattern(options.start_tag) .. "[+-]?include:(.-)[+-]?" .. escape_pattern(options.end_tag)
-	local expression_pattern = "^"..escape_pattern(options.start_tag) .. "[+-]?=(.-)[+-]?" .. escape_pattern(options.end_tag)
+	local expression_pattern = "^"..escape_pattern(options.start_tag) .. "[+-]?=(=?)(.-)[+-]?" .. escape_pattern(options.end_tag)
 	local position = 1
 
 	return function ()
@@ -150,7 +162,7 @@ local function all_chunks(template, options)
 			local include_start, include_end, include_capture = template:find(include_pattern, position)
 			local expression_start, expression_end, expression_capture
 			if not include_start then
-				expression_start, expression_end, expression_capture = template:find(expression_pattern, position)
+				expression_start, expression_end, escape, expression_capture = template:find(expression_pattern, position)
 			end
 
 			if include_start then
@@ -158,6 +170,7 @@ local function all_chunks(template, options)
 				chunk.text = include_capture
 			elseif expression_start then
 				chunk.type = "expression"
+				if escape ~= '' then chunk.escape = true end
 				chunk.text = expression_capture
 			else
 				chunk.type = "code"
@@ -408,7 +421,11 @@ function liluat.compile(template, options, template_name, start_path)
 	for i, chunk in ipairs(lexed_template) do
 		-- check if the chunk is a template (either code or expression)
 		if chunk.type == "expression" then
-			table.insert(lua_code, output_function..'('..chunk.text..')')
+			if chunk.escape then
+				table.insert(lua_code, output_function..'('..chunk.text..', true)')
+			else
+				table.insert(lua_code, output_function..'('..chunk.text..')')
+			end
 		elseif chunk.type == "code" then
 			table.insert(lua_code, chunk.text)
 		else --text chunk
@@ -504,8 +521,13 @@ function liluat.render(t, env, options)
 
 	-- add closure that renders the text into the result table
 	env = merge_tables({
-			__liluat_output_function = function (text)
-				table.insert(result, text) end
+			__liluat_output_function = function (text, escape)
+				if escape then
+					table.insert(result, escape_html_function(text))
+				else
+					table.insert(result, text)
+				end
+			end,
 			},
 			env,
 			options.reference
@@ -530,4 +552,3 @@ function liluat.render(t, env, options)
 end
 
 return liluat
-
