@@ -3,6 +3,7 @@
 local an = require 'autonta'
 local au = require 'autonta_util'
 local posix = require 'posix'
+local argparse = require 'argparse'
 
 local function prompt(msg, allow_space, quiet)
   local line
@@ -19,7 +20,6 @@ local function prompt(msg, allow_space, quiet)
   return line
 end
 
-local argparse = require 'argparse'
 
 local parser = argparse()
 

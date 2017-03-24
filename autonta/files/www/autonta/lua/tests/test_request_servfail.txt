@@ -1,0 +1,47 @@
+HTTP_ACCEPT: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+SCRIPT_NAME: 
+QUERY_STRING: 
+HTTP_ACCEPT_ENCODING: gzip, deflate
+headers: <table>
+  connection: close
+  accept-language: en-US,en;q=0.5
+  accept-encoding: gzip, deflate
+  URL: /
+  user-agent: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0
+  dnt: 1
+  accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+  host: servfail.nl
+
+SERVER_ADDR: 127.0.0.1
+GATEWAY_INTERFACE: CGI/1.1
+HTTP_AUTHORIZATION: 
+CONTENT_TYPE: 
+SERVER_PORT: 8001
+HTTP_VERSION: 1
+SCRIPT_FILENAME: ./autonta_uhttpd_wrapper.lua
+REQUEST_URI: /
+SERVER_PROTOCOL: HTTP/1.0
+HTTP_ACCEPT_CHARSET: 
+REMOTE_HOST: 127.0.0.1
+REMOTE_PORT: 38690
+REMOTE_ADDR: 127.0.0.1
+SERVER_NAME: 127.0.0.1
+REDIRECT_STATUS: 200
+HTTP_REFERER: 
+HTTP_ACCEPT_LANGUAGE: en-US,en;q=0.5
+SERVER_SOFTWARE: uhttpd
+HTTP_COOKIE: 
+HTTP_HOST: servfail.nl
+CONTENT_LENGTH: 
+HTTP_CONNECTION: close
+PATH_INFO: /
+HTTP_USER_AGENT: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0
+HTTP_X_HTTP_METHOD_OVERRIDE: 
+REQUEST_METHOD: GET
+
+[EXPECTED HEADERS]
+Status: 303 See Other
+Location: //valibox./autonta/ask_nta/servfail.nl
+[EXPECTED CONTENT]
+
+
