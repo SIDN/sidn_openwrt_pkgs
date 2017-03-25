@@ -56,7 +56,7 @@ INDEX_NTA_DESCRIPTION1: Here you can see the current list of Negative Trust Anch
 INDEX_NTA_DESCRIPTION2: When a Negative Trust Anchor has been set for a domain, it means that DNSSEC validation is disabled for that domain. That way, you can reach websites when DNSSEC validation fails because of an error by the DNS administrators. Do NOT set a Negative Trust Anchor for a domain if you do not trust it.
 INDEX_NTA_DESCRIPTION3: Whenever you visit a website where the domain name does not validate, the ValiBox will automatically ask you whether a Negative Trust Anchor should be set for that domain.
 
-INDEX_CONFIGURE: Configureer de ValiBox
+INDEX_CONFIGURE: Configure the ValiBox
 
 INDEX_FIRMWARE_UPDATE: Firmware update
 INDEX_FIRMWARE_UPDATE_DESCRIPTION: Here you can check if there is a newer version of the ValiBox firmware, and install it if so. Current version: %s
