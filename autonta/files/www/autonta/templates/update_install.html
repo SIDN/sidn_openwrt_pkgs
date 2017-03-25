@@ -1,26 +1,26 @@
-$def with (lk, update_download_success, update_version)
-$var lk = lk
+{{ --$def with (lk, update_download_success, update_version) }}
 
     <div>
-        <b>$lk.SIDNLABS $lk.VALIBOX $lk.UPDATE</b>
+        <b>{{== langkeys.get('SIDNLABS') }} {{== langkeys.get('VALIBOX') }} {{== langkeys.get('UPDATE') }}</b>
     <div class="inlay lined">
 
-$if update_download_success:
+{{ if update_download_success then }}
         <p>
-            $lk.UPDATE_INSTALLING(update_version)
+            {{== langkeys.get('UPDATE_INSTALLING', update_version) }}
         </p>
         <p>
-            $lk.UPDATE_WAIT
+            {{== langkeys.get('UPDATE_WAIT') }}
         </p>
         <p>
-            $lk.UPDATE_CLOSE
+            {{== langkeys.get('UPDATE_CLOSE') }}
         </p>
-$else:
+{{ else }}
         <p>
-            $lk.UPDATE_ERROR(update_version)
+            {{== langkeys.get('UPDATE_ERROR', update_version) }}
         </p>
         <p>
-            <a href="//valibox./autonta/update_install">$lk.UPDATE_TRY_AGAIN</a>
+            <a href="//valibox./autonta/update_install">{{== langkeys.get('UPDATE_TRY_AGAIN') }}</a>
         </p>
     </div>
     </div>
+{{ end }}

@@ -1,16 +1,14 @@
-$def with (lk, name)
-$var lk = lk
 <div class="inlay lined">
     <p>
-        $lk.TRUST_ANCHOR_SET(name)
+        {{== langkeys.get('TRUST_ANCHOR_SET', domain) }}
     </p>
     <p>
-        $lk.TRUST_ANCHOR_MINUTES
+        {{== langkeys.get('TRUST_ANCHOR_MINUTES') }}
     </p>
     <p>
-        $lk.TRUST_ANCHOR_WAIT
+        {{== langkeys.get('TRUST_ANCHOR_WAIT') }}
     </p>
     <p>
-        <a href="http://$name">$lk.TRY_NOW</a>
+        <a href="http://{{== domain }}">{{== langkeys.get('TRY_NOW') }}</a>
     </p>
 </div>
