@@ -23,8 +23,7 @@ if args.override_host then
   fetch_options = "--resolve valibox.sidnlabs.nl:443:94.198.159.35"
 end
 
---local board_name = vu.get_board_name()
-local board_name = "gl-ar150"
+local board_name = vu.get_board_name()
 local firmware_info = vu.get_firmware_info(args.beta, fetch_options, args.debug)
 
 if not firmware_info then
