@@ -21,6 +21,8 @@ define Package/spin
   DEPENDS:=+ip +luaposix +luasec +luabitop +luasocket +lua-coxpcall +lua-copas +libnetfilter-log 
 endef
 
+PKG_BUILD_DEPENDS:=libnetfilter-log
+
 define Package/spin/description
   Experiment with SPIN tools
 endef
