@@ -7,7 +7,7 @@ PKG_RELEASE:=1
 PKG_BUILD_DIR:=$(BUILD_DIR)/spin-$(PKG_VERSION)
 PKG_SOURCE:=spin-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://tjeb.nl
-PKG_MD5SUM:=343e93bbb46bdd505d84c2e3b99436ad
+PKG_MD5SUM:=f1e6090616bd1aac91bfb281ce9f885f
 
 include $(INCLUDE_DIR)/package.mk
 
