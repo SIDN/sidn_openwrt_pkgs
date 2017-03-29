@@ -1,13 +1,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=spin
-PKG_VERSION:=0.1
+PKG_VERSION:=0.2
 PKG_RELEASE:=1
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/spin-$(PKG_VERSION)
 PKG_SOURCE:=spin-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://tjeb.nl
-PKG_MD5SUM:=363b7124fcf72c58f610a8e8ad395e75
+PKG_MD5SUM:=343e93bbb46bdd505d84c2e3b99436ad
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -37,6 +37,8 @@ define Package/spin/install
 	cp -r ${PKG_BUILD_DIR}/html/* $(1)/www/spin/
 	$(INSTALL_DIR) $(1)/usr/lib/spin
 	$(INSTALL_BIN) ${PKG_BUILD_DIR}/lua/* $(1)/usr/lib/spin/
+
+	$(INSTALL_BIN) ${PKG_BUILD_DIR}/src/spin_nflog $(1)/usr/bin/
 endef
 
 $(eval $(call BuildPackage,spin))
