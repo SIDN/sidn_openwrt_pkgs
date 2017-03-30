@@ -18,7 +18,7 @@ define Package/spin
   TITLE:=Experimental tools for SPIN
   #DESCRIPTION:=This variable is obsolete. use the Package/name/description define instead!
   URL:=http://www.sidnlabs.nl
-  DEPENDS:=+ip +luaposix +luasec +luabitop +luasocket +lua-coxpcall +lua-copas +libnetfilter-log 
+  DEPENDS:=+ip +luaposix +luasec +luabitop +luasocket +lua-coxpcall +lua-copas +libnetfilter-log +mosquitto-ssl
 endef
 
 PKG_BUILD_DEPENDS:=libnetfilter-log
