@@ -15,7 +15,7 @@ run_conntrack() {
 
 run_spin_server() {
     cd /usr/lib/spin
-    lua ./server.lua&
+    lua ./collect_mqtt.lua&
     echo $! > ${SPIN_SERVER_PID}
 }
 
