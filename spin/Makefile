@@ -7,7 +7,7 @@ PKG_RELEASE:=1
 PKG_BUILD_DIR:=$(BUILD_DIR)/spin-$(PKG_VERSION)
 PKG_SOURCE:=spin-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://tjeb.nl
-PKG_MD5SUM:=f1e6090616bd1aac91bfb281ce9f885f
+PKG_MD5SUM:=1f8cf42ed480d85a25e546eb0e5e98c3
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -18,10 +18,10 @@ define Package/spin
   TITLE:=Experimental tools for SPIN
   #DESCRIPTION:=This variable is obsolete. use the Package/name/description define instead!
   URL:=http://www.sidnlabs.nl
-  DEPENDS:=+ip +luaposix +luasec +luabitop +luasocket +lua-coxpcall +lua-copas +libnetfilter-log +mosquitto-ssl
+  DEPENDS:=+ip +luaposix +luasec +luabitop +luasocket +lua-coxpcall +lua-copas +libnetfilter-log +mosquitto-ssl +libmosquitto
 endef
 
-PKG_BUILD_DEPENDS:=libnetfilter-log
+PKG_BUILD_DEPENDS:=libnetfilter-log libmosquitto
 
 define Package/spin/description
   Experiment with SPIN tools
@@ -41,7 +41,7 @@ define Package/spin/install
 	$(INSTALL_BIN) ${PKG_BUILD_DIR}/lua/* $(1)/usr/lib/spin/
 
 	$(INSTALL_DIR) $(1)/usr/sbin
-	$(INSTALL_BIN) ${PKG_BUILD_DIR}/src/spin_nflog $(1)/usr/sbin/
+	$(INSTALL_BIN) ${PKG_BUILD_DIR}/src/nflog2mqtt $(1)/usr/sbin/
 endef
 
 $(eval $(call BuildPackage,spin))
