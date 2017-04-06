@@ -118,6 +118,11 @@ config rule
 config include
 	option path /etc/firewall.user
 
+config include
+	option path /etc/spin/firewall.conf
+
+config include
+	option path /etc/spin/firewall6.conf
 
 ### EXAMPLE CONFIG SECTIONS
 # do not allow a specific ip to access wan

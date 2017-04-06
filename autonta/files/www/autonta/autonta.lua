@@ -182,6 +182,7 @@ function autonta:update_wifi_and_password(new_wifi_name, new_wifi_password, new_
     self:update_admin_password(new_admin_password)
     mio.execute("/usr/sbin/unbound-control local_zone_remove .", true)
     mio.execute("/etc/init.d/unbound restart", true)
+    mio.execute("/etc/init.d/spin restart", true)
   end
 
   if (new_wifi_name and new_wifi_name ~= "") or
