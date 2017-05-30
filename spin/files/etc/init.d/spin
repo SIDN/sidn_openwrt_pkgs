@@ -6,11 +6,18 @@ SPIN_SERVER_PID="/var/run/spin_collectd.pid"
 
 run_spin_server() {
     cd /usr/lib/spin
-    lua ./spin_collectd.lua&
+    lua ./spin_mqtt.lua&
     echo $! > ${SPIN_SERVER_PID}
 }
 
+apply_spin_config() {
+    cd /usr/lib/spin
+    lua ./spin_config.lua apply_config
+}
+
 start() {
+    insmod /usr/lib/spin/spin.ko
+    apply_spin_config
     run_spin_server
 }
 
@@ -19,6 +26,7 @@ stop() {
         kill `cat ${SPIN_SERVER_PID}`
         rm ${SPIN_SERVER_PID}
     fi
+    rmmod spin
 }
 
 restart() {
@@ -30,4 +38,3 @@ reload() {
     stop
     start
 }
-

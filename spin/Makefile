@@ -1,34 +1,49 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=spin
-PKG_VERSION:=0.3
+PKG_VERSION:=0.4
 PKG_RELEASE:=1
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/spin-$(PKG_VERSION)
 PKG_SOURCE:=spin-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=https://tjeb.nl
-PKG_MD5SUM:=54ac0fc361501651f8f9106ad799b821
+PKG_SOURCE_URL:=https://valibox.sidnlabs.nl/downloads/src/spin/
+PKG_MD5SUM:=83e05fd2d2588c6462dc0124140441fc
 
 include $(INCLUDE_DIR)/package.mk
+include $(INCLUDE_DIR)/kernel.mk
 
 define Package/spin
   SECTION:=base
   CATEGORY:=Network
   SUBMENU:=SIDN
   TITLE:=Experimental tools for SPIN
-  #DESCRIPTION:=This variable is obsolete. use the Package/name/description define instead!
-  URL:=http://www.sidnlabs.nl
-  DEPENDS:=+ip +luaposix +luasec +luabitop +luasocket +libnetfilter-log +mosquitto-ssl +libmosquitto +lua-mosquitto +libldns +iptables +iptables-mod-nflog +kmod-ipt-nflog +SSP_SUPPORT:libssp
+  URL:=https://github.com/SIDN/spin
+  DEPENDS:=+ip +luaposix +luasec +luabitop +luasocket +mosquitto-ssl +libmosquitto +lua-mosquitto
 endef
 
-PKG_BUILD_DEPENDS:=libnetfilter-log libmosquitto libldns
+PKG_BUILD_DEPENDS:=libmosquitto
+
+SPIN_MAKE_OPTS:= -C $(PKG_BUILD_DIR) \
+        PATH="$(TARGET_PATH)" \
+        ARCH="$(LINUX_KARCH)" \
+        CROSS_COMPILE="$(TARGET_CROSS)" \
+        TARGET="$(HAL_TARGET)" \
+        TOOLPREFIX="$(KERNEL_CROSS)" \
+        TOOLPATH="$(KERNEL_CROSS)" \
+        KERNELPATH="$(LINUX_DIR)" \
+        LDOPTS=" "
 
 define Package/spin/description
   Experiment with SPIN tools
 endef
 
-#define Build/Configure
-#endef
+define Build/Configure
+    $(call Build/Configure/Default,--with-linux-headers=$(LINUX_DIR))
+endef
+
+define Build/Compile
+  $(MAKE) $(SPIN_MAKE_OPTS) M=$(PKG_BUILD_DIR)
+endef
 
 define Package/spin/install
 	$(INSTALL_DIR) $(1)/etc/init.d
@@ -37,9 +52,10 @@ define Package/spin/install
 	cp -r ${PKG_BUILD_DIR}/html/* $(1)/www/spin/
 	$(INSTALL_DIR) $(1)/usr/lib/spin
 	$(INSTALL_BIN) ${PKG_BUILD_DIR}/lua/* $(1)/usr/lib/spin/
-
-	$(INSTALL_DIR) $(1)/usr/lib/lua
-	$(INSTALL_DATA) ${PKG_BUILD_DIR}/src/.libs/lua-spin_nflog.so.0.0.0 $(1)/usr/lib/lua/lua-spin_nflog.so
+	$(INSTALL_BIN) ${PKG_BUILD_DIR}/kernelmod/spin.ko $(1)/usr/lib/spin/
+	$(INSTALL_DIR) $(1)/usr/bin
+	$(INSTALL_BIN) ${PKG_BUILD_DIR}/src/spin_config $(1)/usr/bin/spin_config
+	$(INSTALL_BIN) ${PKG_BUILD_DIR}/src/spin_print $(1)/usr/bin/spin_print
 endef
 
 $(eval $(call BuildPackage,spin))
