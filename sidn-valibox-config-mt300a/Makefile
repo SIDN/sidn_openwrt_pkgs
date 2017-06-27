@@ -6,7 +6,7 @@ PKG_RELEASE:=1
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/sidn-valibox-config-mt300a
 PKG_SOURCE:=sidn-valibox-config-mt300a.tar.gz
-PKG_SOURCE_URL:=https://tjeb.nl
+PKG_SOURCE_URL:=https://valibox.sidnlabs.nl/downloads/src/sidn-extra-files/
 PKG_MD5SUM:=fc0960393a32ee22fdc73aa14c53ceda
 
 include $(INCLUDE_DIR)/package.mk
