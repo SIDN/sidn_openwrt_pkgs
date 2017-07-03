@@ -18,10 +18,10 @@ define Package/spin
   SUBMENU:=SIDN
   TITLE:=Experimental tools for SPIN
   URL:=https://github.com/SIDN/spin
-  DEPENDS:=+ip +luaposix +luasec +luabitop +luasocket +mosquitto-ssl +libmosquitto +lua-mosquitto
+  DEPENDS:=+ip +luaposix +luasec +luabitop +luasocket +mosquitto-ssl +libmosquitto +lua-mosquitto +libnfnetlink
 endef
 
-PKG_BUILD_DEPENDS:=libmosquitto
+PKG_BUILD_DEPENDS:=libmosquitto libnfnetlink
 
 SPIN_MAKE_OPTS:= -C $(PKG_BUILD_DIR) \
         PATH="$(TARGET_PATH)" \
