@@ -65,7 +65,7 @@ function vu.get_sha256_sum(filename)
     au.debug("[XX] error in sha256sum...")
     return nil, err
   end
-  local line,lerr = p:read_line(true, 5000)
+  local line,lerr = p:read_line(true, 20000)
   if line == nil then return nil, lerr end
   local result = line:match("^([0-9a-f]+)")
   p:close()
