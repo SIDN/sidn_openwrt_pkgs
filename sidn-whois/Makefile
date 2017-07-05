@@ -17,11 +17,10 @@ include $(INCLUDE_DIR)/package.mk
 
 define Package/sidn-whois
   SECTION:=net
-  CATEGORY:=Network
-  SUBMENU:=SIDN
+  CATEGORY:=SIDN
   TITLE:=WHOIS commandline utility
   URL:=http://ftp.debian.org/debian/pool/main/w/whois
-  MAINTAINER:=Kihamo <dev@kihamo.ru>
+  MAINTAINER:=Jelte Jansen <jelte.jansen@sidn.nl>
 endef
 
 define Package/sidn-whois/description

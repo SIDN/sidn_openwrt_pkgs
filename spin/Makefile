@@ -7,18 +7,18 @@ PKG_RELEASE:=1
 PKG_BUILD_DIR:=$(BUILD_DIR)/spin-$(PKG_VERSION)
 PKG_SOURCE:=spin-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://valibox.sidnlabs.nl/downloads/src/spin/
-PKG_MD5SUM:=04886b8ea1a4786c769bd165eac905ea
+PKG_MD5SUM:=396f4ef8f3f311465be9ff84b604f96a
 
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 define Package/spin
   SECTION:=base
-  CATEGORY:=Network
-  SUBMENU:=SIDN
+  CATEGORY:=SIDN
   TITLE:=Experimental tools for SPIN
   URL:=https://github.com/SIDN/spin
   DEPENDS:=+ip +luaposix +luasec +luabitop +luasocket +mosquitto-ssl +libmosquitto +lua-mosquitto +libnfnetlink
+  MAINTAINER:=Jelte Jansen <jelte.jansen@sidn.nl>
 endef
 
 PKG_BUILD_DEPENDS:=libmosquitto libnfnetlink

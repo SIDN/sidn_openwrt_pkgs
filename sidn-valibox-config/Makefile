@@ -6,21 +6,21 @@ PKG_RELEASE:=1
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/sidn-valibox-config
 PKG_SOURCE:=sidn-valibox-config.tar.gz
-PKG_SOURCE_URL:=https://valibox.sidnlabs.nl/downloads/
+PKG_SOURCE_URL:=https://valibox.sidnlabs.nl/downloads/src/sidn-valibox-config/
 PKG_MD5SUM:=9cc998dd3631ab685e02d43e7b59b9cf
 
 include $(INCLUDE_DIR)/package.mk
 
 define Package/sidn-valibox-config
   SECTION:=base
-  CATEGORY:=Network
-  SUBMENU:=SIDN
-  TITLE:=Extra files for SIDN ValiBox
+  CATEGORY:=SIDN
+  TITLE:=SIDN Valibox software and settings
   URL:=http://www.sidnlabs.nl
-  DEPENDS:=+sidn-unbound +uhttpd +nginx +luci-ssl +dropbear +drill +spin +autonta
+  DEPENDS:=+sidn-unbound +nginx +luci-ssl +dropbear +drill +spin +autonta
+  MAINTAINER:=Jelte Jansen <jelte.jansen@sidn.nl>
 endef
 
-define Package/sidn-extra-files/description
+define Package/sidn-valibox-config/description
   This is a meta-package for the Valibox; it contains configuration files and dependencies to get all the Valibox-specific elements in place. This version is the 'general' package, tested with the GL-Inet 6461 and the GL-Inet AR-150.
 endef
 

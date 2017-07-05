@@ -6,16 +6,15 @@ PKG_RELEASE:=1
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/sidn-valibox-config-mt300a
 PKG_SOURCE:=sidn-valibox-config-mt300a.tar.gz
-PKG_SOURCE_URL:=https://valibox.sidnlabs.nl/downloads/src/sidn-extra-files/
+PKG_SOURCE_URL:=https://valibox.sidnlabs.nl/downloads/src/sidn-valibox-config/
 PKG_MD5SUM:=fc0960393a32ee22fdc73aa14c53ceda
 
 include $(INCLUDE_DIR)/package.mk
 
 define Package/sidn-valibox-config-mt300a
   SECTION:=base
-  CATEGORY:=Network
-  SUBMENU:=SIDN
-  TITLE:=Extra files for SIDN ValiBox (mt300a specifics)
+  CATEGORY:=SIDN
+  TITLE:=SIDN Valibox settings specific for MT300A
   URL:=http://www.sidnlabs.nl
   DEPENDS:=+sidn-unbound +uhttpd +nginx +luci-ssl +dropbear +drill +autonta +spin
 endef
