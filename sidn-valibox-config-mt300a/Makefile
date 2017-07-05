@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=sidn-valibox-config-mt300a
-PKG_VERSION:=0.1.0
+PKG_VERSION:=1.2.9
 PKG_RELEASE:=1
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/sidn-valibox-config-mt300a
@@ -16,13 +16,13 @@ define Package/sidn-valibox-config-mt300a
   CATEGORY:=Network
   SUBMENU:=SIDN
   TITLE:=Extra files for SIDN ValiBox (mt300a specifics)
-  #DESCRIPTION:=This variable is obsolete. use the Package/name/description define instead!
   URL:=http://www.sidnlabs.nl
-  DEPENDS:=+sidn-unbound +nginx +luci-ssl +dropbear +drill
+  DEPENDS:=+sidn-unbound +uhttpd +nginx +luci-ssl +dropbear +drill +autonta +spin
 endef
 
 define Package/sidn-valibox-config-mt300a/description
- Extra files for the SIDN ValiBox
+  This is a meta-package for the Valibox; it contains configuration files and dependencies to get all the Valibox-specific elements in place. This ve
+rsion is specific for the GL-Inet mt300a.
 endef
 
 define Build/Configure
