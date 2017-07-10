@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=sidn-valibox-config-mt300a
-PKG_VERSION:=1.2.9
+PKG_VERSION:=1.3.0
 PKG_RELEASE:=1
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/sidn-valibox-config-mt300a

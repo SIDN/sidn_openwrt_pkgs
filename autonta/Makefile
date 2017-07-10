@@ -5,8 +5,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=autonta
-PKG_VERSION:=0.0.1
-PKG_RELEASE:=2
+PKG_VERSION:=1.3.0
+PKG_RELEASE:=1
 
 PKG_LICENSE:=BSD-3-Clause
 PKG_LICENSE_FILES:=LICENSE
@@ -15,7 +15,7 @@ PKG_MAINTAINER:=Jelte Jansen <jelte.jansen@sidn.nl>
 PKG_BUILD_DIR:=$(BUILD_DIR)/autonta-$(PKG_VERSION)
 PKG_SOURCE:=autonta-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://valibox.sidnlabs.nl/downloads/src/autonta
-PKG_SHA256SUM:=d95ec2d6acee7da03443ce64961e168f0109fd252bb5b7f1fbc4f8d7d7c539de
+PKG_SHA256SUM:=058093b044ac946c7b85c28b405e6fa8bb29ecd541514f6ad87565b1cf836d0f
 
 include $(INCLUDE_DIR)/package.mk
 
