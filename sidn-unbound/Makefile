@@ -29,6 +29,7 @@ include $(INCLUDE_DIR)/package.mk
 
 define Package/sidn-unbound/Default
   TITLE:=A validating, recursive & caching DNS resolver (with SIDN patches)
+  SUBMENU:=Unbound
   URL:=http://www.unbound.net/
   DEPENDS:=+libopenssl
 endef
@@ -36,6 +37,7 @@ endef
 define Package/sidn-unbound
   $(call Package/sidn-unbound/Default)
   SECTION:=base
+  SUBMENU:=Unbound
   CATEGORY:=SIDN
   TITLE:=Unbound DNS resolver with Valibox-specific patches
   DEPENDS+= +sidn-libunbound
@@ -48,6 +50,7 @@ endef
 define Package/sidn-unbound-anchor
   $(call Package/sidn-unbound/Default)
   SECTION:=base
+  SUBMENU:=Unbound
   CATEGORY:=SIDN
   TITLE:=DNSSEC key anchor utility
   DEPENDS+= +libexpat +sidn-unbound
@@ -60,6 +63,7 @@ endef
 define Package/sidn-unbound-control
   $(call Package/sidn-unbound/Default)
   SECTION:=base
+  SUBMENU:=Unbound
   CATEGORY:=SIDN
   TITLE:=Unbound control utility
   DEPENDS+= +sidn-unbound
@@ -72,6 +76,7 @@ endef
 define Package/sidn-unbound-control-setup
   $(call Package/sidn-unbound/Default)
   SECTION:=base
+  SUBMENU:=Unbound
   CATEGORY:=SIDN
   TITLE:=Unbound-control setup utility
   DEPENDS+= +sidn-unbound-control +openssl-util
@@ -84,6 +89,7 @@ endef
 define Package/sidn-unbound-host
   $(call Package/sidn-unbound/Default)
   SECTION:=base
+  SUBMENU:=Unbound
   CATEGORY:=SIDN
   TITLE:=Unbound-host DNS lookup utility
   DEPENDS+= +sidn-libunbound
@@ -96,6 +102,7 @@ endef
 define Package/sidn-libunbound
   $(call Package/sidn-unbound/Default)
   SECTION:=base
+  SUBMENU:=Unbound
   CATEGORY:=SIDN
   TITLE:=Unbound DNS library with Valibox-specific patches
 endef

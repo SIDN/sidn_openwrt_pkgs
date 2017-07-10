@@ -14,14 +14,14 @@ include $(INCLUDE_DIR)/package.mk
 define Package/sidn-valibox-config
   SECTION:=base
   CATEGORY:=SIDN
+  SUBMENU:=Configuration packages
   TITLE:=SIDN Valibox software and settings
   URL:=http://www.sidnlabs.nl
-  DEPENDS:=+sidn-unbound +nginx +luci-ssl +dropbear +drill +spin +autonta
   MAINTAINER:=Jelte Jansen <jelte.jansen@sidn.nl>
 endef
 
 define Package/sidn-valibox-config/description
-  This is a meta-package for the Valibox; it contains configuration files and dependencies to get all the Valibox-specific elements in place. This version is the 'general' package, tested with the GL-Inet 6461 and the GL-Inet AR-150.
+  This is a semi-package for the Valibox; it contains configuration files and other small tools to get all the Valibox-specific elements in place. This version is the 'general' package, tested with the GL-Inet 6461 and the GL-Inet AR-150.
 endef
 
 define Build/Configure

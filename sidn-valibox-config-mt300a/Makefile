@@ -14,14 +14,13 @@ include $(INCLUDE_DIR)/package.mk
 define Package/sidn-valibox-config-mt300a
   SECTION:=base
   CATEGORY:=SIDN
+  SUBMENU:=Configuration packages
   TITLE:=SIDN Valibox settings specific for MT300A
   URL:=http://www.sidnlabs.nl
-  DEPENDS:=+sidn-unbound +uhttpd +nginx +luci-ssl +dropbear +drill +autonta +spin
 endef
 
 define Package/sidn-valibox-config-mt300a/description
-  This is a meta-package for the Valibox; it contains configuration files and dependencies to get all the Valibox-specific elements in place. This ve
-rsion is specific for the GL-Inet mt300a.
+  This is a meta-package for the Valibox; it contains configuration files and other small tools to get the Valibox-specific elements in place. This version is specific for the GL-Inet mt300a.
 endef
 
 define Build/Configure
