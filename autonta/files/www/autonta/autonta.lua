@@ -535,17 +535,26 @@ function autonta:handle_set_passwords_get(env)
   return headers, html
 end
 
+function replace_urlencoded_char(text)
+  return string.char(tonumber(text:sub(2), 16))
+end
+
+function decode_www_formdata(text)
+  local result = text:gsub("\+", " ")
+  return result:gsub("%%[0-9a-fA-F][0-9a-fA-F]", replace_urlencoded_char)
+end
+
 function autonta:handle_set_passwords_post(env)
   au.debug("set passwords (POST) called")
   local headers = self:create_default_headers()
   local html = ""
 
   local dst = self:get_http_post_value(env, "dst")
-  local wifi_name = self:get_http_post_value(env, "wifi_name")
-  local wifi_password = self:get_http_post_value(env, "wifi_password")
-  local wifi_password_repeat = self:get_http_post_value(env, "wifi_password_repeat")
-  local admin_password = self:get_http_post_value(env, "admin_password")
-  local admin_password_repeat = self:get_http_post_value(env, "admin_password_repeat")
+  local wifi_name = decode_www_formdata(self:get_http_post_value(env, "wifi_name"))
+  local wifi_password = decode_www_formdata(self:get_http_post_value(env, "wifi_password"))
+  local wifi_password_repeat = decode_www_formdata(self:get_http_post_value(env, "wifi_password_repeat"))
+  local admin_password = decode_www_formdata(self:get_http_post_value(env, "admin_password"))
+  local admin_password_repeat = decode_www_formdata(self:get_http_post_value(env, "admin_password_repeat"))
 
   local host_match = self:get_referer_match_line(env, "/autonta/set_passwords")
   local dst_cookie_val = self:get_cookie_value(env, "valibox_setpass")
