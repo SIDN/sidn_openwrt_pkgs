@@ -12,7 +12,7 @@ define Package/sidn-valibox-all
   TITLE:=SIDN Valibox metapackage
   SUBMENU:=Collections
   URL:=http://www.sidnlabs.nl
-  DEPENDS:= +autonta +drill +dropbear +luci-ssl +nginx +sidn-unbound +sidn-unbound-anchor +sidn-unbound-control +sidn-unbound-control-setup +sidn-unbound-host +sidn-valibox-config +spin +uhttpd
+  DEPENDS:= +autonta +drill +dropbear +luci-ssl +nginx +sidn-unbound +sidn-unbound-anchor +sidn-unbound-control +sidn-unbound-control-setup +sidn-unbound-host +spin +uhttpd
 
   MAINTAINER:=Jelte Jansen <jelte.jansen@sidn.nl>
 endef

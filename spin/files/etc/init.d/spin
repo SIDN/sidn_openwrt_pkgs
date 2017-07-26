@@ -2,17 +2,19 @@
 
 START=85
 
-SPIN_SERVER_PID="/var/run/spin_collectd.pid"
+SPIN_SERVER_PID="/var/run/spin_mqtt.pid"
 
 run_spin_server() {
-    cd /usr/lib/spin
-    lua ./spin_mqtt.lua&
+    spin_mqtt&
     echo $! > ${SPIN_SERVER_PID}
 }
 
 apply_spin_config() {
     cd /usr/lib/spin
-    lua ./spin_config.lua apply_config
+    /usr/lib/spin/show_ips.lua -o /etc/spin/ignore.list
+    spin_config ignore load /etc/spin/ignore.list
+    spin_config block load /etc/spin/block.list
+    spin_config except load /etc/spin/allow.list
 }
 
 start() {

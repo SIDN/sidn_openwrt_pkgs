@@ -18,6 +18,10 @@ parser:flag("-w --wait", "wait 3 seconds before upgrading")
 
 local args = parser:parse()
 
+if args.debug then
+  au.set_debug(true)
+end
+
 local fetch_options = ""
 if args.override_host then
   fetch_options = "--resolve valibox.sidnlabs.nl:443:94.198.159.35"

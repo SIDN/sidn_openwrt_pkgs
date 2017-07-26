@@ -9,6 +9,10 @@ function au.debug(msg)
   end
 end
 
+function au.set_debug(enabled)
+  debug_enabled = enabled
+end
+
 -- Some lua magic; this translates an unpacked variable number
 -- of arguments into one array (useful if functions return an unknown
 -- number of values, like the page pattern matcher)

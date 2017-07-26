@@ -1,16 +1,18 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=spin
-PKG_VERSION:=0.4
+PKG_VERSION:=0.5
 PKG_RELEASE:=1
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/spin-$(PKG_VERSION)
 PKG_SOURCE:=spin-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://valibox.sidnlabs.nl/downloads/src/spin/
-PKG_MD5SUM:=b5688cdfebf3ba8522a05a796b99421f
+PKG_MD5SUM:=d72a7f2c93524a66c669fbdcef581bfa
 
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/kernel.mk
+
+TARGET_CFLAGS += -ggdb3 
 
 define Package/spin
   SECTION:=base
@@ -56,6 +58,7 @@ define Package/spin/install
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) ${PKG_BUILD_DIR}/src/spin_config $(1)/usr/bin/spin_config
 	$(INSTALL_BIN) ${PKG_BUILD_DIR}/src/spin_print $(1)/usr/bin/spin_print
+	$(INSTALL_BIN) ${PKG_BUILD_DIR}/src/spin_mqtt $(1)/usr/bin/spin_mqtt
 endef
 
 $(eval $(call BuildPackage,spin))

@@ -41,7 +41,7 @@ function vu.fetch_firmware_info(base_url, fetch_options)
   local url = base_url .. "/versions.txt"
   local info = vu.fetch_file(url, "/tmp/firmware_info.txt", true, fetch_options)
   local pattern = "%s*(%S+)%s+(%S+)%s+(%S+)%s+(%S+)%s+(%S+)%s*"
-  if info then
+  if info and type(info) == 'function' then
     for line in info do
       local board_name
       local bi = {}
@@ -53,6 +53,7 @@ function vu.fetch_firmware_info(base_url, fetch_options)
     end
   else
     au.debug("Error fetching firmware info from " .. url)
+    if type(info) == 'string' then au.debug("Error: " .. info) end
     return false
   end
   return result
