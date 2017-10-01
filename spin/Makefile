@@ -7,7 +7,7 @@ PKG_RELEASE:=1
 PKG_BUILD_DIR:=$(BUILD_DIR)/spin-$(PKG_VERSION)
 PKG_SOURCE:=spin-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://valibox.sidnlabs.nl/downloads/src/spin/
-PKG_MD5SUM:=d72a7f2c93524a66c669fbdcef581bfa
+PKG_MD5SUM:=49ac4c39b1ea7b328c93a5ec534429f0
 
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/kernel.mk
@@ -58,7 +58,8 @@ define Package/spin/install
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) ${PKG_BUILD_DIR}/src/spin_config $(1)/usr/bin/spin_config
 	$(INSTALL_BIN) ${PKG_BUILD_DIR}/src/spin_print $(1)/usr/bin/spin_print
-	$(INSTALL_BIN) ${PKG_BUILD_DIR}/src/spin_mqtt $(1)/usr/bin/spin_mqtt
+	$(INSTALL_BIN) ${PKG_BUILD_DIR}/src/spind $(1)/usr/bin/spind
+	$(INSTALL_DIR) $(1)/etc/spin
 endef
 
 $(eval $(call BuildPackage,spin))
