@@ -126,8 +126,8 @@ function autonta:get_wifi_pass()
 end
 
 function autonta:update_wifi(wifi_name, wifi_pass)
-  if not wifi_name then wifi_name = self:get_wifi_name() end
-  if not wifi_pass then wifi_pass = self:get_wifi_pass() end
+  if not wifi_name or wifi_name == "" then wifi_name = self:get_wifi_name() end
+  if not wifi_pass or wifi_pass == "" then wifi_pass = self:get_wifi_pass() end
 
   local f_in, err_in = io.open("/etc/config/wireless.in", "r")
   if not f_in then
