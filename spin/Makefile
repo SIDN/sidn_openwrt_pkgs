@@ -7,7 +7,7 @@ PKG_RELEASE:=1
 PKG_BUILD_DIR:=$(BUILD_DIR)/spin-$(PKG_VERSION)
 PKG_SOURCE:=spin-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://valibox.sidnlabs.nl/downloads/src/spin/
-PKG_MD5SUM:=49ac4c39b1ea7b328c93a5ec534429f0
+PKG_MD5SUM:=a363c761e543e99b2b2dc59b944b3085
 
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/kernel.mk
