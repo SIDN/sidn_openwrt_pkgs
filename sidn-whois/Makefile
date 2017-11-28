@@ -1,13 +1,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=sidn-whois
-PKG_VERSION:=5.2.14
+PKG_VERSION:=5.2.18
 PKG_RELEASE:=1
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(BUILD_VARIANT)/whois-$(PKG_VERSION)
 PKG_SOURCE:=whois_$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=http://ftp.debian.org/debian/pool/main/w/whois
-PKG_MD5SUM:=f5fb84dca2225162a1af2824c0143943
+PKG_HASH:=c35d0d26aff37107c244a8ad54fd42e497ec0b90f76309e9beb7078b827c97d5
 PKG_CAT:=xzcat
 
 PKG_INSTALL:=1

@@ -18,7 +18,7 @@ PKG_MAINTAINER:=Jelte Jansen <jelte.jansen@sidn.nl>
 PKG_BUILD_DIR:=$(BUILD_DIR)/unbound-$(PKG_VERSION)
 PKG_SOURCE:=unbound-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://www.unbound.net/downloads
-PKG_SHA1SUM:=ff93df847187120c9ee98e7eebe4bb1bc859a8f2
+PKG_HASH:=6b7db874e6debda742fee8869d722e5a17faf1086e93c911b8564532aeeffab7
 
 PKG_BUILD_DEPENDS:=libexpat
 PKG_BUILD_PARALLEL:=1
