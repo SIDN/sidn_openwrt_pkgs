@@ -43,15 +43,15 @@ Building from scratch
 
 Before you start the build, you will need to add the SIDN feed to the current set of feeds. Go to the base directory of the openwrt source tree, and copy the feeds configuration example file. Uncheck the feeds ‘targets’ and ‘oldpackages’, and add the following line to the feeds configuration file: ‘src-git sidn git://git.tjeb.nl/sidn_openwrt_pkgs’. You can remove the other commented lines.
 
-__
+```
 cd <openwrt-sources>
 cp feeds.conf.sample feeds.conf
 vi feeds.conf
-__
+```
 
 The feeds.conf file should now look something like:
 
-__
+```
 src-git packages https://github.com/openwrt/packages.git;for-15.05
 src-git luci https://github.com/openwrt/luci.git;for-15.05
 src-git routing https://github.com/openwrt-routing/packages.git;for-15.05
@@ -60,7 +60,7 @@ src-git management https://github.com/openwrt-management/packages.git;for-15.05
 src-git targets https://github.com/openwrt/targets.git
 src-git oldpackages http://git.openwrt.org/packages.git
 src-git sidn https://github.com/SIDN/sidn_openwrt_pkgs
-__
+```
 
 Note: if you are editing the packages in a local clone of 
 sidn_openwrt_pkgs (or any of the sources above), you can use src-link, 
@@ -69,25 +69,25 @@ See http://wiki.openwrt.org/doc/devel/feeds for more information.
 
 Now update and install the feeds sources:
 
-__
+```
 ./scripts/feeds update -a
 ./scripts/feeds install -a
-__
+```
 
 
 The next step is to configure the build; if there is an existing .config file (from an external source, not from a previous build), it is probably a good idea to start anew, and delete it first. Then run make menuconfig
 
-__
+```
 make menuconfig
-__
+```
 
 Select the target system (ar71xx), target profile (in case of GL-inets: gl-inet for the old device, gl-ar150 for the new one).
 Go to Network->SIDN and enable all packages features there. This will also automatically enable most of the dependencies, although one is currently not triggered yet; you need to also enable Network->Web Servers->Nginx->Configuration->Enable SSL Module.
 
 Exit menuconfig and save the config, then start the build:
-__
+```
 make
-__
+```
 
 The very first time this can take quite some time, and with a fresh checkout there may be a failure if it has not been fixed yet (see below, section Fix for Python Module); subsequent builds should be significantly faster.
 
