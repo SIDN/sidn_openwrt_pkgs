@@ -3,7 +3,7 @@ Introduction
 
 This repository contains the SIDN ValiBox packages; these are 
 additional packages for OpenWRT to turn it into an SIDN ValiBox; for 
-more information, see http://valibox.sidnlabs.nl
+more information, see http://valibox.sidnlabs.nl/ .
 
 There are currently two packages; sidn-unbound, which is a modified 
 version of the Unbound DNS resolver that can redirect DNS answers that 
