@@ -24,7 +24,7 @@
                 {{== update_info }}
             </pre>
 
-            <form method="GET" action="/autonta/update_install">
+            <form method="POST" action="/autonta/update_install">
             <input type="hidden" name="dst" value="{{== dst }}" />
             <input type="checkbox" name="keepsettings" checked="checked">{{== langkeys.get('UPDATE_KEEP_SETTINGS') }}</input>
             {{ if currently_beta then }}
@@ -62,7 +62,7 @@
                 <b>{{== langkeys.get('UPDATE_INSTALL_AGAIN') }}</b>
             </p>
         <div class="inlay lined">
-            <form method="GET" action="http://valibox./autonta/update_install">
+            <form method="POST" action="http://valibox./autonta/update_install">
             <input type="hidden" name="dst" value="{{== dst }}" />
             <input type="checkbox" name="keepsettings" checked="checked">{{== langkeys.get('UPDATE_KEEP_SETTINGS') }}</input>
             {{ if currently_beta then }}

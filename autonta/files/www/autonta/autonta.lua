@@ -46,7 +46,7 @@ function autonta:init(config_file, fixed_langkey_file)
     table.insert(self.mapping, { pattern = '^/autonta/remove_nta/([a-zA-Z0-9.-]+)$', handler = self.handle_remove_nta })
     table.insert(self.mapping, { pattern = '^/autonta/ask_nta/([a-zA-Z0-9.-]+)$', handler = self.handle_ask_nta })
     table.insert(self.mapping, { pattern = '^/autonta/update_check$', handler = self.handle_update_check })
-    table.insert(self.mapping, { pattern = '^/autonta/update_install', handler = self.handle_update_install })
+    table.insert(self.mapping, { pattern = '^/autonta/update_install/?(.*)$', handler = self.handle_update_install })
     table.insert(self.mapping, { pattern = '^/autonta/set_passwords', handler = self.handle_set_passwords })
   end
 end
@@ -445,15 +445,15 @@ function autonta:handle_update_check(env)
   return headers, self:render('update_check.html', targs)
 end
 
-function autonta:handle_update_install(env)
+function autonta:handle_update_install_post(env)
   local headers = self:create_default_headers()
-  local query_dst = self:get_http_query_value(env, "dst")
-  local keep_settings = self:get_http_query_value(env, "keepsettings") == "on"
-  local beta = self:get_http_query_value(env, "version") == "beta"
+  local dst = self:get_http_post_value(env, "dst")
+  local keep_settings = self:get_http_post_value(env, "keepsettings") == "on"
+  local beta = self:get_http_post_value(env, "version") == "beta"
 
   local host_match = self:get_referer_match_line(env, "/autonta/update_check")
   local dst_cookie_val = self:get_cookie_value(env, "valibox_update")
-  local q_dst_val = self:get_http_query_value(env, "dst")
+  local q_dst_val = self:get_http_post_value(env, "dst")
   if self:check_validity(env, host_match, dst_cookie_val, q_dst_val) then
     -- actual update call goes here
     local cmd = "./update_system.lua"
@@ -467,12 +467,28 @@ function autonta:handle_update_install(env)
 
     local board_name = vu.get_board_name()
     local firmware_info = vu.get_firmware_board_info(beta, "", true, board_name)
-    local html = self:render('update_install.html', { update_version=firmware_info.version, update_download_success=true})
+    --#local html = self:render('update_install.html', { update_version=firmware_info.version, update_download_success=true})
     self:remove_cookie(headers, "valibox_update")
-    return headers, html
+    return self:redirect_to("/autonta/update_install/" .. firmware_info.version)
+    --#return headers, html
   end
   -- Invalid request or failure, send back to update page
   return self:redirect_to("/autonta/update_check")
+end
+
+function autonta:handle_update_install_get(env, args)
+  local version = args[1]
+  local headers = self:create_default_headers()
+  local html = self:render('update_install.html', { update_version=version, update_download_success=true})
+  return headers, html
+end
+
+function autonta:handle_update_install(env, version)
+  if env.REQUEST_METHOD == "POST" then
+    return self:handle_update_install_post(env)
+  else
+    return self:handle_update_install_get(env, version)
+  end
 end
 
 function autonta:create_dst()
