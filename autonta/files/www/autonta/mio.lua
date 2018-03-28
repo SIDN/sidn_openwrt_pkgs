@@ -249,6 +249,15 @@ function filereader:read_lines(strip_newlines, timeout)
   return result
 end
 
+-- read all lines, and return as a joined string
+function filereader:read_lines_single_str(strip_newlines, timeout)
+  local result = {}
+  for line in self:read_line_iterator(strip_newlines, timeout) do
+    table.insert(result, line)
+  end
+  return strjoin("", result)
+end
+
 
 function filereader:close()
   if self.fd then

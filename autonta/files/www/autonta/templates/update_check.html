@@ -2,27 +2,25 @@
 
     <div>
         <b>{{== langkeys.get('SIDNLABS') }} {{== langkeys.get('VALIBOX') }} {{== langkeys.get('UPDATE') }}</b>
-    <div class="inlay lined">
 
 {{ if update_check_failed then }}
-        <p>
-            {{== langkeys.get('UPDATE_CHECK_FAILED') }}
-        </p>
-        <p>
-            {{== langkeys.get('UPDATE_CHECK_CURRENT_VERSION', current_version) }}
-        </p>
-        <p>
-            <a href="//valibox./autonta/update_check">{{== langkeys.get('UPDATE_TRY_AGAIN') }}</a>
-        </p>
+		<div class="inlay lined">
+			<p>
+				{{== langkeys.get('UPDATE_CHECK_FAILED') }}
+			</p>
+			<p>
+				{{== langkeys.get('UPDATE_CHECK_CURRENT_VERSION', current_version) }}
+			</p>
+			<p>
+				<a href="//valibox./autonta/update_check">{{== langkeys.get('UPDATE_TRY_AGAIN') }}</a>
+			</p>
+		</div>
 {{ else }}
     {{ if update_available then }}
-        <div class="inlay">
+        <div class="inlay lined">
             <p>
                 {{== langkeys.get('UPDATE_CHECK_AVAILABLE', update_version, current_version) }}
             </p>
-            <pre>
-                {{== update_info }}
-            </pre>
 
             <form method="POST" action="/autonta/update_install">
             <input type="hidden" name="dst" value="{{== dst }}" />
@@ -47,21 +45,22 @@
             </p>
             </form>
         </div>
+		<div class="inlay lined">
+			<pre>
+				{{== update_info }}
+			</pre>
+		</div>
     {{ else }}
-        <div class="inlay">
+        <div class="inlay lined">
             <p>
                 {{== langkeys.get('UPDATE_CHECK_NO_UPDATE', current_version) }}
             </p>
             <p>
                 <a href="//valibox./autonta/update_check">{{== langkeys.get('UPDATE_TRY_AGAIN') }}</a>
             </p>
-        </div>
-        </div>
-        <div>
             <p>
                 <b>{{== langkeys.get('UPDATE_INSTALL_AGAIN') }}</b>
             </p>
-        <div class="inlay lined">
             <form method="POST" action="http://valibox./autonta/update_install">
             <input type="hidden" name="dst" value="{{== dst }}" />
             <input type="checkbox" name="keepsettings" checked="checked">{{== langkeys.get('UPDATE_KEEP_SETTINGS') }}</input>
@@ -85,7 +84,11 @@
             </p>
             </form>
         </div>
-        </div>
-    </div>
+		<div class="inlay lined">
+			<pre>
+				{{== update_info }}
+			</pre>
+		</div>
     {{ end }}
 {{ end }}
+    </div>
