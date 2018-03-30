@@ -439,8 +439,12 @@ function autonta:handle_update_check(env)
       targs.update_info = vu.fetch_update_info_txt(firmware_info, "")
     else
       -- include changelog for current release
-      local fr = mio.file_reader("/var/valibox_changelog.txt")
-      targs.update_info = fr:read_lines_single_str()
+      local fr = mio.file_reader("/valibox_changelog.txt")
+      if fr ~= nil then
+        targs.update_info = fr:read_lines_single_str()
+      else
+        targs.update_info = ""
+      end
       fr:close()
     end
     targs.other_version = vu.update_available(other_firmware_info)

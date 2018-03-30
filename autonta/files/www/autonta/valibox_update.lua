@@ -12,7 +12,7 @@ local vu = {}
 
 -- Read the version number from the relevant file
 function vu.get_current_version()
-  local version_file = io.open("/etc/valibox.version")
+  local version_file = io.open("/valibox.version")
   if version_file then
     -- version should be on first line
     return version_file:read("*line")
