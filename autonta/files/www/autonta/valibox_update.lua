@@ -178,7 +178,7 @@ end
 
 function vu.get_firmware_board_info(beta, fetch_options, debug_msgs, board_name)
   local all_firmware_info = vu.get_firmware_info(beta, fetch_options, debug_msgs)
-  if all_firmware_info[board_name] then return all_firmware_info[board_name] end
+  if all_firmware_info and all_firmware_info[board_name] then return all_firmware_info[board_name] end
   au.debug("Unable to download firmware info, or board type not found")
   return nil
 end
