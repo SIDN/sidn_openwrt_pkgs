@@ -590,6 +590,11 @@ function autonta:handle_set_passwords_post(env)
       html = self:render('askpasswords.html', { dst = dst, old_wifi_name = wifi_name, error = language_keys.get('PASS_MISMATCH') })
       return headers, html
     end
+    if wifi_password:len() < 8 then
+      self:set_cookie(headers, "valibox_setpass", dst)
+      html = self:render('askpasswords.html', { dst = dst, old_wifi_name = wifi_name, error = language_keys.get('PASS_TOOSHORT') })
+      return headers, html
+    end
 
     self:update_wifi_and_password(wifi_name, wifi_password, admin_password)
 
