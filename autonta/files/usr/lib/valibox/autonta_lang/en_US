@@ -50,7 +50,7 @@ DNSSEC_ERROR_NOT_IF_NOT_TRUSTED: Do NOT do this if you do not trust it.
 
 DNSSEC_ERROR_SET_NTA: Set a Negative Trust Anchor for %s
 
-INDEX_WELCOME: Welcome to de SIDN Labs ValiBox
+INDEX_WELCOME: Welcome to the SIDN Labs ValiBox
 INDEX_NTA_MGMT: Negative Trust Anchor management
 INDEX_NTA_DESCRIPTION1: Here you can see the current list of Negative Trust Anchors, and disable them
 INDEX_NTA_DESCRIPTION2: When a Negative Trust Anchor has been set for a domain, it means that DNSSEC validation is disabled for that domain. That way, you can reach websites when DNSSEC validation fails because of an error by the DNS administrators. Do NOT set a Negative Trust Anchor for a domain if you do not trust it.
@@ -72,5 +72,6 @@ WIFI_PASS_REPEAT: Confirm password for the wireless network
 PASS_ADMIN: Password for administration of the ValiBox (if left empty password is unchanged)
 PASS_ADMIN_REPEAT: Confirm password for administration
 PASS_MISMATCH: Password confirmation did not match
+PASS_TOOSHORT: The wifi password must be at least 8 characters
 PASS_UPDATE: Save
-SETTINGS_UPDATED: The changes have been stored. If the name or password of the wireless network has changed, please reconnect to the network.
+SETTINGS_UPDATED: The changes have been stored. If the name or password of the wireless network has changed, please wait a short while, then reconnect to the network.
