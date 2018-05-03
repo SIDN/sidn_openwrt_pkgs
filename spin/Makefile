@@ -56,7 +56,7 @@ define Package/spin/install
 	$(INSTALL_DIR) $(1)/www/spin/templates
 	cp -r ${PKG_BUILD_DIR}/lua/templates/* $(1)/www/spin/templates/
 	$(INSTALL_DIR) $(1)/usr/lib/spin
-	$(INSTALL_BIN) ${PKG_BUILD_DIR}/lua/* $(1)/usr/lib/spin/
+	$(INSTALL_BIN) ${PKG_BUILD_DIR}/lua/*.lua $(1)/usr/lib/spin/
 	$(INSTALL_BIN) ${PKG_BUILD_DIR}/kernelmod/spin.ko $(1)/usr/lib/spin/
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) ${PKG_BUILD_DIR}/src/spin_config $(1)/usr/bin/spin_config
