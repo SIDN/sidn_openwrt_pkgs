@@ -48,7 +48,7 @@ define Package/lua-minittp/install
 	$(INSTALL_DIR) $(1)/usr/lib/lua
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/src/*.lua $(1)/usr/lib/lua
 	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_DATA) $(PKG_BUILD_DIR)/bin/* $(1)/usr/bin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/bin/* $(1)/usr/bin
 endef
 
 $(eval $(call BuildPackage,lua-minittp))
