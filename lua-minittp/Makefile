@@ -28,7 +28,7 @@ define Package/lua-minittp
   CATEGORY:=Languages
   TITLE:=lua-minittp
   URL:=https://github.com/tjeb/lua-minittp
-  DEPENDS:=+lua +lua-copas +lua-coxpcall
+  DEPENDS:=+lua +lua-copas +lua-coxpcall +luaposix
 endef
 
 define Package/lua-minittp/description

@@ -49,12 +49,10 @@ endef
 
 define Package/spin/install
 	$(INSTALL_DIR) $(1)/etc/init.d
+	$(INSTALL_DIR) $(1)/etc/rc.d
 	cp -r ./files/* $(1)/
-	$(INSTALL_DIR) $(1)/www/spin
-	cp -r ${PKG_BUILD_DIR}/html/* $(1)/www/spin/
-	cp -r ${PKG_BUILD_DIR}/lua/spin_webui.lua $(1)/www/spin/
-	$(INSTALL_DIR) $(1)/www/spin/templates
-	cp -r ${PKG_BUILD_DIR}/lua/templates/* $(1)/www/spin/templates/
+	$(INSTALL_DIR) $(1)/usr/lib/spin/web_ui
+	cp -r ${PKG_BUILD_DIR}/web_ui/* $(1)/usr/lib/spin/web_ui
 	$(INSTALL_DIR) $(1)/usr/lib/spin
 	$(INSTALL_BIN) ${PKG_BUILD_DIR}/lua/*.lua $(1)/usr/lib/spin/
 	$(INSTALL_BIN) ${PKG_BUILD_DIR}/kernelmod/spin.ko $(1)/usr/lib/spin/

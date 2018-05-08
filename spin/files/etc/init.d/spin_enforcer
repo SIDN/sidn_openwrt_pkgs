@@ -1,6 +1,6 @@
 #!/bin/sh /etc/rc.common
 
-START=8r65
+START=86
 
 SPIN_ENFORCER_PID="/var/run/spin_enforcer.pid"
 
@@ -33,12 +33,12 @@ reload() {
 }
 
 enable() {
-    ln -s /etc/init.d/spin /etc/rc.d/S${START}spin
+    ln -s /etc/init.d/spin /etc/rc.d/S${START}spin_enforcer
     start
 }
 
 disable() {
-    rm -f /etc/rc.d/S${START}spin
+    rm -f /etc/rc.d/S${START}spin_enforcer
     stop
 }
 
