@@ -343,10 +343,12 @@ function autonta:get_http_query_value(env, field_name)
 end
 
 function autonta:check_validity(env, host_match, dst_cookie_val, dst_http_val)
+  local http_referer = env.HTTP_REFERER
+  if not http_referer then http_referer = "<not sent>" end
   if not dst_http_val then dst_http_val = "<not sent>" end
-  if not env.HTTP_REFERER:match(host_match) then
+  if not http_referer:match(host_match) then
     au.debug("Referer match failure")
-    au.debug("http referer: '" .. env.HTTP_REFERER .. "'")
+    au.debug("http referer: '" .. http_referer .. "'")
     au.debug("does not match: '" .. host_match .. "'")
     au.debug("\n")
     return false
