@@ -1,0 +1,5 @@
+{
+  "id": "deny_all_except_sidn",
+  "name": "Deny all except SIDN",
+  "description": "Deny all access to the Internet, but allow access to SIDN"
+}

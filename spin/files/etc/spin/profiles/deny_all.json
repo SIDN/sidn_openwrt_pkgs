@@ -1,0 +1,5 @@
+{
+  "id": "deny_all",
+  "name": "Deny all",
+  "description": "Deny all access to the Internet"
+}
