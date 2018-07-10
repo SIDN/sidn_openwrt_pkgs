@@ -1,5 +1,6 @@
 {
   "id": "allow_all",
   "name": "Allow all",
+  "userSettable": true,
   "description": "Full access to the Internet"
 }
