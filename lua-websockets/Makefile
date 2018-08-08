@@ -47,8 +47,8 @@ endef
 define Package/lua-websockets/install
 	$(INSTALL_DIR) $(1)/usr/lib/lua
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/src/*.lua $(1)/usr/lib/lua
-	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/bin/* $(1)/usr/bin
+	$(INSTALL_DIR) $(1)/usr/lib/lua/websocket
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/src/websocket/*.lua $(1)/usr/lib/lua/websocket
 endef
 
 $(eval $(call BuildPackage,lua-websockets))
