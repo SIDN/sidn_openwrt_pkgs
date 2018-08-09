@@ -7,7 +7,7 @@ PKG_RELEASE:=1
 PKG_BUILD_DIR:=spin-0.7-beta
 PKG_SOURCE:=spin-0.7-beta.tar.gz
 PKG_SOURCE_URL:=file:///tmp
-PKG_HASH:=38a5bcffd65d965d327519ee3b745897e2875e3422e45e492a5ca14ec1cb7500
+PKG_HASH:=78cfde3cca02bb75e7a29dcec10b06c315e4ed7d2c454ceaa5bbec179a4b78f2
 
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/kernel.mk
