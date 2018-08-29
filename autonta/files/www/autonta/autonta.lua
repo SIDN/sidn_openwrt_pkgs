@@ -161,7 +161,7 @@ function autonta:update_admin_password(new_password)
   --local orig_stdin = io.stdin
   --local orig_stdout = io.stdout
   --local orig_stderr = io.stderr
-  local p = mio.subprocess("/usr/bin/passwd", {}, nil, true, false, true)
+  local p = mio.subprocess("/bin/passwd", {}, nil, true, false, true)
   p:read_line()
   p:write_line(new_password, true)
   p:write_line(new_password, true)
