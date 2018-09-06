@@ -13,10 +13,11 @@ PKG_RELEASE:=1
 PKG_MAINTAINER:=Jelte Jansen <jelte.jansen@sidn.nl>
 PKG_LICENSE:=MIT
 
-PKG_SOURCE_URL:=https://github.com/lipp/lua-websockets
 PKG_SOURCE_PROTO:=git
+PKG_SOURCE_URL:=https://github.com/lipp/lua-websockets
 PKG_SOURCE_VERSION:=v2.2
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 
 PKG_INSTALL:=1
 
