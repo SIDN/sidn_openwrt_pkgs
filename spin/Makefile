@@ -1,13 +1,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=spin
-PKG_VERSION:=0.6
+PKG_VERSION:=0.7-beta
 PKG_RELEASE:=1
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/spin-$(PKG_VERSION)
 PKG_SOURCE:=spin-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://valibox.sidnlabs.nl/downloads/src/spin/
-PKG_HASH:=bedfb4c1d7a06489880bec1ea02be60068edea7d1b332e5ae3c28ad339f2388e
+PKG_HASH:=9160d4cd28e46f92794e0302ac84e64501044b68effc2d991c1b9bf23e14bec0
 
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/kernel.mk
