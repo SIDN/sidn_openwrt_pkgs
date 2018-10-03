@@ -12,14 +12,14 @@ PKG_HASH:=9160d4cd28e46f92794e0302ac84e64501044b68effc2d991c1b9bf23e14bec0
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/kernel.mk
 
-TARGET_CFLAGS += -ggdb3 
+TARGET_CFLAGS += -ggdb3
 
 define Package/spin
   SECTION:=base
   CATEGORY:=SIDN
   TITLE:=Experimental tools for SPIN
   URL:=https://github.com/SIDN/spin
-  DEPENDS:=+ip +luaposix +luasec +luabitop +luasocket +mosquitto-ssl +libmosquitto +lua-mosquitto +libnfnetlink +lua-minittp +lua-websockets
+  DEPENDS:=+ip +luaposix +luasec +luabitop +lua-copas +luasocket +mosquitto-ssl +libmosquitto +lua-mosquitto +libnfnetlink +lua-minittp +lua-websockets
   MAINTAINER:=Jelte Jansen <jelte.jansen@sidn.nl>
 endef
 
