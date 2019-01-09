@@ -20,7 +20,7 @@ PKG_SOURCE:=unbound-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://www.unbound.net/downloads
 PKG_HASH:=6b7db874e6debda742fee8869d722e5a17faf1086e93c911b8564532aeeffab7
 
-PKG_BUILD_DEPENDS:=libexpat
+PKG_BUILD_DEPENDS:=
 PKG_BUILD_PARALLEL:=1
 PKG_FIXUP:=autoreconf
 PKG_INSTALL:=1
