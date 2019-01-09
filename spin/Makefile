@@ -23,7 +23,7 @@ define Package/spin
   MAINTAINER:=Jelte Jansen <jelte.jansen@sidn.nl>
 endef
 
-PKG_BUILD_DEPENDS:=libmosquitto libnfnetlink
+PKG_BUILD_DEPENDS:=libmosquitto-ssl libnfnetlink
 
 SPIN_MAKE_OPTS:= -C $(PKG_BUILD_DIR) \
         PATH="$(TARGET_PATH)" \
