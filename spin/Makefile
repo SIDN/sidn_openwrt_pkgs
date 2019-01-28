@@ -13,6 +13,7 @@ include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 TARGET_CFLAGS += -ggdb3
+CONFIGURE_PATH:=src
 MAKE_PATH:=src
 
 define Package/spin
@@ -22,7 +23,6 @@ define Package/spin
   URL:=https://github.com/SIDN/spin
   DEPENDS:=+ip +luaposix +luasec +luabitop +lua-copas +luasocket +mosquitto-ssl +libmosquitto-ssl +lua-mosquitto +libnfnetlink +lua-minittp +lua-websockets
   MAINTAINER:=Jelte Jansen <jelte.jansen@sidn.nl>
-  MAKE_PATH:=src
 endef
 
 PKG_BUILD_DEPENDS:=libnfnetlink
@@ -57,11 +57,11 @@ define Package/spin/install
 	cp -r ${PKG_BUILD_DIR}/src/web_ui/* $(1)/usr/lib/spin/web_ui
 	$(INSTALL_DIR) $(1)/usr/lib/spin
 	#$(INSTALL_BIN) ${PKG_BUILD_DIR}/src/lua/*.lua $(1)/usr/lib/spin/
-	$(INSTALL_BIN) ${PKG_BUILD_DIR}/kernelmod/spin.ko $(1)/usr/lib/spin/
+	$(INSTALL_BIN) ${PKG_BUILD_DIR}/src/kernelmod/spin.ko $(1)/usr/lib/spin/
 	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) ${PKG_BUILD_DIR}/tools/spin_config/spin_config $(1)/usr/bin/spin_config
-	$(INSTALL_BIN) ${PKG_BUILD_DIR}/tools/spin_print/spin_print $(1)/usr/bin/spin_print
-	$(INSTALL_BIN) ${PKG_BUILD_DIR}/spind/spind $(1)/usr/bin/spind
+	$(INSTALL_BIN) ${PKG_BUILD_DIR}/src/tools/spin_config/spin_config $(1)/usr/bin/spin_config
+	$(INSTALL_BIN) ${PKG_BUILD_DIR}/src/tools/spin_print/spin_print $(1)/usr/bin/spin_print
+	$(INSTALL_BIN) ${PKG_BUILD_DIR}/src/spind/spind $(1)/usr/bin/spind
 	$(INSTALL_DIR) $(1)/etc/spin
 endef
 
