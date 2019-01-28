@@ -27,7 +27,7 @@ endef
 
 PKG_BUILD_DEPENDS:=libnfnetlink
 
-SPIN_MAKE_OPTS:= -C $(PKG_BUILD_DIR) \
+SPIN_MAKE_OPTS:= -C $(PKG_BUILD_DIR)/$(MAKE_PATH) \
         PATH="$(TARGET_PATH)/$(MAKE_PATH)" \
         ARCH="$(LINUX_KARCH)" \
         CROSS_COMPILE="$(TARGET_CROSS)" \
