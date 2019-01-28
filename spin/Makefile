@@ -4,7 +4,7 @@ PKG_NAME:=spin
 PKG_VERSION:=0.7-beta
 PKG_RELEASE:=1
 
-PKG_BUILD_DIR:=$(BUILD_DIR)/spin-$(PKG_VERSION)
+PKG_BUILD_DIR:=$(BUILD_DIR)/spin-$(PKG_VERSION)/src
 PKG_SOURCE:=spin-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://valibox.sidnlabs.nl/downloads/src/spin/
 PKG_HASH:=9160d4cd28e46f92794e0302ac84e64501044b68effc2d991c1b9bf23e14bec0
@@ -52,14 +52,14 @@ define Package/spin/install
 	$(INSTALL_DIR) $(1)/etc/rc.d
 	cp -r ./files/* $(1)/
 	$(INSTALL_DIR) $(1)/usr/lib/spin/web_ui
-	cp -r ${PKG_BUILD_DIR}/src/web_ui/* $(1)/usr/lib/spin/web_ui
+	cp -r ${PKG_BUILD_DIR}/web_ui/* $(1)/usr/lib/spin/web_ui
 	$(INSTALL_DIR) $(1)/usr/lib/spin
 	#$(INSTALL_BIN) ${PKG_BUILD_DIR}/lua/*.lua $(1)/usr/lib/spin/
-	$(INSTALL_BIN) ${PKG_BUILD_DIR}/src/kernelmod/spin.ko $(1)/usr/lib/spin/
+	$(INSTALL_BIN) ${PKG_BUILD_DIR}/kernelmod/spin.ko $(1)/usr/lib/spin/
 	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) ${PKG_BUILD_DIR}/src/tools/spin_config/spin_config $(1)/usr/bin/spin_config
-	$(INSTALL_BIN) ${PKG_BUILD_DIR}/src/tools/spin_print/spin_print $(1)/usr/bin/spin_print
-	$(INSTALL_BIN) ${PKG_BUILD_DIR}/src/spind/spind $(1)/usr/bin/spind
+	$(INSTALL_BIN) ${PKG_BUILD_DIR}/tools/spin_config/spin_config $(1)/usr/bin/spin_config
+	$(INSTALL_BIN) ${PKG_BUILD_DIR}/tools/spin_print/spin_print $(1)/usr/bin/spin_print
+	$(INSTALL_BIN) ${PKG_BUILD_DIR}/spind/spind $(1)/usr/bin/spind
 	$(INSTALL_DIR) $(1)/etc/spin
 endef
 
