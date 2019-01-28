@@ -40,7 +40,7 @@ define Package/spin/description
 endef
 
 define Build/Configure
-    $(call Build/Configure/Default,--with-linux-headers=$(LINUX_DIR))
+    (cd $(PKG_BUILD_DIR); ./src/configure --with-linux-headers=$(LINUX_DIR))
 endef
 
 define Build/Compile
