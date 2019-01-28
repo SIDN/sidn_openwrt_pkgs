@@ -13,6 +13,7 @@ include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 TARGET_CFLAGS += -ggdb3
+MAKE_PATH:=src
 
 define Package/spin
   SECTION:=base
@@ -40,7 +41,7 @@ define Package/spin/description
 endef
 
 define Build/Configure
-    (cd $(PKG_BUILD_DIR); ./src/configure --with-linux-headers=$(LINUX_DIR))
+    $(call Build/Configure/Default,--with-linux-headers=$(LINUX_DIR))
 endef
 
 define Build/Compile
