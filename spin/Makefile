@@ -22,12 +22,13 @@ define Package/spin
   URL:=https://github.com/SIDN/spin
   DEPENDS:=+ip +luaposix +luasec +luabitop +lua-copas +luasocket +mosquitto-ssl +libmosquitto-ssl +lua-mosquitto +libnfnetlink +lua-minittp +lua-websockets
   MAINTAINER:=Jelte Jansen <jelte.jansen@sidn.nl>
+  MAKE_PATH:=src
 endef
 
 PKG_BUILD_DEPENDS:=libnfnetlink
 
 SPIN_MAKE_OPTS:= -C $(PKG_BUILD_DIR) \
-        PATH="$(TARGET_PATH)" \
+        PATH="$(TARGET_PATH)/$(MAKE_PATH)" \
         ARCH="$(LINUX_KARCH)" \
         CROSS_COMPILE="$(TARGET_CROSS)" \
         TARGET="$(HAL_TARGET)" \
@@ -45,7 +46,7 @@ define Build/Configure
 endef
 
 define Build/Compile
-  $(MAKE) $(SPIN_MAKE_OPTS) M=$(PKG_BUILD_DIR)
+  $(MAKE) $(SPIN_MAKE_OPTS) M=$(PKG_BUILD_DIR)/$(MAKE_PATH)
 endef
 
 define Package/spin/install
