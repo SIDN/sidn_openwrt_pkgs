@@ -75,3 +75,6 @@ PASS_MISMATCH: Password confirmation did not match
 PASS_TOOSHORT: The wifi password must be at least 8 characters
 PASS_UPDATE: Save
 SETTINGS_UPDATED: The changes have been stored. If the name or password of the wireless network has changed, please wait a short while, then reconnect to the network.
+
+EXPERIMENTAL_NEW_FRONTEND_TITLE: Experimental SPIN front-end
+EXPERIMENTAL_NEW_FRONTEND_DESCRIPTION: Dit is de experimental interactive front-end for SPIN

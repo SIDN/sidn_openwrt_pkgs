@@ -74,3 +74,6 @@ PASS_MISMATCH: Wachtwoordbevestiging kwam niet overeen
 PASS_TOOSHORT: Het Wifi-wachtwoord moet uit minstens 8 tekens bestaan
 PASS_UPDATE: Sla op
 SETTINGS_UPDATED: De wijzigingen zijn opgeslagen. Als de naam of het wachtwoord van het draadloze netwerk is veranderd, verbind dan alstublieft na een korte wachttijd opnieuw met het netwerk.
+
+EXPERIMENTAL_NEW_FRONTEND_TITLE: Experimentele SPIN front-end
+EXPERIMENTAL_NEW_FRONTEND_DESCRIPTION: Dit is de experimentele interactieve front-end voor SPIN
