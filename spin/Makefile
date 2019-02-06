@@ -21,7 +21,7 @@ define Package/spin
   CATEGORY:=SIDN
   TITLE:=Experimental tools for SPIN
   URL:=https://github.com/SIDN/spin
-  DEPENDS:=+ip +luaposix +luasec +luabitop +lua-copas +luasocket +mosquitto-ssl +libmosquitto-ssl +lua-mosquitto +libnfnetlink +lua-minittp +lua-websockets
+  DEPENDS:=+ip +luaposix +luasec +luabitop +lua-copas +luasocket +mosquitto-ssl +libmosquitto-ssl +lua-mosquitto +libnfnetlink +lua-minittp +lua-websockets +libmnl +libnetfilter-conntrack +libnetfilter-queue +libldns
   MAINTAINER:=Jelte Jansen <jelte.jansen@sidn.nl>
 endef
 
