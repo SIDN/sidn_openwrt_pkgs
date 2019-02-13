@@ -33,8 +33,8 @@ reload() {
 }
 
 enable() {
-    ln -s /etc/init.d/spin /etc/rc.d/S${START}spin_enforcer
-    start
+    #ln -s /etc/init.d/spin /etc/rc.d/S${START}spin_enforcer
+    #start
 }
 
 disable() {
