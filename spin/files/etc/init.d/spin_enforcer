@@ -35,6 +35,7 @@ reload() {
 enable() {
     #ln -s /etc/init.d/spin /etc/rc.d/S${START}spin_enforcer
     #start
+    echo "you must start the enforcer manually for now"
 }
 
 disable() {
