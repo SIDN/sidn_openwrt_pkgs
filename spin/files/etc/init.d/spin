@@ -34,6 +34,11 @@ apply_spin_config() {
 }
 
 load_spin_module() {
+    modprobe nf_conntrack
+    modprobe nf_conntrack_ipv4
+    modprobe nf_conntrack_ipv6
+    modprobe nf_netlink_queue
+    sysctl net.netfilter.nf_conntrack_acct=1
     insmod /usr/lib/spin/spin.ko
     apply_spin_config
 }
