@@ -38,9 +38,9 @@ server:
 	# interface: 192.0.2.154
 	# interface: 192.0.2.154@5003
 	# interface: 2001:DB8::5
-	interface: 127.0.0.1
-	interface: ::1
-	interface: 192.168.8.1
+	interface: 127.0.0.1@5353
+	interface: ::1@5353
+	#interface: 192.168.8.1
 	#interface: fd48:430c:f4bc::1
 
 	# enable this feature to copy the source address of queries to reply.
