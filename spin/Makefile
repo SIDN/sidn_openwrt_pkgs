@@ -21,11 +21,11 @@ define Package/spin
   CATEGORY:=SIDN
   TITLE:=Experimental tools for SPIN
   URL:=https://github.com/SIDN/spin
-  DEPENDS:=+ip +luaposix +luasec +luabitop +lua-copas +luasocket +mosquitto-ssl +libmosquitto-ssl +lua-mosquitto +libnfnetlink +lua-minittp +lua-websockets +libmnl +libnetfilter-conntrack +libnetfilter-queue +libldns
+  DEPENDS:=+ip +luaposix +luasec +luabitop +lua-copas +luasocket +mosquitto-ssl +libmosquitto-ssl +lua-mosquitto +libnfnetlink +lua-minittp +lua-websockets +libmnl +libnetfilter-conntrack +libnetfilter-queue +libldns +libuci
   MAINTAINER:=Jelte Jansen <jelte.jansen@sidn.nl>
 endef
 
-PKG_BUILD_DEPENDS:=libnfnetlink
+PKG_BUILD_DEPENDS:=libnfnetlink libuci
 
 SPIN_MAKE_OPTS:= -C $(PKG_BUILD_DIR)/$(MAKE_PATH) \
         PATH="$(TARGET_PATH)/$(MAKE_PATH)" \
