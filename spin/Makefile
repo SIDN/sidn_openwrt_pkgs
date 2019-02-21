@@ -25,7 +25,7 @@ define Package/spin
   MAINTAINER:=Jelte Jansen <jelte.jansen@sidn.nl>
 endef
 
-PKG_BUILD_DEPENDS:=libnfnetlink libuci
+PKG_BUILD_DEPENDS:=libnfnetlink
 
 SPIN_MAKE_OPTS:= -C $(PKG_BUILD_DIR)/$(MAKE_PATH) \
         PATH="$(TARGET_PATH)/$(MAKE_PATH)" \
