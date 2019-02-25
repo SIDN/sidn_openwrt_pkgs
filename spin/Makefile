@@ -57,7 +57,6 @@ define Package/spin/install
 	cp -r ${PKG_BUILD_DIR}/src/web_ui/* $(1)/usr/lib/spin/web_ui
 	$(INSTALL_DIR) $(1)/usr/lib/spin
 	$(INSTALL_BIN) ${PKG_BUILD_DIR}/src/lua/*.lua $(1)/usr/lib/spin/
-	$(INSTALL_BIN) ${PKG_BUILD_DIR}/src/kernelmod/spin.ko $(1)/usr/lib/spin/
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) ${PKG_BUILD_DIR}/src/tools/spin_config/spin_config $(1)/usr/bin/spin_config
 	$(INSTALL_BIN) ${PKG_BUILD_DIR}/src/tools/spin_print/spin_print $(1)/usr/bin/spin_print
