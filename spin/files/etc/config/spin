@@ -1,7 +1,7 @@
 
 config spind 'spind'
     option iptable_debug '/tmp/blockcommands'
-    option iptable_queue_dns '1'
+    option iptable_nflog_dns_group '53'
     option iptable_queue_block '2'
     option iptable_place_dns '0'
     option iptable_place_block '0'
