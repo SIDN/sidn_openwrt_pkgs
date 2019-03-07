@@ -2,17 +2,16 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=spin
 PKG_VERSION:=0.8-beta
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
-PKG_BUILD_DIR:=$(BUILD_DIR)/spin-$(PKG_VERSION)/src
+PKG_BUILD_DIR:=$(BUILD_DIR)/spin-$(PKG_VERSION)
 PKG_SOURCE:=spin-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://valibox.sidnlabs.nl/downloads/src/spin/
-PKG_HASH:=9160d4cd28e46f92794e0302ac84e64501044b68effc2d991c1b9bf23e14bec0
+PKG_HASH:=7cbd140af531f1d8a065ef4957f2ec31138b5ddbf0ea83023f83239766fb7cd6
 
 include $(INCLUDE_DIR)/package.mk
-include $(INCLUDE_DIR)/kernel.mk
 
-TARGET_CFLAGS += -ggdb3
+TARGET_CFLAGS += -ggdb3 -Wno-error=format
 CONFIGURE_PATH:=src
 MAKE_PATH:=src
 
@@ -21,7 +20,7 @@ define Package/spin
   CATEGORY:=SIDN
   TITLE:=Experimental tools for SPIN
   URL:=https://github.com/SIDN/spin
-  DEPENDS:=+ip +luaposix +luasec +luabitop +lua-copas +luasocket +mosquitto-ssl +libmosquitto-ssl +lua-mosquitto +libnfnetlink +lua-minittp +lua-websockets +libmnl +libnetfilter-conntrack +libnetfilter-queue +libnetfilter-log +libldns +libuci
+  DEPENDS:=+ip +luaposix +luasec +luabitop +lua-copas +luasocket +mosquitto-ssl +libmosquitto-ssl +lua-mosquitto +libnfnetlink +lua-minittp +lua-websockets +libmnl +libnetfilter-conntrack +kmod-nf-conntrack +kmod-nf-conntrack-netlink +libnetfilter-queue +kmod-nfnetlink-queue +libnetfilter-log +kmod-nfnetlink-log +libldns +libuci
   MAINTAINER:=Jelte Jansen <jelte.jansen@sidn.nl>
 endef
 
@@ -34,7 +33,7 @@ SPIN_MAKE_OPTS:= -C $(PKG_BUILD_DIR)/$(MAKE_PATH) \
         TARGET="$(HAL_TARGET)" \
         TOOLPREFIX="$(KERNEL_CROSS)" \
         TOOLPATH="$(KERNEL_CROSS)" \
-        KERNELPATH="$(LINUX_DIR)" \
+#        KERNELPATH="$(LINUX_DIR)" \
         LDOPTS=" "
 
 define Package/spin/description
@@ -46,7 +45,7 @@ define Build/Configure
 endef
 
 define Build/Compile
-  $(MAKE) $(SPIN_MAKE_OPTS) M=$(PKG_BUILD_DIR)/$(MAKE_PATH)
+  $(MAKE) $(SPIN_MAKE_OPTS)
 endef
 
 define Package/spin/install
