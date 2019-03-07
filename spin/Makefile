@@ -20,7 +20,28 @@ define Package/spin
   CATEGORY:=SIDN
   TITLE:=Experimental tools for SPIN
   URL:=https://github.com/SIDN/spin
-  DEPENDS:=+ip +luaposix +luasec +luabitop +lua-copas +luasocket +mosquitto-ssl +libmosquitto-ssl +lua-mosquitto +libnfnetlink +lua-minittp +lua-websockets +libmnl +libnetfilter-conntrack +kmod-nf-conntrack +kmod-nf-conntrack-netlink +libnetfilter-queue +kmod-nfnetlink-queue +libnetfilter-log +kmod-nfnetlink-log +libldns +libuci
+  DEPENDS:=+ip\
+           +luaposix\
+           +luasec\
+           +luabitop\
+           +lua-copas\
+           +luasocket\
+           +mosquitto-ssl\
+           +libmosquitto-ssl\
+           +lua-mosquitto\
+           +libnfnetlink\
+           +lua-minittp\
+           +lua-websockets\
+           +libmnl\
+           +libnetfilter-conntrack\
+           +kmod-nf-conntrack\
+           +kmod-nf-conntrack-netlink\
+           +libnetfilter-queue\
+           +kmod-nfnetlink-queue\
+           +libnetfilter-log\
+           +kmod-nfnetlink-log\
+           +libldns\
+           +libuci
   MAINTAINER:=Jelte Jansen <jelte.jansen@sidn.nl>
 endef
 
@@ -33,7 +54,6 @@ SPIN_MAKE_OPTS:= -C $(PKG_BUILD_DIR)/$(MAKE_PATH) \
         TARGET="$(HAL_TARGET)" \
         TOOLPREFIX="$(KERNEL_CROSS)" \
         TOOLPATH="$(KERNEL_CROSS)" \
-#        KERNELPATH="$(LINUX_DIR)" \
         LDOPTS=" "
 
 define Package/spin/description
