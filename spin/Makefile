@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=spin
-PKG_VERSION:=0.8-beta
+PKG_VERSION:=0.9-beta
 PKG_RELEASE:=2
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/spin-$(PKG_VERSION)
