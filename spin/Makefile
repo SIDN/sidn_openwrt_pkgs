@@ -41,6 +41,8 @@ define Package/spin
            +libnetfilter-log\
            +kmod-nfnetlink-log\
            +libldns\
+           +libubus\
+           +libubox\
            +libuci
   MAINTAINER:=Jelte Jansen <jelte.jansen@sidn.nl>
 endef
