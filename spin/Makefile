@@ -44,7 +44,7 @@ define Package/spin
            +libldns\
            +libubus\
            +libubox\
-           +libblobmsg_json\
+           +libblobmsg-json\
            +libuci
   MAINTAINER:=Jelte Jansen <jelte.jansen@sidn.nl>
 endef
