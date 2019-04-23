@@ -76,5 +76,5 @@ PASS_TOOSHORT: The wifi password must be at least 8 characters
 PASS_UPDATE: Save
 SETTINGS_UPDATED: The changes have been stored. If the name or password of the wireless network has changed, please wait a short while, then reconnect to the network.
 
-EXPERIMENTAL_NEW_FRONTEND_TITLE: Experimental SPIN front-end
-EXPERIMENTAL_NEW_FRONTEND_DESCRIPTION: Dit is de experimental interactive front-end for SPIN
+EXPERIMENTAL_NEW_FRONTEND_TITLE: Example SPIN SPA front-end (experimental)
+EXPERIMENTAL_NEW_FRONTEND_DESCRIPTION: This is an example mockup of an SPA front-end application for SPIN, currently with minimal functionality (just a list of recently active devices)
