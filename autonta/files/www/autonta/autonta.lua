@@ -377,7 +377,7 @@ function autonta:handle_set_nta(env, args)
     local html = self:render('nta_set.html', { domain=domain })
     return headers, html
   else
-    return self:redirect_to("/autonta/ask_nta/" .. domain)
+    return self:redirect_to("//192.168.8.1/autonta/ask_nta/" .. domain)
   end
 end
 
@@ -631,7 +631,7 @@ function autonta:handle_domain(env, domain)
     return self:redirect_to("//192.168.8.1/autonta/set_passwords")
   end
 
-  return self:redirect_to("/autonta/ask_nta/" .. domain)
+  return self:redirect_to("//192.168.8.1/autonta/ask_nta/" .. domain)
 end
 
 function autonta:create_default_headers()
