@@ -289,7 +289,7 @@ end
 function autonta:handle_autonta_main(env)
   if self.config:updated() then self:init() end
   if self:is_first_run() then
-    return self:redirect_to("/autonta/set_passwords")
+    return self:redirect_to("//192.168.8.1/autonta/set_passwords")
   end
 
   local headers = {}
