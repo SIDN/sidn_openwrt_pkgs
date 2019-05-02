@@ -12,7 +12,7 @@
 				{{== langkeys.get('UPDATE_CHECK_CURRENT_VERSION', current_version) }}
 			</p>
 			<p>
-				<a href="//valibox./autonta/update_check">{{== langkeys.get('UPDATE_TRY_AGAIN') }}</a>
+				<a href="/autonta/update_check">{{== langkeys.get('UPDATE_TRY_AGAIN') }}</a>
 			</p>
 		</div>
 {{ else }}
@@ -56,12 +56,12 @@
                 {{== langkeys.get('UPDATE_CHECK_NO_UPDATE', current_version) }}
             </p>
             <p>
-                <a href="//valibox./autonta/update_check">{{== langkeys.get('UPDATE_TRY_AGAIN') }}</a>
+                <a href="/autonta/update_check">{{== langkeys.get('UPDATE_TRY_AGAIN') }}</a>
             </p>
             <p>
                 <b>{{== langkeys.get('UPDATE_INSTALL_AGAIN') }}</b>
             </p>
-            <form method="POST" action="http://valibox./autonta/update_install">
+            <form method="POST" action="/autonta/update_install">
             <input type="hidden" name="dst" value="{{== dst }}" />
             <input type="checkbox" name="keepsettings" checked="checked">{{== langkeys.get('UPDATE_KEEP_SETTINGS') }}</input>
             {{ if currently_beta then }}

@@ -1,8 +1,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=spin
-PKG_VERSION:=0.9-beta
-PKG_RELEASE:=2
+PKG_VERSION:=0.9
+PKG_RELEASE:=1
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/spin-$(PKG_VERSION)
 PKG_SOURCE:=spin-$(PKG_VERSION).tar.gz

@@ -289,7 +289,7 @@ end
 function autonta:handle_autonta_main(env)
   if self.config:updated() then self:init() end
   if self:is_first_run() then
-    return self:redirect_to("//valibox./autonta/set_passwords")
+    return self:redirect_to("//192.168.8.1/autonta/set_passwords")
   end
 
   local headers = {}
@@ -307,7 +307,7 @@ end
 function autonta:handle_ntalist(env, arg1, arg2, arg3, arg4)
   if self.config:updated() then self:init() end
   if self:is_first_run() then
-    return self:redirect_to("//valibox./autonta/set_passwords")
+    return self:redirect_to("//192.168.8.1/autonta/set_passwords")
   end
 
   local headers = self:create_default_headers()
@@ -377,7 +377,7 @@ function autonta:handle_set_nta(env, args)
     local html = self:render('nta_set.html', { domain=domain })
     return headers, html
   else
-    return self:redirect_to("/autonta/ask_nta/" .. domain)
+    return self:redirect_to("//192.168.8.1/autonta/ask_nta/" .. domain)
   end
 end
 
@@ -394,7 +394,7 @@ end
 function autonta:handle_update_check(env)
   if self.config:updated() then self:init() end
   if self:is_first_run() then
-    return self:redirect_to("//valibox./autonta/set_passwords")
+    return self:redirect_to("//192.168.8.1/autonta/set_passwords")
   end
 
   local headers = self:create_default_headers()
@@ -511,7 +511,7 @@ function autonta:handle_ask_nta(env, args)
   local domain = args[1]
   if self.config:updated() then self:init() end
   if self:is_first_run() then
-    return self:redirect_to("//valibox./autonta/set_passwords")
+    return self:redirect_to("//192.168.8.1/autonta/set_passwords")
   end
 
   -- create a double-submit token
@@ -604,7 +604,7 @@ function autonta:handle_set_passwords_post(env)
     html = self:render('passwordsset.html')
     return headers, html
   else
-    return self:redirect_to("/autonta/set_passwords")
+    return self:redirect_to("//192.168.8.1/autonta/set_passwords")
   end
 end
 
@@ -628,10 +628,10 @@ end
 function autonta:handle_domain(env, domain)
   if self.config:updated() then self:init() end
   if self:is_first_run() then
-    return self:redirect_to("//valibox./autonta/set_passwords")
+    return self:redirect_to("//192.168.8.1/autonta/set_passwords")
   end
 
-  return self:redirect_to("//valibox./autonta/ask_nta/" .. domain)
+  return self:redirect_to("//192.168.8.1/autonta/ask_nta/" .. domain)
 end
 
 function autonta:create_default_headers()
