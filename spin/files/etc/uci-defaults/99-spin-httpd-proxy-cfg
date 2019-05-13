@@ -1,0 +1,73 @@
+nginx_proxy_cfg()
+{
+	cat <<'EOF' > /etc/nginx/nginx.conf
+user nobody nogroup;
+worker_processes  1;
+
+events {
+    worker_connections  1024;
+}
+http {
+    include       mime.types;
+    sendfile        on;
+    #tcp_nopush     on;
+
+    #keepalive_timeout  0;
+    keepalive_timeout  65;
+    #gzip  on;
+
+    server {
+        listen       80;
+        server_name  localhost;
+
+        #charset koi8-r;
+
+        location / {
+            root   html;
+            index  index.html index.htm;
+        }
+	location /spin {
+	    root /www;
+	    index index.html;
+	}
+	location /spin_graph {
+	    alias /usr/lib/spin/web_ui/static/spin_api;
+	    index graph.html;
+	}
+	location /spin_api {
+	    proxy_set_header        Host $host;
+	    proxy_set_header        X-Real-IP $remote_addr;
+	    proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
+	    proxy_set_header        X-Forwarded-Proto $scheme;
+	    proxy_http_version      1.1;
+	    proxy_pass_request_headers      on;
+	    proxy_set_header Upgrade $http_upgrade;
+	    proxy_set_header Connection 'upgrade';
+
+	    # Fix the “It appears that your reverse proxy set up is broken" error.
+	    proxy_pass          http://localhost:8002;
+	    proxy_read_timeout  90;
+	}
+        #error_page  404              /404.html;
+
+        # redirect server error pages to the static page /50x.html
+        #
+        error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+            root   html;
+        }
+    }
+}
+EOF
+}
+
+lighttpd_proxy_cfg()
+{
+	echo "not implemented yet"
+}
+
+if [ -f /usr/sbin/nginx ]; then
+	nginx_proxy_cfg
+elif [ -f /usr/sbin/lighttpd ]; then
+	lighttpd_proxy_cfg
+fi
