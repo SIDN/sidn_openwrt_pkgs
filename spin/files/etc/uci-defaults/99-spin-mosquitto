@@ -1,0 +1,8 @@
+
+LOCAL_IP="$(uci get network.lan.ipaddr)"
+
+cat <<EOF >/etc/mosquitto/mosquitto.conf
+port 1883 127.0.0.1 $LOCAL_IP
+listener 1884 $LOCAL_IP
+protocol websockets
+EOF
