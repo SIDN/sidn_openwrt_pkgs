@@ -43,7 +43,6 @@ define Package/spin
            +libldns\
            +iptables-mod-nflog\
            +iptables-mod-nfqueue\
-           +luci-ssl\
            +nginx\
            +libuci
   MAINTAINER:=Jelte Jansen <jelte.jansen@sidn.nl>
