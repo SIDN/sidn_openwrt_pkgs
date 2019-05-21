@@ -25,22 +25,12 @@ stop_spin_server() {
     fi
 }
 
-apply_spin_config() {
-    cd /usr/lib/spin
-    /usr/lib/spin/show_ips.lua -o /etc/spin/ignore.list
-    spin_config ignore load /etc/spin/ignore.list
-    spin_config block load /etc/spin/block.list
-    spin_config except load /etc/spin/allow.list
-}
-
 load_spin_module() {
     modprobe nf_conntrack
     modprobe nf_conntrack_ipv4
     modprobe nf_conntrack_ipv6
     modprobe nf_netlink_queue
     sysctl net.netfilter.nf_conntrack_acct=1
-    insmod /usr/lib/spin/spin.ko
-    apply_spin_config
 }
 
 spin_module_loaded() {
@@ -49,12 +39,6 @@ spin_module_loaded() {
 }
 
 start() {
-    if spin_module_loaded; then
-        echo "SPIN module already loaded"
-    else
-        echo "module not loaded"
-        load_spin_module
-    fi 
     if spin_server_running; then
         echo "SPIN server already running"
     else
@@ -65,7 +49,6 @@ start() {
 
 stop() {
     stop_spin_server
-    rmmod spin
 }
 
 restart() {
