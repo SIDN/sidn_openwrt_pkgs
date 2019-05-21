@@ -41,6 +41,10 @@ define Package/spin
            +libnetfilter-log\
            +kmod-nfnetlink-log\
            +libldns\
+           +iptables-mod-nflog\
+           +iptables-mod-nfqueue\
+           +luci-ssl\
+           +nginx\
            +libuci
   MAINTAINER:=Jelte Jansen <jelte.jansen@sidn.nl>
 endef
