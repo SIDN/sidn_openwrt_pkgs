@@ -10,7 +10,8 @@ PKG_SOURCE_URL:=https://valibox.sidnlabs.nl/downloads/src/spin/
 PKG_HASH:=72d17e11f66c6edaca4ccbccdd0055b533b86b67c542eeff1a3317817a78fad9
 
 include $(INCLUDE_DIR)/package.mk
-
+STRIP:=:
+RSTRIP:=:
 TARGET_CFLAGS += -ggdb3 -Wno-error=format
 CONFIGURE_PATH:=src
 MAKE_PATH:=src
