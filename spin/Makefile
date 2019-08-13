@@ -82,8 +82,6 @@ define Package/spin/install
 	$(INSTALL_DIR) $(1)/usr/lib/spin
 	$(INSTALL_BIN) ${PKG_BUILD_DIR}/src/lua/*.lua $(1)/usr/lib/spin/
 	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) ${PKG_BUILD_DIR}/src/tools/spin_config/spin_config $(1)/usr/bin/spin_config
-	$(INSTALL_BIN) ${PKG_BUILD_DIR}/src/tools/spin_print/spin_print $(1)/usr/bin/spin_print
 	$(INSTALL_BIN) ${PKG_BUILD_DIR}/src/spind/spind $(1)/usr/bin/spind
 	$(INSTALL_DIR) $(1)/etc/spin
 endef
