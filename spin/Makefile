@@ -14,6 +14,7 @@ STRIP:=:
 RSTRIP:=:
 TARGET_CFLAGS += -ggdb3 -Wno-error=format
 CONFIGURE_PATH:=src
+CONFIGURE_ARGS+=--enable-ubus
 MAKE_PATH:=src
 
 define Package/spin
@@ -50,7 +51,8 @@ define Package/spin
   MAINTAINER:=Jelte Jansen <jelte.jansen@sidn.nl>
 endef
 
-PKG_BUILD_DEPENDS:=libnfnetlink libubus
+PKG_CONFIG_DEPENDS=ubus libubox
+PKG_BUILD_DEPENDS=ubus libubox
 
 SPIN_MAKE_OPTS:= -C $(PKG_BUILD_DIR)/$(MAKE_PATH) \
         PATH="$(TARGET_PATH)/$(MAKE_PATH)" \
