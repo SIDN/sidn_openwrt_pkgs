@@ -32,17 +32,13 @@ define Package/spin
            +mosquitto-ssl\
            +libmosquitto-ssl\
            +lua-mosquitto\
-           +libnfnetlink\
            +lua-minittp\
            +lua-websockets\
            +libmnl\
            +libnetfilter-conntrack\
            +kmod-nf-conntrack\
-           +kmod-nf-conntrack-netlink\
            +libnetfilter-queue\
-           +kmod-nfnetlink-queue\
            +libnetfilter-log\
-           +kmod-nfnetlink-log\
            +libldns\
            +libubus\
            +libubox\
@@ -51,7 +47,6 @@ define Package/spin
   MAINTAINER:=Jelte Jansen <jelte.jansen@sidn.nl>
 endef
 
-PKG_CONFIG_DEPENDS=ubus libubox
 PKG_BUILD_DEPENDS=ubus libubox
 
 SPIN_MAKE_OPTS:= -C $(PKG_BUILD_DIR)/$(MAKE_PATH) \
