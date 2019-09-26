@@ -8,27 +8,27 @@ start() {
 
 stop() {
     if [ -e /var/minittp-server.pid ]; then
-        kill `cat /var/minittp-server.pid`
+        kill -9 `cat /var/minittp-server.pid`
     fi
 }
 
 reload() {
     if [ -e /var/minittp-server.pid ]; then
-        kill `cat /var/minittp-server.pid`
+        kill -9 `cat /var/minittp-server.pid`
     fi
     (cd /usr/lib/spin/web_ui; minittp-server -c -i -p 8002 ./spin_webui.lua -s >& /tmp/minittp_start.log&)
 }
 
 restart() {
     if [ -e /var/minittp-server.pid ]; then
-        kill `cat /var/minittp-server.pid`
+        kill -9 `cat /var/minittp-server.pid`
     fi
     (cd /usr/lib/spin/web_ui; minittp-server -c -i -p 8002 ./spin_webui.lua -s >& /tmp/minittp_start.log&)
 }
 
 shutdown() {
     if [ -e /var/minittp-server.pid ]; then
-        kill `cat /var/minittp-server.pid`
+        kill -9 `cat /var/minittp-server.pid`
     fi
 }
 
