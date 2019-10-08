@@ -9,13 +9,13 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=lua-minittp
 PKG_VERSION:=0.4
-PKG_RELEASE:=4
+PKG_RELEASE:=5
 PKG_MAINTAINER:=Jelte Jansen <jelte.jansen@sidn.nl>
 PKG_LICENSE:=GPLv3
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/tjeb/lua-minittp.git
-PKG_SOURCE_VERSION:=v0.4.4
+PKG_SOURCE_VERSION:=v0.4.5
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 
