@@ -8,8 +8,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=lua-minittp
-PKG_VERSION:=0.2
-PKG_RELEASE:=3
+PKG_VERSION:=0.4.5
+PKG_RELEASE:=1
 PKG_MAINTAINER:=Jelte Jansen <jelte.jansen@sidn.nl>
 PKG_LICENSE:=GPLv3
 
