@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=spin
-PKG_VERSION:=0.9
+PKG_VERSION:=0.10
 PKG_RELEASE:=1
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/spin-$(PKG_VERSION)
@@ -44,7 +44,9 @@ define Package/spin
            +iptables-mod-nflog\
            +iptables-mod-nfqueue\
            +nginx\
-           +libuci
+           +libuci\
+           +libubus\
+           +libblobmsg_json
   MAINTAINER:=Jelte Jansen <jelte.jansen@sidn.nl>
 endef
 
