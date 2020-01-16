@@ -52,6 +52,15 @@ div.logo {
     right: 10px;
     z-index: 2;
     height: 53px;
+    max-width: 18%;
+}
+
+div.logo img {
+    display: inline-block;
+    max-width: 100%;
+    padding-left: 10px;
+    height: auto;
+    width: auto;
 }
 
 .main_header {
