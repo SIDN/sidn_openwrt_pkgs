@@ -21,6 +21,7 @@ define Package/spin
   TITLE:=Experimental tools for SPIN
   URL:=https://github.com/SIDN/spin
   DEPENDS:=+ip\
+           +ipset\
            +luaposix\
            +luasec\
            +luabitop\
