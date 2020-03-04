@@ -53,25 +53,8 @@ endef
 
 PKG_BUILD_DEPENDS:=libnfnetlink
 
-SPIN_MAKE_OPTS:= -C $(PKG_BUILD_DIR)/$(MAKE_PATH) \
-        PATH="$(TARGET_PATH)/$(MAKE_PATH)" \
-        ARCH="$(LINUX_KARCH)" \
-        CROSS_COMPILE="$(TARGET_CROSS)" \
-        TARGET="$(HAL_TARGET)" \
-        TOOLPREFIX="$(KERNEL_CROSS)" \
-        TOOLPATH="$(KERNEL_CROSS)" \
-        LDOPTS=" "
-
 define Package/spin/description
   Experiment with SPIN tools
-endef
-
-define Build/Configure
-    $(call Build/Configure/Default,--with-linux-headers=$(LINUX_DIR))
-endef
-
-define Build/Compile
-  $(MAKE) $(SPIN_MAKE_OPTS)
 endef
 
 define Package/spin/install
