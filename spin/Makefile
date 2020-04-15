@@ -28,8 +28,7 @@ define Package/spin
   CATEGORY:=SIDN
   TITLE:=Experimental tools for SPIN
   URL:=https://github.com/SIDN/spin
-  DEPENDS:=+ip\
-           +ipset\
+  DEPENDS:=+ipset\
            +luaposix\
            +luasec\
            +luabitop\
@@ -52,7 +51,6 @@ define Package/spin
            +libldns\
            +iptables-mod-nflog\
            +iptables-mod-nfqueue\
-           +nginx\
            +libuci\
            +libubus\
            +libblobmsg-json
