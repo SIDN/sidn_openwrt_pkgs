@@ -36,6 +36,14 @@ Additional information about building OpenWRT itself can be found on
 https://dev.openwrt.org/wiki
 
 
+Versions
+--------
+
+The tags in this repository correspond to full package set releases, where the individual packages have been tested for interoperability. The release versions correspond to Valibox releases.
+
+The master branch will point to the latest public release of each of the individual packages.
+
+If you want to quickly build snapshots of the latest development versions of the packages that support it, you can use the 'development' branch here. Currently this is only used for SPIN, and building from that branch will create a snapshot SPIN packages with the current date (of the build) and the latest git commit hash as its version.
 
 
 Building from scratch
