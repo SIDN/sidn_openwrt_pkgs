@@ -1,13 +1,24 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=spin
-PKG_VERSION:=0.11
-PKG_RELEASE:=2
 
 # Settings for latest master (dev) build
-PKG_SOURCE:=spin-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=https://valibox.sidnlabs.nl/downloads/src/spin/
-PKG_HASH:=a43ed3704826e6e6d1108be0b4c082f46a9ce9e5ddca94ade579b6b991292f50
+# This will create a snapshot package with the current date and the latest
+# commit hash
+PKG_SOURCE_PROTO:=git
+PKG_SOURCE_URL:=https://github.com/sidn/spin
+LATEST_COMMIT:=$(shell git ls-remote ${PKG_SOURCE_URL} master | head -c 8)
+BUILD_DATE:=$(shell date +%Y-%m-%d)
+PKG_SOURCE_VERSION:=$(LATEST_COMMIT)
+PKG_SOURCE_DATE:=$(BUILD_DATE)
+PKG_FIXUP:=autoreconf
+
+# Settings for latest release build, use (updated version) of this
+# when creating release tags, and remove the git settings
+#PKG_SOURCE:=spin-$(PKG_VERSION).tar.gz
+#PKG_SOURCE_URL:=https://valibox.sidnlabs.nl/downloads/src/spin/
+#PKG_HASH:=a43ed3704826e6e6d1108be0b4c082f46a9ce9e5ddca94ade579b6b991292f50
+
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -63,6 +74,7 @@ define Package/spin/install
 	cp -r ${PKG_BUILD_DIR}/src/web_ui/* $(1)/usr/lib/spin/web_ui
 	$(INSTALL_DIR) $(1)/usr/lib/spin
 	$(INSTALL_BIN) ${PKG_BUILD_DIR}/src/lua/*.lua $(1)/usr/lib/spin/
+	$(INSTALL_BIN) ${PKG_BUILD_DIR}/src/tools/endian-check/endian-check $(1)/usr/lib/spin
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) ${PKG_BUILD_DIR}/src/spind/spind $(1)/usr/bin/spind
 	$(INSTALL_DIR) $(1)/etc/spin
