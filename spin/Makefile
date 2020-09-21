@@ -56,7 +56,8 @@ define Package/spin
            +iptables-mod-nfqueue\
            +libuci\
            +libubus\
-           +libblobmsg-json
+           +libblobmsg-json\
+           +libmicrohttpd
   MAINTAINER:=Jelte Jansen <jelte.jansen@sidn.nl>
 endef
 
@@ -75,6 +76,7 @@ define Package/spin/install
 	$(INSTALL_DIR) $(1)/usr/lib/spin
 	$(INSTALL_BIN) ${PKG_BUILD_DIR}/src/lua/*.lua $(1)/usr/lib/spin/
 	$(INSTALL_BIN) ${PKG_BUILD_DIR}/src/tools/endian-check/endian-check $(1)/usr/lib/spin
+	$(INSTALL_BIN) ${PKG_BUILD_DIR}/src/tools/spin-webapi/spin_webapi $(1)/usr/lib/spin
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) ${PKG_BUILD_DIR}/src/spind/spind $(1)/usr/bin/spind
 	$(INSTALL_DIR) $(1)/etc/spin
