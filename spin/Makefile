@@ -68,8 +68,8 @@ define Package/spin/install
 	$(INSTALL_BIN) ${PKG_BUILD_DIR}/src/spind/spind $(1)/usr/bin/spind
 	$(INSTALL_BIN) ${PKG_BUILD_DIR}/src/spinweb/spinweb $(1)/usr/bin/spinweb
 	$(INSTALL_DIR) $(1)/usr/share/spin/spinweb/templates
-	cp -r ${PKG_BUILD_DIR}/src/tools/spinweb/static $(1)/usr/share/spin/spinweb/
-	cp -r ${PKG_BUILD_DIR}/src/tools/spinweb/templates $(1)/usr/share/spin/spinweb/
+	cp -r ${PKG_BUILD_DIR}/src/spinweb/static $(1)/usr/share/spin/spinweb/
+	cp -r ${PKG_BUILD_DIR}/src/spinweb/templates $(1)/usr/share/spin/spinweb/
 
 	$(INSTALL_DIR) $(1)/etc/spin
 endef
