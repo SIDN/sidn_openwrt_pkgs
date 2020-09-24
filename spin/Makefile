@@ -66,10 +66,10 @@ define Package/spin/install
 	$(INSTALL_DIR) $(1)/usr/lib/spin
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) ${PKG_BUILD_DIR}/src/spind/spind $(1)/usr/bin/spind
-	$(INSTALL_BIN) ${PKG_BUILD_DIR}/src/tools/spin-webapi/spin_webapi $(1)/usr/bin/spin_webapi
-	$(INSTALL_DIR) $(1)/usr/share/spin/spin-webapi/templates
-	cp -r ${PKG_BUILD_DIR}/src/tools/spin-webapi/static $(1)/usr/share/spin/spin-webapi/
-	cp -r ${PKG_BUILD_DIR}/src/tools/spin-webapi/templates $(1)/usr/share/spin/spin-webapi/
+	$(INSTALL_BIN) ${PKG_BUILD_DIR}/src/spinweb/spinweb $(1)/usr/bin/spinweb
+	$(INSTALL_DIR) $(1)/usr/share/spin/spinweb/templates
+	cp -r ${PKG_BUILD_DIR}/src/tools/spinweb/static $(1)/usr/share/spin/spinweb/
+	cp -r ${PKG_BUILD_DIR}/src/tools/spinweb/templates $(1)/usr/share/spin/spinweb/
 
 	$(INSTALL_DIR) $(1)/etc/spin
 endef
