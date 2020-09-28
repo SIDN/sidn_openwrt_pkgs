@@ -14,18 +14,18 @@ spin_server_running() {
 }
 
 run_spin_server() {
-    /usr/lib/spin/spin_runner.sh&
+    /usr/bin/spind
     echo $! > ${SPIN_SERVER_PID}
 }
 
 stop_spin_server() {
     if [ -e ${SPIN_SERVER_PID} ]; then
-        kill `cat ${SPIN_SERVER_PID}`
+        kill -9 `cat ${SPIN_SERVER_PID}`
         rm ${SPIN_SERVER_PID}
     fi
 }
 
-load_spin_module() {
+load_spin_modules() {
     modprobe nf_conntrack
     modprobe nf_conntrack_ipv4
     modprobe nf_conntrack_ipv6
@@ -33,7 +33,7 @@ load_spin_module() {
     sysctl net.netfilter.nf_conntrack_acct=1
 }
 
-spin_module_loaded() {
+spin_modules_loaded() {
     lsmod | grep spin 2>&1 > /dev/null
     [ $? == 0 ]
 }
