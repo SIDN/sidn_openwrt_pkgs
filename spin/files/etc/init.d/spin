@@ -14,7 +14,7 @@ spin_server_running() {
 }
 
 run_spin_server() {
-    /usr/bin/spind
+    /usr/bin/spind&
     echo $! > ${SPIN_SERVER_PID}
 }
 
