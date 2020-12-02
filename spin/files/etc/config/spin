@@ -11,5 +11,6 @@ config spind 'spind'
     option pubsub_channel_traffic 'SPIN/traffic'
     option pubsub_timeout '60'
     option log_usesyslog '1'
-    option log_loglevel '6'
-
+    option log_loglevel '1'
+    option spinweb_interfaces '127.0.0.1, 192.168.8.1'
+    option pubsub_run_mosquitto '0'

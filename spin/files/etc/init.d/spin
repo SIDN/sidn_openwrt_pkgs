@@ -25,19 +25,6 @@ stop_spin_server() {
     fi
 }
 
-load_spin_modules() {
-    modprobe nf_conntrack
-    modprobe nf_conntrack_ipv4
-    modprobe nf_conntrack_ipv6
-    modprobe nf_netlink_queue
-    sysctl net.netfilter.nf_conntrack_acct=1
-}
-
-spin_modules_loaded() {
-    lsmod | grep spin 2>&1 > /dev/null
-    [ $? == 0 ]
-}
-
 start() {
     if spin_server_running; then
         echo "SPIN server already running"

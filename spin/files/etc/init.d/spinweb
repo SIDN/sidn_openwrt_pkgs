@@ -4,7 +4,7 @@ START=85
 
 SPINWEB_SERVER_PID="/var/run/spinweb.pid"
 
-spin_server_running() {
+spinweb_server_running() {
     if [ -e ${SPINWEB_SERVER_PID} ]; then
         ps w | grep ${SPINWEB_SERVER_PID} | grep spinweb 2>&1 > /dev/null
         [ $? == 0 ]
@@ -13,42 +13,29 @@ spin_server_running() {
     fi
 }
 
-run_spin_server() {
+run_spinweb_server() {
     /usr/bin/spinweb&
     echo $! > ${SPINWEB_SERVER_PID}
 }
 
-stop_spin_server() {
+stop_spinweb_server() {
     if [ -e ${SPINWEB_SERVER_PID} ]; then
         kill -9 `cat ${SPINWEB_SERVER_PID}`
         rm ${SPINWEB_SERVER_PID}
     fi
 }
 
-load_spin_modules() {
-    modprobe nf_conntrack
-    modprobe nf_conntrack_ipv4
-    modprobe nf_conntrack_ipv6
-    modprobe nf_netlink_queue
-    sysctl net.netfilter.nf_conntrack_acct=1
-}
-
-spin_modules_loaded() {
-    lsmod | grep spin 2>&1 > /dev/null
-    [ $? == 0 ]
-}
-
 start() {
-    if spin_server_running; then
-        echo "SPIN server already running"
+    if spinweb_server_running; then
+        echo "SPINweb server already running"
     else
-        echo "SPIN server not running"
-        run_spin_server
+        echo "SPINweb server not running"
+        run_spinweb_server
     fi
 }
 
 stop() {
-    stop_spin_server
+    stop_spinweb_server
 }
 
 restart() {
@@ -62,11 +49,11 @@ reload() {
 }
 
 enable() {
-    ln -s /etc/init.d/spin /etc/rc.d/S${START}spin
+    ln -s /etc/init.d/spin /etc/rc.d/S${START}spinweb
     start
 }
 
 disable() {
-    rm -f /etc/rc.d/S${START}spin
+    rm -f /etc/rc.d/S${START}spinweb
     stop
 }
