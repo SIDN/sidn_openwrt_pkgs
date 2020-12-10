@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=sidn-unbound
-PKG_VERSION:=1.6.0
+PKG_VERSION:=1.13.0
 PKG_RELEASE:=1
 
 PKG_LICENSE:=BSD-3-Clause
@@ -18,7 +18,7 @@ PKG_MAINTAINER:=Jelte Jansen <jelte.jansen@sidn.nl>
 PKG_BUILD_DIR:=$(BUILD_DIR)/unbound-$(PKG_VERSION)
 PKG_SOURCE:=unbound-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://www.unbound.net/downloads
-PKG_HASH:=6b7db874e6debda742fee8869d722e5a17faf1086e93c911b8564532aeeffab7
+PKG_HASH:=a954043a95b0326ca4037e50dace1f3a207a0a19e9a4a22f4c6718fc623db2a1
 
 PKG_BUILD_DEPENDS:=
 PKG_BUILD_PARALLEL:=1
