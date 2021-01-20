@@ -11,6 +11,8 @@ local an_M = {}
 local autonta = {}
 autonta.__index = autonta
 
+local ip4 = {} -- Store current IPv4 address
+
 function an_M.create(config_file, fixed_langkey_file)
   local an = {}             -- our new object
   setmetatable(an,autonta)  -- make Account handle lookup
@@ -49,6 +51,10 @@ function autonta:init(config_file, fixed_langkey_file)
     table.insert(self.mapping, { pattern = '^/autonta/update_install/?(.*)$', handler = self.handle_update_install })
     table.insert(self.mapping, { pattern = '^/autonta/set_passwords', handler = self.handle_set_passwords })
   end
+
+  local p = mio.subprocess("/sbin/get_ip4addr.sh", {}, nil, true, false, true)
+  ip4 = p:read_line(true)
+  p:close()
 end
 
 --
@@ -289,7 +295,7 @@ end
 function autonta:handle_autonta_main(env)
   if self.config:updated() then self:init() end
   if self:is_first_run() then
-    return self:redirect_to("//192.168.8.1/autonta/set_passwords")
+    return self:redirect_to("//" .. ip4 .. "/autonta/set_passwords")
   end
 
   local headers = {}
@@ -307,7 +313,7 @@ end
 function autonta:handle_ntalist(env, arg1, arg2, arg3, arg4)
   if self.config:updated() then self:init() end
   if self:is_first_run() then
-    return self:redirect_to("//192.168.8.1/autonta/set_passwords")
+    return self:redirect_to("//" .. ip4 .. "/autonta/set_passwords")
   end
 
   local headers = self:create_default_headers()
@@ -377,7 +383,7 @@ function autonta:handle_set_nta(env, args)
     local html = self:render('nta_set.html', { domain=domain })
     return headers, html
   else
-    return self:redirect_to("//192.168.8.1/autonta/ask_nta/" .. domain)
+    return self:redirect_to("//" .. ip4 .. "/autonta/ask_nta/" .. domain)
   end
 end
 
@@ -394,7 +400,7 @@ end
 function autonta:handle_update_check(env)
   if self.config:updated() then self:init() end
   if self:is_first_run() then
-    return self:redirect_to("//192.168.8.1/autonta/set_passwords")
+    return self:redirect_to("//" .. ip4 .. "/autonta/set_passwords")
   end
 
   local headers = self:create_default_headers()
@@ -511,7 +517,7 @@ function autonta:handle_ask_nta(env, args)
   local domain = args[1]
   if self.config:updated() then self:init() end
   if self:is_first_run() then
-    return self:redirect_to("//192.168.8.1/autonta/set_passwords")
+    return self:redirect_to("//" .. ip4 .. "/autonta/set_passwords")
   end
 
   -- create a double-submit token
@@ -604,7 +610,7 @@ function autonta:handle_set_passwords_post(env)
     html = self:render('passwordsset.html')
     return headers, html
   else
-    return self:redirect_to("//192.168.8.1/autonta/set_passwords")
+    return self:redirect_to("//" .. ip4 .. "/autonta/set_passwords")
   end
 end
 
@@ -628,10 +634,10 @@ end
 function autonta:handle_domain(env, domain)
   if self.config:updated() then self:init() end
   if self:is_first_run() then
-    return self:redirect_to("//192.168.8.1/autonta/set_passwords")
+    return self:redirect_to("//" .. ip4 .. "/autonta/set_passwords")
   end
 
-  return self:redirect_to("//192.168.8.1/autonta/ask_nta/" .. domain)
+  return self:redirect_to("//" .. ip4 .. "/autonta/ask_nta/" .. domain)
 end
 
 function autonta:create_default_headers()
@@ -663,7 +669,7 @@ function autonta:handle_request(env)
   -- if we are not directly called, do the NTA magic
   local domain, port = au.split_host_port(env.HTTP_HOST)
   au.debug("[XX] DOMAIN: '" .. domain .. "' PORT: " .. au.obj2str(port))
-  if domain ~= "valibox" and domain ~= "192.168.8.1" then
+  if domain ~= "valibox" and domain ~= ip4 then
     return self:handle_domain(env, domain)
   end
 
