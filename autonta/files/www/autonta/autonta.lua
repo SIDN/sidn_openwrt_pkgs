@@ -50,6 +50,9 @@ function autonta:init(config_file, fixed_langkey_file)
     table.insert(self.mapping, { pattern = '^/autonta/update_check$', handler = self.handle_update_check })
     table.insert(self.mapping, { pattern = '^/autonta/update_install/?(.*)$', handler = self.handle_update_install })
     table.insert(self.mapping, { pattern = '^/autonta/set_passwords', handler = self.handle_set_passwords })
+
+    -- redirect to SPIN
+    table.insert(self.mapping, { pattern = '^/spin/start$', handler = self.handle_redirect_spin })
   end
 
   local p = mio.subprocess("/sbin/get_ip4addr.sh", {}, nil, true, false, true)
@@ -638,6 +641,10 @@ function autonta:handle_domain(env, domain)
   end
 
   return self:redirect_to("//" .. ip4 .. "/autonta/ask_nta/" .. domain)
+end
+
+function autonta:handle_redirect_spin(env, domain)
+  return self:redirect_to("//" .. ip4 .. ":13026/spin_graph/graph.html")
 end
 
 function autonta:create_default_headers()
