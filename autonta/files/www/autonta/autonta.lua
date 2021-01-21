@@ -55,6 +55,7 @@ function autonta:init(config_file, fixed_langkey_file)
     table.insert(self.mapping, { pattern = '^/spin/start$', handler = self.handle_redirect_spin })
   end
 
+  -- this is possibly called too early, but we try anyway
   local p = mio.subprocess("/sbin/get_ip4addr.sh", {}, nil, true, false, true)
   ip4 = p:read_line(true)
   p:close()
@@ -676,6 +677,11 @@ function autonta:handle_request(env)
   -- if we are not directly called, do the NTA magic
   local domain, port = au.split_host_port(env.HTTP_HOST)
   au.debug("[XX] DOMAIN: '" .. domain .. "' PORT: " .. au.obj2str(port))
+  if ip4 == nil then
+      local p = mio.subprocess("/sbin/get_ip4addr.sh", {}, nil, true, false, true)
+      ip4 = p:read_line(true)
+      p:close()
+  end
   if domain ~= "valibox" and domain ~= ip4 then
     return self:handle_domain(env, domain)
   end
