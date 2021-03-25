@@ -14,11 +14,12 @@ PKG_SOURCE_DATE:=$(BUILD_DATE)
 PKG_FIXUP:=autoreconf
 
 # Settings for latest release build, use (updated version) of this
+#PKG_VERSION:=0.12
+#PKG_RELEASE:=1
 # when creating release tags, and remove the git settings
 #PKG_SOURCE:=spin-$(PKG_VERSION).tar.gz
 #PKG_SOURCE_URL:=https://valibox.sidnlabs.nl/downloads/src/spin/
-#PKG_HASH:=a43ed3704826e6e6d1108be0b4c082f46a9ce9e5ddca94ade579b6b991292f50
-
+#PKG_HASH:=7e84c37e15fa002e0130c458449ad01088b2c8b3f64fedd5d71f80e22dca6bfc
 
 include $(INCLUDE_DIR)/package.mk
 
