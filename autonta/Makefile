@@ -25,7 +25,20 @@ define Package/autonta
   TITLE:=Negative Trust Anchor Management system
   URL:=http://www.sidnlabs.nl
   MAINTAINER:=Jelte Jansen <jelte.jansen@sidn.nl>
-  DEPENDS:=+@UHTTPD_MOD_LUA +uhttpd +uhttpd-mod-lua +curl +ca-certificates +coreutils +coreutils-stat +nginx +@NGINX_SSL +@NGINX_HTTP_UWSGI +@BUSYBOX_CUSTOM +@BUSYBOX_CONFIG_SHA256SUM
+  DEPENDS:=+curl\
+           +ca-certificates\
+           +coreutils\
+           +coreutils-stat\
+           +luabitop\
+           +luaposix\
+           +nginx\
+           +uhttpd\
+           +uhttpd-mod-lua\
+           +@UHTTPD_MOD_LUA\
+           +@NGINX_SSL\
+           +@NGINX_HTTP_UWSGI\
+           +@BUSYBOX_CUSTOM\
+           +@BUSYBOX_CONFIG_SHA256SUM
 endef
 
 define Package/autonta/description
