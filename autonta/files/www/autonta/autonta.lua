@@ -292,6 +292,17 @@ function autonta:get_referer_match_line(env, path)
   return host_match .. path
 end
 
+-- if spin uses SSL, we need to set the link to https instead of http
+function autonta:get_spinweb_protocol(env)
+  local cmd, args = mio.split_cmd("/sbin/uci get spin.spind.spinweb_tls_certificate_file")
+  local p,err = mio.subprocess(cmd, args, nil, true)
+  if p == nil then
+    return "http://"
+  end
+  local line,lerr = p:read_line(true, 20000)
+  if line == nil then return "http://" end
+  return "https://"
+end
 
 --
 -- Actual specific page handlers
@@ -307,7 +318,7 @@ function autonta:handle_autonta_main(env)
   headers['Content-Type'] = "text/html"
 
   local args = {
-      current_version = vu.get_current_version()
+      current_version = vu.get_current_version(),
   }
   local html = self:render_raw('index.html', args)
 
@@ -645,7 +656,7 @@ function autonta:handle_domain(env, domain)
 end
 
 function autonta:handle_redirect_spin(env, domain)
-  return self:redirect_to("//" .. ip4 .. ":13026/spin_graph/graph.html")
+  return self:redirect_to(self.get_spinweb_protocol() .. ip4 .. ":13026/spin_graph/graph.html")
 end
 
 function autonta:create_default_headers()
