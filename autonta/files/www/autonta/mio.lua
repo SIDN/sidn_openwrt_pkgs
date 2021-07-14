@@ -266,6 +266,16 @@ function filereader:close()
   end
 end
 
+function mio.file_exists(filename)
+  local f = mio.file_reader(filename)
+  if f then
+    f:close()
+    return true
+  else
+    return false
+  end
+end
+
 -- if drop_output is true; the stdout and the stderr
 -- of the process will be ignored; if not, they will
 -- be passed on to our own stdout and stderr

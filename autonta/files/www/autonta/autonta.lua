@@ -163,7 +163,10 @@ function autonta:update_wifi(wifi_name, wifi_pass)
   end
   f_out:close()
   f_in:close()
-  mio.subprocess("/etc/init.d/network", { 'restart' }, 3, true)
+  mio.subprocess("/etc/init.d/network", { 'restart' }, 3, true):wait()
+  -- After restarting the network, wait a bit to give
+  -- modules and DHCP a change to reconfigure
+  posix.sleep(2)
 end
 
 function autonta:update_admin_password(new_password)
@@ -187,18 +190,24 @@ function autonta:update_wifi_and_password(new_wifi_name, new_wifi_password, new_
   au.debug("Updating wifi and password settings")
   au.debug("ssid: " .. au.obj2str(new_wifi_name))
 
+  if (new_wifi_name and new_wifi_name ~= "") or
+     (new_wifi_password and new_wifi_password ~= "") then
+    au.debug("Updating wireless settings")
+    self:update_wifi(new_wifi_name, new_wifi_password)
+  end
+
   if new_admin_password and new_admin_password ~= "" then
     au.debug("Updating administrator password")
     self:update_admin_password(new_admin_password)
     mio.execute("/usr/sbin/unbound-control local_zone_remove .", true)
     mio.execute("/etc/init.d/unbound restart", true)
-    mio.execute("/etc/init.d/spin restart", true)
-  end
-
-  if (new_wifi_name and new_wifi_name ~= "") or
-     (new_wifi_password and new_wifi_password ~= "") then
-    au.debug("Updating wireless settings")
-    self:update_wifi(new_wifi_name, new_wifi_password)
+    -- if spin is enabled, restart it
+    if mio.file_exists("/etc/rc.d/S85spin") then
+        mio.execute("/etc/init.d/spin restart", true)
+    end
+    if mio.file_exists("/etc/rc.d/S86spinweb") then
+        mio.execute("/etc/init.d/spinweb restart", true)
+    end
   end
 
   au.debug("Done updating wifi and password settings")
