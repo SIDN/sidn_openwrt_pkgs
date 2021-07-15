@@ -20,7 +20,7 @@ run_spin_server() {
 
 stop_spin_server() {
     if [ -e ${SPIN_SERVER_PID} ]; then
-        kill -9 `cat ${SPIN_SERVER_PID}`
+        kill `cat ${SPIN_SERVER_PID}`
         rm ${SPIN_SERVER_PID}
     fi
 }
