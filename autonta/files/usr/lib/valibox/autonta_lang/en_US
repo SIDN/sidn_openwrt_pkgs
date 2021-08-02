@@ -67,10 +67,12 @@ INDEX_SPIN_GRAPH_DESCRIPTION: Here you can see a live overview of the data traff
 
 PASS_INTRO: Welcome to the SIDN Labs ValiBox. Before you can start using the ValiBox, please set a name for your wireless network and passwords for the network and the ValiBox administrative interface.
 WIFI_NAME: Name of the wireless network
-WIFI_PASS: Password of the wireless network (if left empty password is unchanged)
+WIFI_PASS: Password of the wireless network (if left empty password is not changed)
 WIFI_PASS_REPEAT: Confirm password for the wireless network
-PASS_ADMIN: Password for administration of the ValiBox (if left empty password is unchanged)
+PASS_ADMIN: Password for administration of the ValiBox (if left empty password is not changed)
 PASS_ADMIN_REPEAT: Confirm password for administration
+PASS_MQTT: Password for access to SPIN MQTT channels with username root (if left empty  password is not changed)
+PASS_MQTT_REPEAT: Confirm password for SPIN MQTT channels
 PASS_MISMATCH: Password confirmation did not match
 PASS_TOOSHORT: The wifi password must be at least 8 characters
 PASS_UPDATE: Save
