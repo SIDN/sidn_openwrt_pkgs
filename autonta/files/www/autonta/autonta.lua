@@ -183,7 +183,7 @@ function autonta:update_admin_password(new_password)
   --io.stderr = orig_stderr
 end
 
-function autonta:update_wifi_and_password(new_wifi_name, new_wifi_password, new_admin_password)
+function autonta:update_wifi_and_password(new_wifi_name, new_wifi_password, new_admin_password, new_mqtt_password)
   au.debug("Updating wifi and password settings")
   au.debug("ssid: " .. au.obj2str(new_wifi_name))
 
@@ -198,6 +198,12 @@ function autonta:update_wifi_and_password(new_wifi_name, new_wifi_password, new_
     self:update_admin_password(new_admin_password)
     mio.execute("/usr/sbin/unbound-control local_zone_remove .", true)
     mio.execute("/etc/init.d/unbound restart", true)
+  end
+
+  if new_mqtt_password and new_mqtt_password ~= "" then
+    au.debug("Updating MQTT password")
+    self:update_mqtt_password(new_mqtt_password)
+    mio.execute("/etc/init.d/spin restart", true)
   end
 
   au.debug("Done updating wifi and password settings")
@@ -602,11 +608,13 @@ function autonta:handle_set_passwords_post(env)
   local wifi_password_repeat = decode_www_formdata(self:get_http_post_value(env, "wifi_password_repeat"))
   local admin_password = decode_www_formdata(self:get_http_post_value(env, "admin_password"))
   local admin_password_repeat = decode_www_formdata(self:get_http_post_value(env, "admin_password_repeat"))
+  local mqtt_password = decode_www_formdata(self:get_http_post_value(env, "mqtt_password"))
+  local mqtt_password_repeat = decode_www_formdata(self:get_http_post_value(env, "mqtt_password_repeat"))
 
   local host_match = self:get_referer_match_line(env, "/autonta/set_passwords")
   local dst_cookie_val = self:get_cookie_value(env, "valibox_setpass")
   if self:check_validity(env, host_match, dst_cookie_val, dst) then
-    if wifi_password ~= wifi_password_repeat or admin_password ~= admin_password_repeat then
+    if wifi_password ~= wifi_password_repeat or admin_password ~= admin_password_repeat or mqtt_password ~= mqtt_password_repeat then
       dst = self:create_dst()
       self:set_cookie(headers, "valibox_setpass", dst)
       html = self:render('askpasswords.html', { dst = dst, old_wifi_name = wifi_name, error = language_keys.get('PASS_MISMATCH') })
@@ -618,7 +626,7 @@ function autonta:handle_set_passwords_post(env)
       return headers, html
     end
 
-    self:update_wifi_and_password(wifi_name, wifi_password, admin_password)
+    self:update_wifi_and_password(wifi_name, wifi_password, admin_password, mqtt_password)
 
     self:remove_cookie(headers, "valibox_setpass")
     html = self:render('passwordsset.html')

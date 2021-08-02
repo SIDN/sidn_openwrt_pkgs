@@ -33,6 +33,7 @@ local old_wifi_name = autonta:get_wifi_name()
 local wifi_name = prompt("Wireless network name [" .. old_wifi_name .. "]: ", true, args.quiet)
 local wifi_pass = prompt("Wireless password [keep current]: ", false, args.quiet)
 local admin_pass = prompt("Administrator password [keep current]: ", false, args.quiet)
+local mqtt_pass = prompt("MQTT password [keep current]: ", false, args.quiet)
 
 if args.wait then posix.sleep(2) end
 

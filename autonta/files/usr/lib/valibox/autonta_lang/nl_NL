@@ -70,6 +70,8 @@ WIFI_PASS: Wachtwoord voor het draadloze netwerk (bij leeg veld blijft deze onge
 WIFI_PASS_REPEAT: Bevestig wachtwoord voor het draadloze netwerk
 PASS_ADMIN: Wachtwoord voor beheer van de ValiBox (bij leeg veld blijft deze ongewijzigd)
 PASS_ADMIN_REPEAT: Bevestig wachtwoord voor beheer van de ValiBox
+PASS_ADMIN: Wachtwoord voor toegang tot SPIN MQTT channels met username root (bij leeg veld blijft deze ongewijzigd)
+PASS_ADMIN: Bevestig wachtwoord voor toegang tot SPIN MQTT channels
 PASS_MISMATCH: Wachtwoordbevestiging kwam niet overeen
 PASS_TOOSHORT: Het Wifi-wachtwoord moet uit minstens 8 tekens bestaan
 PASS_UPDATE: Sla op
