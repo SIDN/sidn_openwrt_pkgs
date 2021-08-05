@@ -177,8 +177,7 @@ function autonta:update_admin_password(new_password)
 end
 
 function autonta:update_mqtt_password(new_password)
-  local p = mio.subprocess("/usr/bin/mosquitto_passwd /etc/spin/mosq_passwd root", {}, nil, true, false, true)
-  p:read_line()
+  local p = mio.subprocess("/usr/bin/mosquitto_passwd", { '/etc/spin/mosq_passwd', 'root' }, nil, true, false, true)
   p:write_line(new_password, true)
   p:write_line(new_password, true)
   local rcode = p:wait()
