@@ -167,10 +167,6 @@ function autonta:update_wifi(wifi_name, wifi_pass)
 end
 
 function autonta:update_admin_password(new_password)
-  -- keep current streams, uhttpd will get confused otherwise
-  --local orig_stdin = io.stdin
-  --local orig_stdout = io.stdout
-  --local orig_stderr = io.stderr
   local p = mio.subprocess("/bin/passwd", {}, nil, true, false, true)
   p:read_line()
   p:write_line(new_password, true)
@@ -178,9 +174,16 @@ function autonta:update_admin_password(new_password)
   local rcode = p:wait()
   if rcode ~= 0 then au.debug("Error running passwd: return code " .. rcode) end
   p:close()
-  --io.stdin = orig_stdin
-  --io.stdout = orig_stdout
-  --io.stderr = orig_stderr
+end
+
+function autonta:update_mqtt_password(new_password)
+  local p = mio.subprocess("/usr/bin/mosquitto_passwd root", {}, nil, true, false, true)
+  p:read_line()
+  p:write_line(new_password, true)
+  p:write_line(new_password, true)
+  local rcode = p:wait()
+  if rcode ~= 0 then au.debug("Error running passwd: return code " .. rcode) end
+  p:close()
 end
 
 function autonta:update_wifi_and_password(new_wifi_name, new_wifi_password, new_admin_password, new_mqtt_password)
