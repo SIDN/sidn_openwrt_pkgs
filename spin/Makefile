@@ -50,7 +50,8 @@ define Package/spin
            +libuci\
            +libubus\
            +libblobmsg-json\
-           +libmicrohttpd
+           +libmicrohttpd-ssl\
+           +luci-compat
   MAINTAINER:=Jelte Jansen <jelte.jansen@sidn.nl>
 endef
 
