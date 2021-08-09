@@ -37,4 +37,4 @@ local mqtt_pass = prompt("MQTT password [keep current]: ", false, args.quiet)
 
 if args.wait then posix.sleep(2) end
 
-autonta:update_wifi_and_password(wifi_name, wifi_pass, admin_pass)
+autonta:update_wifi_and_password(wifi_name, wifi_pass, admin_pass, mqtt_pass)
