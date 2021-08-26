@@ -54,5 +54,11 @@ o.description = "See pubsub_host, but for websocket connections"
 o = s:option(Value, "pubsub_websocket_port", translate("Port of mqtt server (websockets)"))
 o.description = "See pubsub_port, but for websocket connections"
 
+m.on_after_commit = function(self)
+  -- Some settings may not need a full restart, but a number of them do
+  -- so for now, just always restart on 'save & apply'
+  luci.sys.init.restart("spin")
+  luci.sys.init.restart("spinweb")
+end
 
 return m
