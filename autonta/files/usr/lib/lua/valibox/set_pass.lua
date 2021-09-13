@@ -1,9 +1,9 @@
 #!/usr/bin/env lua
 
-local an = require 'autonta'
-local au = require 'autonta_util'
 local posix = require 'posix'
-local argparse = require 'argparse'
+local an = require 'valibox.autonta'
+local au = require 'valibox.autonta_util'
+local argparse = require 'valibox.argparse'
 
 local function prompt(msg, allow_space, quiet)
   local line

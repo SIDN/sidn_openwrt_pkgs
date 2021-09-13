@@ -1,9 +1,9 @@
-local liluat = require'liluat'
-local language_keys = require 'language_keys'
-local au = require 'autonta_util'
-local vu = require 'valibox_update'
-local cfg = require 'config'
-local mio = require 'mio'
+local liluat = require 'valibox.liluat'
+local language_keys = require 'valibox.language_keys'
+local au = require 'valibox.autonta_util'
+local vu = require 'valibox.valibox_update'
+local cfg = require 'valibox.config'
+local mio = require 'valibox.mio'
 local posix = require 'posix'
 
 local an_M = {}
@@ -47,8 +47,6 @@ function autonta:init(config_file, fixed_langkey_file)
     table.insert(self.mapping, { pattern = '^/autonta/set_nta/([a-zA-Z0-9.-]+)', handler = self.handle_set_nta })
     table.insert(self.mapping, { pattern = '^/autonta/remove_nta/([a-zA-Z0-9.-]+)$', handler = self.handle_remove_nta })
     table.insert(self.mapping, { pattern = '^/autonta/ask_nta/([a-zA-Z0-9.-]+)$', handler = self.handle_ask_nta })
-    table.insert(self.mapping, { pattern = '^/autonta/update_check$', handler = self.handle_update_check })
-    table.insert(self.mapping, { pattern = '^/autonta/update_install/?(.*)$', handler = self.handle_update_install })
     table.insert(self.mapping, { pattern = '^/autonta/set_passwords', handler = self.handle_set_passwords })
 
     -- redirect to SPIN
@@ -417,117 +415,6 @@ function autonta:handle_remove_nta(env, args)
   -- is it bad if a user is tricked into *removing* an NTA?
   self:remove_nta(domain)
   return self:redirect_to("/autonta/nta_list")
-end
-
-function autonta:handle_update_check(env)
-  if self.config:updated() then self:init() end
-  if self:is_first_run() then
-    return self:redirect_to("//" .. ip4 .. "/autonta/set_passwords")
-  end
-
-  local headers = self:create_default_headers()
-  local current_version = vu.get_current_version()
-  local currently_beta = false
-  if current_version:find("beta") then
-    currently_beta = true
-  end
-
-  local board_name = vu.get_board_name()
-
-  -- fetch info for both the current line and the 'other' line,
-  -- depending on whether this is a beta or release version
-  local firmware_info = vu.get_firmware_board_info(currently_beta, "", true, board_name)
-  au.debug("[XX] THIS VERSION INFO:")
-  au.debug(au.obj2str(firmware_info))
-  au.debug("[XX] OTHER VERSION INFO:")
-  local other_firmware_info = vu.get_firmware_board_info(not currently_beta, "", true, board_name)
-  au.debug(au.obj2str(other_firmware_info))
-  au.debug("[XX] end of PSA")
-
-  -- create a double-submit token
-  local dst = self:create_dst()
-  self:set_cookie(headers, "valibox_update", dst)
-
-  local targs = {}
-  targs.dst = dst
-  targs.update_check_failed = false
-  targs.update_available = false
-  targs.current_version = current_version
-  targs.currently_beta = currently_beta
-  targs.other_version = ""
-  targs.update_version = ""
-  targs.update_info = ""
-
-  if not firmware_info or not other_firmware_info then
-    targs.update_check_failed = true
-  else
-
-    local update_version = vu.update_available(firmware_info)
-    if vu.update_available(firmware_info) then
-      targs.update_available = true
-      targs.update_version = update_version
-      targs.update_info = vu.fetch_update_info_txt(firmware_info, "")
-    else
-      -- include changelog for current release
-      local fr = mio.file_reader("/valibox_changelog.txt")
-      if fr ~= nil then
-        targs.update_info = fr:read_lines_single_str()
-      else
-        targs.update_info = ""
-      end
-      fr:close()
-    end
-    targs.other_version = vu.update_available(other_firmware_info)
-  end
-  au.debug("[XX] passing arguments: ")
-  au.debug(au.obj2str(targs))
-  return headers, self:render('update_check.html', targs)
-end
-
-function autonta:handle_update_install_post(env)
-  local headers = self:create_default_headers()
-  local dst = self:get_http_post_value(env, "dst")
-  local keep_settings = self:get_http_post_value(env, "keepsettings") == "on"
-  local beta = self:get_http_post_value(env, "version") == "beta"
-
-  local host_match = self:get_referer_match_line(env, "/autonta/update_check")
-  local dst_cookie_val = self:get_cookie_value(env, "valibox_update")
-  local q_dst_val = self:get_http_post_value(env, "dst")
-  if self:check_validity(env, host_match, dst_cookie_val, q_dst_val) then
-    -- actual update call goes here
-    local cmd = "./update_system.lua"
-    local args = {}
-    table.insert(args, "-i")
-    table.insert(args, "-w")
-    if beta then table.insert(args, "-b") end
-    if keep_settings then table.insert(args, "-k") end
-
-    mio.subprocess(cmd, args, 3)
-
-    local board_name = vu.get_board_name()
-    local firmware_info = vu.get_firmware_board_info(beta, "", true, board_name)
-    --#local html = self:render('update_install.html', { update_version=firmware_info.version, update_download_success=true})
-    self:remove_cookie(headers, "valibox_update")
-    return self:redirect_to("/autonta/update_install/" .. firmware_info.version)
-    --#return headers, html
-  end
-  -- Invalid request or failure, send back to update page
-  return self:redirect_to("/autonta/update_check")
-end
-
-function autonta:handle_update_install_get(env, args)
-  local version = args[1]
-  local headers = self:create_default_headers()
-  local html = self:render('update_install.html', { update_version=version, update_download_success=true})
-  return headers, html
-end
-
-function autonta:handle_update_install(env, version)
-  if env.REQUEST_METHOD == "POST" then
-    return self:handle_update_install_post(env)
-  else
-    return self:handle_update_install_get(env, version)
-  end
 end
 
 function autonta:create_dst()

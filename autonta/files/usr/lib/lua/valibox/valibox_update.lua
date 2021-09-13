@@ -97,6 +97,8 @@ function vu.download_image(board_firmware_info, fetch_options)
         au.debug("SHA256 mismatch, file sum: '" .. file_sha256_sum .. "' expected: '" .. board_firmware_info.sha256sum .. "', aborting update")
         return nil, "SHA256 mismatch, file sum: '" .. file_sha256_sum .. "' expected: '" .. board_firmware_info.sha256sum .. "', aborting update"
       end
+    else
+      return nil, "Fetch failed"
     end
   else
     return nil, "download image called with nil firmware info object"
@@ -130,10 +132,17 @@ function vu.fetch_file(url, output_file, return_data, fetch_options)
   if fetch_options then cmd = cmd .. " " .. fetch_options end
   au.debug("Command: " .. cmd)
   local rcode = os.execute(cmd)
-  if rcode and return_data then
-    local of = io.open(output_file)
-    if of then return of:lines(), rcode else return nil, "Failed to download firmware info file" end
+  if rcode == 0 then
+    if return_data then
+      au.debug("Success. Command return value: " .. rcode)
+      local of = io.open(output_file)
+      if of then return of:lines(), rcode else return nil, "Failed to download firmware info file" end
+    else
+      au.debug("Success but return data not requested")
+      return 0, nil
+    end
   else
+    au.debug("Error. Command return value: " .. rcode)
     return nil, rcode
   end
 end
@@ -192,12 +201,12 @@ end
 -- reinstall the same version with this, if necessary
 -- keep_settings: if true, keep the current settings
 function vu.install_update(board_firmware_info, keep_settings, fetch_options)
-  local image_file = vu.download_image(board_firmware_info, fetch_options)
+  local image_file, error = vu.download_image(board_firmware_info, fetch_options)
   if image_file then
     au.debug("Checks passed, installing update")
     return vu.install_image(image_file, keep_settings)
   else
-    au.debug("Checks failed. Update aborted.")
+    au.debug("Checks failed. Update aborted. Error: " .. error)
     return nil
   end
 end

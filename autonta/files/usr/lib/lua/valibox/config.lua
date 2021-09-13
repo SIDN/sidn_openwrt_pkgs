@@ -1,7 +1,7 @@
 
 local _m = {}
 
-local mio = require 'mio'
+local mio = require 'valibox.mio'
 
 -- Config file wrapper
 --

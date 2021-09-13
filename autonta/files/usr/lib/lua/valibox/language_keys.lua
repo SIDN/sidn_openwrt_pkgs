@@ -1,4 +1,4 @@
-local au = require 'autonta_util'
+local au = require 'valibox.autonta_util'
 
 local lk = {}
 lk.keys = {}
