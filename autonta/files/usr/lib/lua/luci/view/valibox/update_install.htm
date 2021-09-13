@@ -1,0 +1,66 @@
+<%
+
+local mio = require 'valibox.mio'
+
+local update_download_success = false
+
+local dst_cookie = luci.http.getcookie("valibox_nta")
+
+local keep_settings = luci.http.formvalue("keepsettings") == "on"
+local beta = luci.http.formvalue("version") == "beta"
+local dst_form = luci.http.formvalue("dst")
+
+local xsrf_passed = false
+if (dst_form == dst_cookie) then
+    xsrf_passed = true
+
+    local cmd = "/usr/lib/lua/valibox/update_system.lua"
+    local args = {}
+    table.insert(args, "-i")
+    table.insert(args, "-w")
+    if beta then table.insert(args, "-b") end
+    if keep_settings then table.insert(args, "-k") end
+
+    local result = mio.subprocess(cmd, args, 3)
+
+    update_download_success = true
+end
+
+%>
+
+<%+header%>
+RESULT: <%= result %>
+
+    <% if xsrf_passed then %>
+
+    <h1><%:Installing firmware%></h1>
+
+        <div>
+        <div class="inlay lined">
+
+    <% if update_download_success then %>
+            <p>
+                <%: Installing Valibox firmware %>
+            </p>
+            <p>
+                <%: Do not turn off the ValiBox, and wait for 5 to 10 minutes until the update has been installed and the ValiBox has restarted. %>
+            </p>
+            <p>
+                <%: You can close this screen %>
+            </p>
+    <% else %>
+            <p>
+                <%: UPDATE_ERROR %> <%= update_version %>
+            </p>
+            <p>
+                <a href="/autonta/update_install"><%= UPDATE_TRY_AGAIN %>
+            </p>
+        </div>
+        </div>
+    <% end %>
+
+<% else %>
+  <%: XSRF cookie mismatch %>
+<% end %>
+
+<%+footer%>

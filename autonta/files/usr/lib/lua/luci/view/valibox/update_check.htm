@@ -1,3 +1,146 @@
+<%
+
+local au = require 'valibox.autonta_util'
+local vu = require 'valibox.valibox_update'
+local mio = require 'valibox.mio'
+
+local current_version = vu.get_current_version()
+local currently_beta = false
+if current_version:find("beta") then
+    currently_beta = true
+end
+
+local board_name = vu.get_board_name()
+local firmware_info = vu.get_firmware_board_info(currently_beta, "", true, board_name)
+local other_firmware_info = vu.get_firmware_board_info(not currently_beta, "", true, board_name)
+
+local update_check_failed = false
+local update_available = false
+local other_version = ""
+local update_version = ""
+local update_info = ""
+
+if not firmware_info or not other_firmware_info then
+  update_check_failed = true
+else
+  if vu.update_available(firmware_info) and current_version ~= update_version then
+    update_available = true
+    update_version = update_version
+    update_info = vu.fetch_update_info_txt(firmware_info, "")
+  else
+    -- include changelog for current release
+    local fr = mio.file_reader("/valibox_changelog.txt")
+    if fr ~= nil then
+      update_info = fr:read_lines_single_str()
+    else
+      update_info = ""
+    end
+    fr:close()
+  end
+end
+
+-- CSRF protection; set a random string in the cookie and the form
+-- values must match for anything to be done after post
+local dst = au.randomstring(12)
+luci.http.header("Set-Cookie", "valibox_nta=" .. dst .."; SameSite=strict; Max-Age=3600")
+%>
+
 <%+header%>
-<h1><%:CHECK FOR UPDATES%></h1>
+<h1><%:Check for updates%></h1>
+
+<div>
+<b><%: SIDN Labs %> <%: Valibox %> <%: Update %></b>
+</div>
+
+<% if update_check_failed then %>
+		<div class="inlay lined">
+			<p>
+				<%: Update check failed %>
+			</p>
+			<p>
+				<%: Current version %>: {%= current_version %>
+			</p>
+			<p>
+				<a href=".">Try again</a>
+			</p>
+		</div>
+<% else %>
+    <% if update_available then %>
+        <div class="inlay lined">
+            <p>
+                <%: Update available %>: <%= update_version %> <%: Current version %>: <%= current_version %>
+            </p>
+
+            <form method="POST" action="update_install">
+            <input type="hidden" name="dst" value="<%= dst %>" />
+            <input type="checkbox" name="keepsettings" checked="checked"><%: Keep settings %></input>
+            <% if currently_beta then %>
+                <p>
+                    <input type="radio" name="version" value="beta" checked="checked"><%: Update to lates beta %></input>
+                </p>
+                <p>
+                    <input type="radio" name="version" value="release"><%: Install latest release %> <%= other_version %></option>
+                </p>
+            <% else %>
+                <p>
+                    <input type="radio" name="version" value="release" checked="checked"><%: Update to latest release %></input>
+                </p>
+                <p>
+                    <input type="radio" name="version" value="beta"><%: Install latest beta %> <%= other_version %></option>
+                </p>
+            <% end %>
+            <p>
+                <input type="submit" value="<%: Download and install %>" />
+            </p>
+            </form>
+        </div>
+        <div class="inlay lined">
+            <pre>
+                <%= update_info %>
+            </pre>
+        </div>
+    <% else %>
+        <div class="inlay lined">
+            <p>
+                <%: No updates available. Current version: %> <%= current_version %>
+            </p>
+            <p>
+                <a href=".">Try again</a>
+            </p>
+            <p>
+                <b><%: Download and reinstall firmware %></b>
+            </p>
+            <form method="POST" action="update_install">
+            <input type="hidden" name="dst" value="<%= dst %>" />
+            <input type="checkbox" name="keepsettings" checked="checked"><%: Keep settings %></input>
+            <% if currently_beta then %>
+                <p>
+                    <input type="radio" name="version" value="beta" checked="checked"><%: Reinstall current version %></input>
+                </p>
+                <p>
+                    <input type="radio" name="version" value="release"><%: Install latest release %> <%= other_version %></option>
+                </p>
+            <% else %>
+                <p>
+                    <input type="radio" name="version" value="release" checked="checked"><%: Reinstall current version %></input>
+                </p>
+                <p>
+                    <input type="radio" name="version" value="beta"><%: Install latest beta %> <%= other_version %></option>
+                </p>
+            <% end %>
+            <p>
+                <input type="submit" value="<%: Download and install %>" />
+            </p>
+            </form>
+        </div>
+        <div class="inlay lined">
+            <pre>
+                <%= update_info %>
+            </pre>
+        </div>
+    <% end %>
+<% end %>
+    </div>
+
+
 <%+footer%>

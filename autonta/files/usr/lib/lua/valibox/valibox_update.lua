@@ -5,8 +5,8 @@
 -- or from the command line (update_cli.lua)
 --
 
-local au = require 'autonta_util'
-local mio = require 'mio'
+local au = require 'valibox.autonta_util'
+local mio = require 'valibox.mio'
 
 local vu = {}
 
