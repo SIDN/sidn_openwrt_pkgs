@@ -23,14 +23,15 @@ if (dst_form == dst_cookie) then
 
     local result = mio.subprocess(cmd, args, 3)
 
-    update_download_success = true
+    if (result == 0) then
+      update_download_success = true
+      luci.http.header("Location", "update_done")
+    end
 end
 
 %>
 
 <%+header%>
-RESULT: <%= result %>
-
     <% if xsrf_passed then %>
 
     <h1><%:Installing firmware%></h1>
@@ -39,28 +40,21 @@ RESULT: <%= result %>
         <div class="inlay lined">
 
     <% if update_download_success then %>
-            <p>
-                <%: Installing Valibox firmware %>
-            </p>
-            <p>
-                <%: Do not turn off the ValiBox, and wait for 5 to 10 minutes until the update has been installed and the ValiBox has restarted. %>
-            </p>
-            <p>
-                <%: You can close this screen %>
-            </p>
+            <!-- in case automatic redirect does not work -->
+            <p> <%: Installing valibox version: %> <%= update_version %>
     <% else %>
             <p>
-                <%: UPDATE_ERROR %> <%= update_version %>
+                <%: Error installing Valibox version: %> <%= update_version %>
             </p>
             <p>
-                <a href="/autonta/update_install"><%= UPDATE_TRY_AGAIN %>
+                <a href="update_check"><%= Click this link to go back and try again %>
             </p>
-        </div>
-        </div>
     <% end %>
+        </div>
+        </div>
 
 <% else %>
-  <%: XSRF cookie mismatch %>
+  <%: XSRF cookie mismatch, aborting update %>
 <% end %>
 
 <%+footer%>
