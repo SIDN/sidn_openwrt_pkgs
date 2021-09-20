@@ -17,15 +17,14 @@ local other_firmware_info = vu.get_firmware_board_info(not currently_beta, "", t
 local update_check_failed = false
 local update_available = false
 local other_version = ""
-local update_version = ""
+local update_version = vu.update_available(firmware_info)
 local update_info = ""
 
 if not firmware_info or not other_firmware_info then
   update_check_failed = true
 else
-  if vu.update_available(firmware_info) and current_version ~= update_version then
+  if update_version and current_version ~= update_version then
     update_available = true
-    update_version = update_version
     update_info = vu.fetch_update_info_txt(firmware_info, "")
   else
     -- include changelog for current release
@@ -76,7 +75,7 @@ luci.http.header("Set-Cookie", "valibox_nta=" .. dst .."; SameSite=strict; Max-A
             <input type="checkbox" name="keepsettings" checked="checked"><%: Keep settings %></input>
             <% if currently_beta then %>
                 <p>
-                    <input type="radio" name="version" value="beta" checked="checked"><%: Update to lates beta %></input>
+                    <input type="radio" name="version" value="beta" checked="checked"><%: Update to latest beta %></input>
                 </p>
                 <p>
                     <input type="radio" name="version" value="release"><%: Install latest release %> <%= other_version %></option>
