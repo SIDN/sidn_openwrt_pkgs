@@ -42,7 +42,7 @@
             </div>
             <div>
                 <p>
-                    <a href="/cgi-bin/luci">Configureer de ValiBox</a>
+                    <a href="/cgi-bin/luci/">Configureer de ValiBox</a>
                 </p>
                 <div class="inlay lined">
                     <p>
@@ -55,7 +55,7 @@
             </div>
             <div>
                 <p>
-                    <a href="/autonta/update_check">Firmware update</a>
+                    <a href="/cgi-bin/luci/admin/valibox/upodate_check">Firmware update</a>
                 </p>
                 <div class="inlay">
                     <p>
