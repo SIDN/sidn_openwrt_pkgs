@@ -23,7 +23,7 @@ if (dst_form == dst_cookie) then
 
     local result = mio.subprocess(cmd, args, 3)
 
-    if (result == 0) then
+    if result.rcode == nil or result.rcode == 0 then
       update_download_success = true
       luci.http.header("Location", "update_done")
     end
@@ -41,13 +41,15 @@ end
 
     <% if update_download_success then %>
             <!-- in case automatic redirect does not work -->
-            <p> <%: Installing valibox version: %> <%= update_version %>
+            <p> <%: Installing valibox firmware %> </p>
+            <p> <%: Do not turn off the ValiBox, and wait for 5 to 10 minutes until the update has been installed and the ValiBox has restarted. %> </p>
+
     <% else %>
             <p>
-                <%: Error installing Valibox version: %> <%= update_version %>
+                <%: Error installing Valibox firmware. %>
             </p>
             <p>
-                <a href="update_check"><%= Click this link to go back and try again %>
+                <a href="update_check"><%: Click this link to go back and try again %>
             </p>
     <% end %>
         </div>
