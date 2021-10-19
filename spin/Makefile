@@ -14,7 +14,7 @@ PKG_NAME:=spin
 #PKG_FIXUP:=autoreconf
 
 # Settings for latest release build, use (updated version) of this
-PKG_VERSION:=1.0,0
+PKG_VERSION:=1.0.0
 PKG_RELEASE:=1
 # when creating release tags, and remove the git settings
 PKG_SOURCE:=spin-$(PKG_VERSION).tar.gz
