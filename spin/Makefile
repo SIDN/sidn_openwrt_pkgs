@@ -5,21 +5,21 @@ PKG_NAME:=spin
 # Settings for latest master (dev) build
 # This will create a snapshot package with the current date and the latest
 # commit hash
-PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=https://github.com/sidn/spin
-LATEST_COMMIT:=$(shell git ls-remote ${PKG_SOURCE_URL} master | head -c 8)
-BUILD_DATE:=$(shell date +%Y-%m-%d)
-PKG_SOURCE_VERSION:=$(LATEST_COMMIT)
-PKG_SOURCE_DATE:=$(BUILD_DATE)
-PKG_FIXUP:=autoreconf
+#PKG_SOURCE_PROTO:=git
+#PKG_SOURCE_URL:=https://github.com/sidn/spin
+#LATEST_COMMIT:=$(shell git ls-remote ${PKG_SOURCE_URL} master | head -c 8)
+#BUILD_DATE:=$(shell date +%Y-%m-%d)
+#PKG_SOURCE_VERSION:=$(LATEST_COMMIT)
+#PKG_SOURCE_DATE:=$(BUILD_DATE)
+#PKG_FIXUP:=autoreconf
 
 # Settings for latest release build, use (updated version) of this
-#PKG_VERSION:=0.12
-#PKG_RELEASE:=1
+PKG_VERSION:=1.0,0
+PKG_RELEASE:=1
 # when creating release tags, and remove the git settings
-#PKG_SOURCE:=spin-$(PKG_VERSION).tar.gz
-#PKG_SOURCE_URL:=https://valibox.sidnlabs.nl/downloads/src/spin/
-#PKG_HASH:=7e84c37e15fa002e0130c458449ad01088b2c8b3f64fedd5d71f80e22dca6bfc
+PKG_SOURCE:=spin-$(PKG_VERSION).tar.gz
+PKG_SOURCE_URL:=https://valibox.sidnlabs.nl/downloads/src/spin/
+PKG_HASH:=893867b7c9588bac41c124f8f25ef5c8313c6116cc13503ec5142f85117ff0b2
 
 include $(INCLUDE_DIR)/package.mk
 
