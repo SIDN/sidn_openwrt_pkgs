@@ -9,15 +9,16 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=lua-websockets
 PKG_VERSION:=2.2
-PKG_RELEASE:=1
-PKG_MAINTAINER:=Jelte Jansen <jelte.jansen@sidn.nl>
-PKG_LICENSE:=MIT
+PKG_RELEASE:=2
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/lipp/lua-websockets
-PKG_SOURCE_VERSION:=v2.2
-PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
+PKG_SOURCE_VERSION:=v$(PKG_VERSION)
+PKG_MIRROR_HASH:=cc84de4203f1b54046ecbabf76f2c588ff8f62abefed7da22a34fae12057b28e
+
+PKG_MAINTAINER:=Jelte Jansen <jelte.jansen@sidn.nl>
+PKG_LICENSE:=MIT
+PKG_LICENSE_FILES:=COPYRIGHT
 
 PKG_INSTALL:=1
 
