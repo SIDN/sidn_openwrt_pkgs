@@ -41,6 +41,7 @@ define Package/sidn-unbound
   CATEGORY:=SIDN
   TITLE:=Unbound DNS resolver with Valibox-specific patches
   DEPENDS+= +sidn-libunbound
+  CONFLICTS:=unbound
 endef
 
 define Package/sidn-unbound/description
@@ -54,6 +55,7 @@ define Package/sidn-unbound-anchor
   CATEGORY:=SIDN
   TITLE:=DNSSEC key anchor utility
   DEPENDS+= +libexpat +sidn-unbound
+  CONFLICTS:=unbound-anchor
 endef
 
 define Package/sidn-unbound-anchor/description
@@ -80,6 +82,7 @@ define Package/sidn-unbound-control-setup
   CATEGORY:=SIDN
   TITLE:=Unbound-control setup utility
   DEPENDS+= +sidn-unbound-control +openssl-util
+  CONFLICTS:=unbound-control-setup
 endef
 
 define Package/sidn-unbound-control-setup/description
@@ -93,6 +96,7 @@ define Package/sidn-unbound-host
   CATEGORY:=SIDN
   TITLE:=Unbound-host DNS lookup utility
   DEPENDS+= +sidn-libunbound
+  CONFLICTS:=unbound-host
 endef
 
 define Package/sidn-unbound-host/description
